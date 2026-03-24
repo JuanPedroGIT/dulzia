@@ -1,0 +1,73 @@
+// === COLORS ===
+$color-teal:         #22a6a4;
+$color-teal-dark:    #157372;
+$color-teal-light:   #e4f0ed;
+$color-navy:         #2c344c;
+$color-navy-light:   #3d4f70;
+$color-white:        #ffffff;
+$color-bg:           #f8fffe;
+$color-bg-alt:       #e4f0ed;
+$color-text:         #1a2332;
+$color-text-muted:   #5a6e7f;
+$color-border:       #c8dbd6;
+$color-error:        #d63031;
+$color-success:      #00b894;
+
+// === FONTS ===
+$font-heading: 'Playfair Display', Georgia, serif;
+$font-body:    'Inter', system-ui, -apple-system, sans-serif;
+
+// === FONT SIZES ===
+$text-xs:   0.75rem;
+$text-sm:   0.875rem;
+$text-base: 1rem;
+$text-lg:   1.125rem;
+$text-xl:   1.25rem;
+$text-2xl:  1.5rem;
+$text-3xl:  1.875rem;
+$text-4xl:  2.25rem;
+$text-5xl:  3rem;
+$text-6xl:  3.75rem;
+
+// === SPACING ===
+$space-1:  0.25rem;
+$space-2:  0.5rem;
+$space-3:  0.75rem;
+$space-4:  1rem;
+$space-5:  1.25rem;
+$space-6:  1.5rem;
+$space-8:  2rem;
+$space-10: 2.5rem;
+$space-12: 3rem;
+$space-16: 4rem;
+$space-20: 5rem;
+$space-24: 6rem;
+
+// === BORDER RADIUS ===
+$radius-sm:   4px;
+$radius-md:   8px;
+$radius-lg:   16px;
+$radius-xl:   24px;
+$radius-2xl:  32px;
+$radius-full: 9999px;
+
+// === SHADOWS ===
+$shadow-sm: 0 1px 4px rgba(44, 52, 76, 0.08);
+$shadow-md: 0 4px 16px rgba(44, 52, 76, 0.10);
+$shadow-lg: 0 8px 32px rgba(44, 52, 76, 0.14);
+$shadow-xl: 0 20px 60px rgba(44, 52, 76, 0.18);
+
+// === TRANSITIONS ===
+$transition-fast: 150ms ease;
+$transition-base: 250ms ease;
+$transition-slow: 400ms cubic-bezier(0.4, 0, 0.2, 1);
+
+// === LAYOUT ===
+$max-width: 1200px;
+$nav-height: 72px;
+
+// === BREAKPOINTS ===
+$bp-sm: 576px;
+$bp-md: 768px;
+$bp-lg: 1024px;
+$bp-xl: 1280px;

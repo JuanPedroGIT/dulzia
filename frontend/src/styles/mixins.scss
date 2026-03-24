@@ -1,0 +1,64 @@
+@import 'variables';
+
+@mixin respond-to($bp) {
+  @if $bp == sm { @media (min-width: $bp-sm) { @content; } }
+  @else if $bp == md { @media (min-width: $bp-md) { @content; } }
+  @else if $bp == lg { @media (min-width: $bp-lg) { @content; } }
+  @else if $bp == xl { @media (min-width: $bp-xl) { @content; } }
+}
+
+@mixin container {
+  width: 100%;
+  max-width: $max-width;
+  margin-inline: auto;
+  padding-inline: $space-4;
+
+  @include respond-to(md) { padding-inline: $space-8; }
+  @include respond-to(lg) { padding-inline: $space-12; }
+}
+
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+@mixin section-padding {
+  padding-block: $space-16;
+
+  @include respond-to(lg) { padding-block: $space-24; }
+}
+
+@mixin card {
+  background: $color-white;
+  border-radius: $radius-xl;
+  box-shadow: $shadow-md;
+  overflow: hidden;
+  transition: transform $transition-base, box-shadow $transition-base;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: $shadow-lg;
+  }
+}
+
+@mixin gradient-teal {
+  background: linear-gradient(135deg, $color-teal-dark 0%, $color-teal 100%);
+}
+
+@mixin gradient-navy {
+  background: linear-gradient(135deg, $color-navy 0%, $color-navy-light 100%);
+}
+
+@mixin text-gradient {
+  background: linear-gradient(135deg, $color-teal-dark, $color-teal);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}

@@ -1,0 +1,20 @@
+parameters:
+
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    App\:
+        resource: '../src/'
+        exclude:
+            - '../src/DependencyInjection/'
+            - '../src/Entity/'
+            - '../src/Kernel.php'
+
+    App\Infrastructure\Email\MailerInterface: '@App\Infrastructure\Email\BrevoMailer'
+    App\Domain\Contact\ContactRepositoryInterface: '@App\Infrastructure\Repository\DoctrineContactRepository'
+
+    App\Infrastructure\Email\BrevoMailer:
+        arguments:
+            $apiKey: '%env(EMAIL_API_KEY)%'

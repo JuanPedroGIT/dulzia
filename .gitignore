@@ -1,0 +1,62 @@
+# ===========================
+# SECRETS — nunca al repo
+# ===========================
+.env
+*.local
+
+# ===========================
+# BACKEND — Symfony
+# ===========================
+
+# Dependencias
+backend/vendor/
+
+# Caché y logs de Symfony (generados en runtime)
+backend/var/
+
+# Archivos .env con secretos reales generados por Symfony Flex
+backend/.env.dev
+backend/.env.prod
+
+# Docker Compose generados por Symfony Flex (usamos el del root)
+backend/compose.yaml
+backend/compose.override.yaml
+
+# Archivos de config auto-generados en runtime
+backend/config/preload.php
+backend/config/reference.php
+
+# PHPUnit
+backend/.phpunit.cache/
+backend/phpunit.xml
+
+# Secrets de producción de Symfony
+backend/config/secrets/prod/prod.decrypt.private.php
+
+# ===========================
+# FRONTEND — Node / Vite
+# ===========================
+
+# Dependencias
+frontend/node_modules/
+
+# Build de producción
+frontend/dist/
+
+# ===========================
+# OS
+# ===========================
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ===========================
+# IDEs
+# ===========================
+.idea/
+.vscode/
+*.swp
+*.swo
+*.suo
+.project
+.classpath
