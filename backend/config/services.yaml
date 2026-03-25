@@ -14,7 +14,15 @@ services:
 
     App\Infrastructure\Email\MailerInterface: '@App\Infrastructure\Email\BrevoMailer'
     App\Domain\Contact\ContactRepositoryInterface: '@App\Infrastructure\Repository\DoctrineContactRepository'
+    App\Domain\Service\ServiceRepositoryInterface: '@App\Infrastructure\Repository\DoctrineServiceRepository'
+    App\Domain\Service\ServiceExampleRepositoryInterface: '@App\Infrastructure\Repository\DoctrineServiceExampleRepository'
+    App\Infrastructure\Storage\FileStorageInterface: '@App\Infrastructure\Storage\LocalFileStorage'
 
     App\Infrastructure\Email\BrevoMailer:
         arguments:
             $apiKey: '%env(EMAIL_API_KEY)%'
+
+    App\Infrastructure\Storage\LocalFileStorage:
+        arguments:
+            $uploadDir: '%kernel.project_dir%/public/uploads/services'
+            $baseUrl: '%env(APP_URL)%'

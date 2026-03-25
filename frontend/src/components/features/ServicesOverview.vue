@@ -29,13 +29,16 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import ServiceCard from '@/components/features/ServiceCard.vue'
-import { services } from '@/data/services.js'
+import { useServices } from '@/composables/useServices.js'
 
-const featured = computed(() => services.slice(0, 6))
-const total = services.length
+const { services, fetchAll } = useServices()
+onMounted(fetchAll)
+
+const featured = computed(() => services.value.slice(0, 6))
+const total = computed(() => services.value.length)
 </script>
 
 <style lang="scss" scoped>

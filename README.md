@@ -252,3 +252,8 @@ https://www.dulziasalamancaeventos.com/sitemap.xml
 - Teléfono: +34 629 991 659
 - Dirección: C. Martín Alonso Pedraz, 14 · Salamanca
 - Horario: Lunes a viernes, 7:00–18:00
+
+## Admin, para crear un admin
+docker-compose exec -it backend php bin/console app:admin:init
+Usuario: [EMAIL_ADDRESS]
+Contraseña: [PASSWORD]

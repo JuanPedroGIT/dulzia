@@ -1,5 +1,5 @@
 <template>
-  <article class="card" :style="{ '--delay': delay }">
+  <router-link :to="`/servicios/${service.id}`" class="card" :style="{ '--delay': delay }">
     <div class="card__emoji">{{ service.emoji }}</div>
     <div class="card__body">
       <span class="card__category">{{ categoryLabel }}</span>
@@ -12,16 +12,16 @@
         </li>
       </ul>
     </div>
-    <div v-if="showCta" class="card__footer">
-      <BaseButton to="/contacto" variant="outline" size="sm">Consultar</BaseButton>
+    <div class="card__footer">
+      <span class="card__link">Ver ejemplos →</span>
     </div>
-  </article>
+  </router-link>
 </template>
 
 <script setup>
 import { computed } from 'vue'
-import BaseButton from '@/components/ui/BaseButton.vue'
-import { categories } from '@/data/services.js'
+
+const categories = { food: 'Gastronomía', decoration: 'Decoración', experience: 'Experiencias' }
 
 const props = defineProps({
   service:      { type: Object, required: true },
@@ -103,6 +103,13 @@ const categoryLabel = computed(() => categories[props.service.category] ?? '')
   &__footer {
     padding: $space-4 $space-6 $space-5;
     border-top: 1px solid $color-border;
+  }
+
+  &__link {
+    font-size: $text-sm;
+    font-weight: 700;
+    color: $color-teal;
+    transition: gap $transition-fast;
   }
 }
 </style>

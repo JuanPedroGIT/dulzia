@@ -9,6 +9,8 @@ services:
       - pgdata:/var/lib/postgresql/data
     networks:
       - app-network
+    ports:
+      - "5432:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U dulzia"]
       interval: 5s
@@ -21,7 +23,9 @@ services:
       target: dev
     environment:
       APP_ENV: dev
+      APP_DEBUG: 1
       APP_SECRET: ${APP_SECRET}
+      APP_URL: ${APP_URL:-http://localhost:8000}
       DATABASE_URL: postgresql://dulzia:${POSTGRES_PASSWORD}@postgres:5432/dulzia?serverVersion=16&charset=utf8
       EMAIL_API_KEY: ${BREVO_API_KEY}
       CORS_ALLOW_ORIGIN: ${CORS_ALLOW_ORIGIN}
@@ -35,6 +39,7 @@ services:
     volumes:
       - ./backend:/var/www/html
       - /var/www/html/vendor
+      - uploads_data:/var/www/html/public/uploads
 
   frontend:
     build:
@@ -58,3 +63,4 @@ networks:
 
 volumes:
   pgdata:
+  uploads_data:

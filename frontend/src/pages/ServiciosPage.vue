@@ -27,7 +27,9 @@
         </div>
 
         <!-- Services grid -->
-        <div class="services-grid">
+        <div v-if="loading" class="services-loading">Cargando servicios…</div>
+        <div v-else-if="error" class="services-error">Error al cargar los servicios.</div>
+        <div v-else class="services-grid">
           <ServiceCard
             v-for="(service, i) in filtered"
             :key="service.id"
@@ -45,17 +47,20 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import ServiceCard from '@/components/features/ServiceCard.vue'
 import CtaBanner from '@/components/features/CtaBanner.vue'
-import { services } from '@/data/services.js'
-
+import { useServices } from '@/composables/useServices.js'
 import { useSeo } from '@/composables/useSeo.js'
+
 useSeo({
   title: 'Servicios para eventos en Salamanca',
   description: 'Carrito hot dog, candy bar, fuente de chocolate, photocall, glitter bar, algodón de azúcar, palomitero, picnic & tipis y más. Servicios para bodas, cumpleaños y eventos en Salamanca.',
   path: '/servicios',
 })
+
+const { services, loading, error, fetchAll } = useServices()
+onMounted(fetchAll)
 
 const activeTab = ref('all')
 
@@ -68,8 +73,8 @@ const tabs = [
 
 const filtered = computed(() =>
   activeTab.value === 'all'
-    ? services
-    : services.filter(s => s.category === activeTab.value)
+    ? services.value
+    : services.value.filter(s => s.category === activeTab.value)
 )
 </script>
 
@@ -139,5 +144,13 @@ const filtered = computed(() =>
 
   @include respond-to(md) { grid-template-columns: repeat(2, 1fr); }
   @include respond-to(lg) { grid-template-columns: repeat(3, 1fr); }
+}
+
+.services-loading,
+.services-error {
+  text-align: center;
+  padding: $space-12;
+  font-size: $text-lg;
+  color: $color-text-muted;
 }
 </style>
