@@ -13,6 +13,7 @@
         "symfony/dotenv": "^7.0",
         "symfony/flex": "^2",
         "symfony/framework-bundle": "^7.0",
+        "symfony/mime": "7.*",
         "symfony/runtime": "^7.0",
         "symfony/serializer": "^7.0",
         "symfony/validator": "^7.0",

@@ -26,13 +26,17 @@ export default defineConfig({
   css: {
     preprocessorOptions: {
       scss: {
-        additionalData: `@import "@/styles/mixins";`,
+        additionalData: `@use "sass:color"; @use "@/styles/mixins" as *;`,
       },
     },
   },
   server: {
     host: '0.0.0.0',
     port: 5173,
+    watch: {
+      usePolling: true,   // Required for Windows + Docker file watching
+      interval: 300,
+    },
     proxy: {
       '/api': {
         target: 'http://backend:8000',

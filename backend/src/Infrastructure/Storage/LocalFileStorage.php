@@ -15,8 +15,13 @@ final class LocalFileStorage implements FileStorageInterface
 
     public function store(UploadedFile $file): string
     {
-        if (!in_array($file->getMimeType(), self::ALLOWED_MIMES, true)) {
-            throw new \InvalidArgumentException('Tipo de archivo no permitido');
+        if (!$file->isValid()) {
+            throw new \InvalidArgumentException('Archivo inválido o corrupto: ' . $file->getErrorMessage());
+        }
+
+        $mime = $file->getMimeType();
+        if ($mime === null || !in_array($mime, self::ALLOWED_MIMES, true)) {
+            throw new \InvalidArgumentException('Tipo de archivo no permitido: ' . ($mime ?? 'desconocido'));
         }
 
         if (!is_dir($this->uploadDir)) {

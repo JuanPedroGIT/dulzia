@@ -43,6 +43,7 @@ function dismiss() {
 </script>
 
 <style lang="scss" scoped>
+@use "@/styles/mixins" as *;
 .cookie-banner {
   position: fixed;
   bottom: $space-6;
@@ -84,7 +85,7 @@ function dismiss() {
       a {
         color: $color-teal;
         text-decoration: underline;
-        &:hover { color: lighten($color-teal, 10%); }
+        &:hover { color: color.adjust($color-teal, $lightness: 10%); }
       }
     }
   }

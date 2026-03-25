@@ -253,6 +253,10 @@ https://www.dulziasalamancaeventos.com/sitemap.xml
 - Dirección: C. Martín Alonso Pedraz, 14 · Salamanca
 - Horario: Lunes a viernes, 7:00–18:00
 
+## [!IMPORTANT]
+> Ejecutar las migraciones la primera vez desde el terminal de Railway en el servicio backend:
+> `php bin/console doctrine:migrations:migrate --no-interaction`
+
 ## Admin, para crear un admin
 docker-compose exec -it backend php bin/console app:admin:init
 Usuario: [EMAIL_ADDRESS]

@@ -159,6 +159,11 @@ final class AdminServiceController
             return new JsonResponse(['error' => 'title y description son requeridos'], 400);
         }
 
+        $file = $request->files->get('image');
+        if ($file !== null && !$file->isValid()) {
+            return new JsonResponse(['error' => 'Archivo inválido: ' . $file->getErrorMessage()], 400);
+        }
+
         try {
             $result = $this->addPhoto->handle(new AddPhotoCommand(
                 serviceId:   $serviceId,
@@ -180,6 +185,11 @@ final class AdminServiceController
     public function updatePhoto(string $photoId, Request $request): JsonResponse
     {
         $this->auth($request);
+
+        $file = $request->files->get('image');
+        if ($file !== null && !$file->isValid()) {
+            return new JsonResponse(['error' => 'Archivo inválido: ' . $file->getErrorMessage()], 400);
+        }
 
         try {
             $result = $this->updatePhoto->handle(new UpdatePhotoCommand(

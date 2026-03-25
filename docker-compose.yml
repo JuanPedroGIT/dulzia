@@ -39,7 +39,7 @@ services:
     volumes:
       - ./backend:/var/www/html
       - /var/www/html/vendor
-      - uploads_data:/var/www/html/public/uploads
+      - ./backend/public/uploads:/var/www/html/public/uploads
 
   frontend:
     build:
@@ -63,4 +63,3 @@ networks:
 
 volumes:
   pgdata:
-  uploads_data:

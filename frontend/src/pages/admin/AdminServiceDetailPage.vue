@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { apiGetService, apiAddPhoto, apiUpdatePhoto, apiDeletePhoto } from '@/services/adminService'
+import BaseFileUpload from '@/components/ui/BaseFileUpload.vue'
 
 const router  = useRouter()
 const route   = useRoute()
@@ -34,7 +35,7 @@ async function submitAdd() {
   const fd = new FormData()
   fd.append('title', addForm.value.title)
   fd.append('description', addForm.value.description)
-  if (addForm.value.image) fd.append('image', addForm.value.image)
+  if (addForm.value.image instanceof File) fd.append('image', addForm.value.image)
   addModal.value.loading = true; addModal.value.error = ''
   try { await apiAddPhoto(route.params.id, fd); closeAdd(); await fetchService() }
   catch (e) { addModal.value.error = e.message }
@@ -51,7 +52,7 @@ async function submitEdit() {
   const fd = new FormData()
   fd.append('title', editForm.value.title)
   fd.append('description', editForm.value.description)
-  if (editForm.value.image) fd.append('image', editForm.value.image)
+  if (editForm.value.image instanceof File) fd.append('image', editForm.value.image)
   editModal.value.loading = true; editModal.value.error = ''
   try { await apiUpdatePhoto(editModal.value.photoId, fd); closeEdit(); await fetchService() }
   catch (e) { editModal.value.error = e.message }
@@ -64,13 +65,13 @@ async function deletePhoto(photoId) {
   catch (e) { alert('Error: ' + e.message) }
 }
 
-function onAddFile(e)  { addForm.value.image  = e.target.files[0] || null }
-function onEditFile(e) { editForm.value.image = e.target.files[0] || null }
+function onAddFile(file)  { addForm.value.image  = file }
+function onEditFile(file) { editForm.value.image = file }
 </script>
 
 <template>
-  <div class="admin">
-    <header class="admin-header">
+  <div class="admin-service-detail">
+    <header class="admin-page-header">
       <div class="admin-header__inner">
         <button class="btn-back" @click="goBack">← Secciones</button>
         <span v-if="service" class="header-title">{{ service.emoji }} {{ service.name }}</span>
@@ -111,7 +112,11 @@ function onEditFile(e) { editForm.value.image = e.target.files[0] || null }
         <form class="modal-form" @submit.prevent="submitAdd">
           <label class="form-label">Título<input v-model="addForm.title" type="text" required :disabled="addModal.loading" /></label>
           <label class="form-label">Descripción<textarea v-model="addForm.description" rows="3" required :disabled="addModal.loading" /></label>
-          <label class="form-label">Imagen<input type="file" accept="image/*" @change="onAddFile" :disabled="addModal.loading" /></label>
+          <BaseFileUpload 
+            label="Imagen" 
+            @change="onAddFile" 
+            :disabled="addModal.loading" 
+          />
           <p v-if="addModal.error" class="modal-error">{{ addModal.error }}</p>
           <div class="modal-actions">
             <button type="button" class="btn-cancel" @click="closeAdd" :disabled="addModal.loading">Cancelar</button>
@@ -128,8 +133,12 @@ function onEditFile(e) { editForm.value.image = e.target.files[0] || null }
         <form class="modal-form" @submit.prevent="submitEdit">
           <label class="form-label">Título<input v-model="editForm.title" type="text" required :disabled="editModal.loading" /></label>
           <label class="form-label">Descripción<textarea v-model="editForm.description" rows="3" required :disabled="editModal.loading" /></label>
-          <label class="form-label">Nueva imagen (opcional)<input type="file" accept="image/*" @change="onEditFile" :disabled="editModal.loading" /></label>
-          <img v-if="editForm.currentImageUrl" :src="editForm.currentImageUrl" alt="Actual" class="edit-preview" />
+          <BaseFileUpload 
+            label="Nueva imagen (opcional)" 
+            @change="onEditFile" 
+            :current-image="editForm.currentImageUrl"
+            :disabled="editModal.loading" 
+          />
           <p v-if="editModal.error" class="modal-error">{{ editModal.error }}</p>
           <div class="modal-actions">
             <button type="button" class="btn-cancel" @click="closeEdit" :disabled="editModal.loading">Cancelar</button>

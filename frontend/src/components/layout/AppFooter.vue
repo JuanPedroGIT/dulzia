@@ -74,6 +74,7 @@ const year = new Date().getFullYear()
 </script>
 
 <style lang="scss" scoped>
+@use "@/styles/mixins" as *;
 .footer {
   &__top {
     @include gradient-navy;
@@ -181,7 +182,7 @@ const year = new Date().getFullYear()
   }
 
   &__bottom {
-    background: darken(#2c344c, 8%);
+    background: color.adjust(#2c344c, $lightness: -8%);
     padding-block: $space-4;
 
     .container {

@@ -65,12 +65,13 @@ import BaseButton from '@/components/ui/BaseButton.vue'
 </script>
 
 <style lang="scss" scoped>
+@use "@/styles/mixins" as *;
 .hero {
   position: relative;
   min-height: calc(100vh - $nav-height);
   @include flex-center;
   overflow: hidden;
-  background: linear-gradient(160deg, $color-navy 0%, #1e3a5f 50%, darken($color-teal-dark, 10%) 100%);
+  background: linear-gradient(160deg, $color-navy 0%, #1e3a5f 50%, color.adjust($color-teal-dark, $lightness: -10%) 100%);
 
   &__bg {
     position: absolute;
@@ -95,7 +96,7 @@ import BaseButton from '@/components/ui/BaseButton.vue'
     &--2 {
       width: 400px;
       height: 400px;
-      background: lighten($color-teal, 20%);
+      background: color.adjust($color-teal, $lightness: 20%);
       bottom: -100px;
       left: -50px;
     }
