@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estamos en mantenimiento temporal | Dulzia Salamanca Eventos</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Nuestra web está en mantenimiento temporal. Especialistas en servicios de entretenimiento y catering para bodas, cumpleaños y eventos en Salamanca. Contacta al +34 629 991 659.">
+    <meta name="keywords" content="eventos salamanca, bodas salamanca, animación infantil, carros de chuches, catering mesas dulces, animacion eventi, decoracion globos">
+    <!-- Aunque es una página 502, establecemos indexación si el usuario la usara como landing page de emergencia -->
+    <meta name="robots" content="index, follow">
+    
+    <!-- Open Graph Data -->
+    <meta property="og:title" content="Pausa técnica | Dulzia Salamanca Eventos">
+    <meta property="og:description" content="Nuestra web está en mantenimiento temporal corto. Especialistas en servicios de entretenimiento y catering para eventos en Salamanca.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://www.dulziasalamancaeventos.com">
+    <meta property="og:image" content="https://www.dulziasalamancaeventos.com/og-image.jpg">
+    <meta property="og:site_name" content="Dulzia Salamanca Eventos">
+    
+    <!-- Enlace a Google Fonts para una tipografía premium (Outfit y Inter) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #ff4a8b;
+            --primary-light: #ff75a6;
+            --secondary: #ff9170;
+            --bg-color: #fafbfc;
+            --text-dark: #1e293b;
+            --text-muted: #64748b;
+            --white: #ffffff;
+            --glass-bg: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.4);
+            --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            --shadow-lg: 0 20px 40px -5px rgba(255, 74, 139, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #fff0f5 0%, #fffbf0 50%, #f0f7ff 100%);
+            color: var(--text-dark);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Abstract shapes in background */
+        .bg-shape {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            z-index: -1;
+            opacity: 0.5;
+            animation: float 20s infinite ease-in-out alternate;
+        }
+        
+        .shape-1 {
+            background: var(--primary-light);
+            width: 400px;
+            height: 400px;
+            top: -100px;
+            left: -100px;
+            animation-delay: 0s;
+        }
+        
+        .shape-2 {
+            background: var(--secondary);
+            width: 500px;
+            height: 500px;
+            bottom: -150px;
+            right: -100px;
+            animation-delay: -5s;
+        }
+
+        .container {
+            max-width: 900px;
+            width: 100%;
+            position: relative;
+            z-index: 10;
+        }
+
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 3.5rem;
+            box-shadow: var(--shadow-lg);
+            text-align: center;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .glass-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(255, 74, 139, 0.1);
+            color: var(--primary);
+            font-weight: 600;
+            font-size: 0.85rem;
+            padding: 0.5rem 1.2rem;
+            border-radius: 50px;
+            margin-bottom: 2rem;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--primary);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--primary);
+            animation: pulse 2s infinite;
+        }
+
+        h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 1.2rem;
+            line-height: 1.1;
+            color: var(--text-dark);
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: inline-block;
+        }
+
+        .lead {
+            font-size: 1.15rem;
+            color: var(--text-muted);
+            margin-bottom: 3rem;
+            max-width: 650px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.7;
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3.5rem;
+        }
+
+        .service-card {
+            background: rgba(255, 255, 255, 0.6);
+            padding: 1.8rem;
+            border-radius: 20px;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-align: left;
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            position: relative;
+            z-index: 1;
+        }
+
+        .service-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.04);
+            background: var(--white);
+        }
+
+        .service-icon {
+            font-size: 2.2rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #fff0f5, #ffeaf2);
+            border-radius: 16px;
+            color: var(--primary);
+            transition: transform 0.3s ease;
+        }
+        
+        .service-card:hover .service-icon {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        .service-card h3 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 0.6rem;
+            color: var(--text-dark);
+        }
+
+        .service-card p {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+        }
+
+        .contact-box {
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 20px;
+            padding: 2.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.6);
+        }
+
+        .contact-box h2 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.8rem;
+            margin-bottom: 2rem;
+            font-weight: 700;
+        }
+
+        .contact-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+
+        .contact-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            color: var(--white);
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1.05rem;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 20px rgba(255, 74, 139, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .contact-link::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .contact-link:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 25px rgba(255, 74, 139, 0.4);
+        }
+        
+        .contact-link:hover::after {
+            left: 100%;
+        }
+
+        .tel-link {
+            background: var(--white);
+            color: var(--text-dark);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .tel-link:hover {
+            background: var(--white);
+            color: var(--primary);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+        }
+
+        .address {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+            font-style: normal;
+        }
+
+        .address strong {
+            display: block;
+            color: var(--text-dark);
+            font-weight: 600;
+            font-size: 1.05rem;
+            margin-bottom: 0.3rem;
+        }
+        
+        /* Error Footer */
+        .error-code {
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            opacity: 0.6;
+            font-family: monospace;
+        }
+
+        /* Animations */
+        @keyframes float {
+            0% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-20px) scale(1.05); }
+            100% { transform: translateY(0) scale(1); }
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.5); opacity: 0.5; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in-up {
+            opacity: 0;
+            animation: fadeInUp 0.8s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
+        }
+
+        .delay-1 { animation-delay: 0.2s; }
+        .delay-2 { animation-delay: 0.4s; }
+        .delay-3 { animation-delay: 0.6s; }
+        .delay-4 { animation-delay: 0.8s; }
+
+        @media (max-width: 768px) {
+            body { padding: 1.5rem; }
+            .glass-panel { padding: 2rem 1.5rem; border-radius: 20px; }
+            h1 { font-size: 2.2rem; }
+            .services-grid { gap: 1rem; margin-bottom: 2rem; }
+            .service-card { padding: 1.5rem; }
+            .contact-links { flex-direction: column; width: 100%; }
+            .contact-link { width: 100%; justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-shape shape-1"></div>
+    <div class="bg-shape shape-2"></div>
+
+    <main class="container">
+        <div class="glass-panel">
+            <div class="fade-in-up">
+                <span class="status-badge">
+                    <span class="status-dot"></span>
+                    Mantenimiento Temporal
+                </span>
+                <h1>Estamos <span class="gradient-text">mejorando</span> para ti</h1>
+                <p class="lead">Nuestra página web se encuentra momentáneamente inactiva por labores de actualización técnica, pero <strong>nuestros servicios siguen operativos al 100%</strong>.</p>
+            </div>
+            
+            <section class="services-grid">
+                <article class="service-card fade-in-up delay-1">
+                    <span class="service-icon" aria-hidden="true">🎪</span>
+                    <h3>Animación y Castillos</h3>
+                    <p>Castillos hinchables, animación infantil, cañones de espuma y DJs para que tu evento sea completamente inolvidable.</p>
+                </article>
+                
+                <article class="service-card fade-in-up delay-2">
+                    <span class="service-icon" aria-hidden="true">🍬</span>
+                    <h3>Carritos y Catering</h3>
+                    <p>Carritos de chuches, palomitas, algodón de azúcar, hot dogs y recenas tanto dulces como saladas para tus invitados.</p>
+                </article>
+                
+                <article class="service-card fade-in-up delay-3">
+                    <span class="service-icon" aria-hidden="true">✨</span>
+                    <h3>Decoración y Detalles</h3>
+                    <p>Decoración profesional con globos, letras luminosas, detalles personalizados para bodas, bautizos y comuniones.</p>
+                </article>
+            </section>
+            
+            <section class="contact-box fade-in-up delay-4">
+                <h2>¿Necesitas organizar tu evento? ¡Hablemos!</h2>
+                
+                <div class="contact-links">
+                    <a href="mailto:info@dulziasalamancaeventos.com" class="contact-link" aria-label="Enviar correo electrónico">
+                        <svg width="22" height="22" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                            <polyline points="22,6 12,13 2,6"></polyline>
+                        </svg>
+                        Envíanos un Email
+                    </a>
+                    <a href="tel:+34629991659" class="contact-link tel-link" aria-label="Llamar por teléfono">
+                        <svg width="22" height="22" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                        </svg>
+                        +34 629 991 659
+                    </a>
+                </div>
+                
+                <address class="address">
+                    <strong>Dulzia Salamanca Eventos</strong>
+                    C. Martín Alonso Pedraz, 14 · Salamanca<br>
+                    Lunes a viernes: 7:00 – 18:00
+                </address>
+            </section>
+        </div>
+        <div class="error-code fade-in-up delay-4">Código de estado HTTP: 502 (Bad Gateway)</div>
+    </main>
+    
+    <!-- Script de Schema JSON-LD para SEO y rich snippets -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "EventResaleService",
+      "name": "Dulzia Salamanca Eventos",
+      "url": "https://www.dulziasalamancaeventos.com",
+      "telephone": "+34629991659",
+      "email": "info@dulziasalamancaeventos.com",
+      "image": "https://www.dulziasalamancaeventos.com/og-image.jpg",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "C. Martín Alonso Pedraz, 14",
+        "addressLocality": "Salamanca",
+        "addressRegion": "Castilla y León",
+        "addressCountry": "ES"
+      },
+      "openingHoursSpecification": {
+        "@type": "OpeningHoursSpecification",
+        "dayOfWeek": [
+          "Monday", "Tuesday", "Wednesday", "Thursday", "Friday"
+        ],
+        "opens": "07:00",
+        "closes": "18:00"
+      },
+      "description": "Dulzia Salamanca Eventos - Servicios de entretenimiento, carritos de chuches, castillos hinchables, decoración y catering para bodas, cumpleaños y eventos en Salamanca.",
+      "sameAs": [
+        "https://www.instagram.com/dulziasalamanca",
+        "https://www.facebook.com/dulziasalamanca"
+      ]
+    }
+    </script>
+</body>
+</html>
