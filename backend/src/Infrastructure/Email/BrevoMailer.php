@@ -10,7 +10,7 @@ final class BrevoMailer implements MailerInterface
 
     public function __construct(
         private string $apiKey,
-        private string $toEmail = 'info@dulziasalamancaeventos.com',
+        private string $toEmail = 'admin@dulziasalamanca.es',
         private string $toName = 'Dulzia Salamanca Eventos',
     ) {}
 

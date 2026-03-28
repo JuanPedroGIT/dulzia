@@ -33,6 +33,7 @@ export default defineConfig({
   server: {
     host: '0.0.0.0',
     port: 5173,
+    allowedHosts: ['dulziasalamanca.es', 'www.dulziasalamanca.es'],
     watch: {
       usePolling: true,   // Required for Windows + Docker file watching
       interval: 300,

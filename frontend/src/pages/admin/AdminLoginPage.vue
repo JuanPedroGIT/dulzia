@@ -18,7 +18,9 @@ async function handleLogin() {
     await login(username.value, password.value)
     router.push('/dulzia-panel')
   } catch (e) {
-    error.value = e.message
+    error.value = e.message === '401'
+      ? 'Credenciales incorrectas. Verifica tu usuario y contraseña.'
+      : 'Error al conectar. Inténtalo de nuevo.'
   } finally {
     loading.value = false
   }
