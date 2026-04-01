@@ -13,6 +13,11 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 WORKDIR /var/www/html
 
 FROM base AS dev
+RUN apk add --no-cache linux-headers $PHPIZE_DEPS \
+    && pecl install xdebug \
+    && docker-php-ext-enable xdebug \
+    && apk del $PHPIZE_DEPS
+COPY xdebug.ini /usr/local/etc/php/conf.d/zz-xdebug.ini
 COPY composer.json composer.lock* ./
 RUN composer install --no-scripts --no-interaction
 ENV APP_ENV=dev

@@ -1,4 +1,5 @@
-const BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+// Usar VITE_API_URL si está definida, sino usar ruta relativa (para proxy via nginx)
+const BASE = import.meta.env.VITE_API_URL || ''
 
 function headers() {
   const token = localStorage.getItem('admin_token')

@@ -12,15 +12,21 @@ final class ServiceController
         private ServiceRepositoryInterface $repository,
     ) {}
 
-    #[Route('/api/services', methods: ['GET'])]
-    public function index(): JsonResponse
-    {
-        $services = $this->repository->findAllActive();
+#[Route('/api/services', methods: ['GET'])]
+  public function index(): JsonResponse
+  {
+    $services = $this->repository->findAllActive();
 
-        return new JsonResponse(
-            array_map(fn($s) => $s->toArray(), $services)
-        );
-    }
+    $response = new JsonResponse(
+      array_map(fn($s) => $s->toArray(), $services)
+    );
+
+    // Forzar keep-alive y evitar chunked encoding
+    $response->headers->set('Connection', 'keep-alive');
+    $response->headers->set('Content-Length', strlen($response->getContent()));
+
+    return $response;
+  }
 
     #[Route('/api/services/{id}', methods: ['GET'])]
     public function show(string $id): JsonResponse

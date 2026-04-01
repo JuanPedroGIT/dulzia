@@ -3,7 +3,7 @@
 # ===========================
 .env
 *.local
-
+.env.production
 # ===========================
 # BACKEND — Symfony
 # ===========================
@@ -15,7 +15,7 @@ backend/vendor/
 backend/var/
 
 # Archivos .env con secretos reales generados por Symfony Flex
-backend/.env.dev
+backend/.env
 backend/.env.prod
 
 # Docker Compose generados por Symfony Flex (usamos el del root)
