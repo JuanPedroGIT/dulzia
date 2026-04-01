@@ -1,20 +1,22 @@
 services:
-  backend:
+  # --- Backend de Dulzia (Symfony/PHP) ---
+  dulzia-backend:
     build:
       context: ./backend
-      target: dev
+      target: dev # O 'prod' según prefieras
+    container_name: dulzia-backend
+    restart: unless-stopped
     environment:
       APP_ENV: dev
       APP_DEBUG: 1
       APP_SECRET: ${APP_SECRET}
-      APP_URL: ${APP_URL:-http://localhost:8000}
+      # Importante: DATABASE_URL apunta al contenedor 'shared-postgres-db' de Infra
       DATABASE_URL: postgresql://dulzia:${DULZIA_DB_PASS}@shared-postgres-db:5432/dulzia?serverVersion=16&charset=utf8
       EMAIL_API_KEY: ${BREVO_API_KEY}
       CORS_ALLOW_ORIGIN: ${CORS_ALLOW_ORIGIN}
     networks:
       - shared-network
-    ports:
-      - "8000:8000"
+    # Quitamos ports: "8000:8000" (Infra llegará aquí internamente)
     volumes:
       - ./backend:/var/www/html
       - /var/www/html/vendor
@@ -22,39 +24,26 @@ services:
     depends_on:
       - postgres
 
-  frontend:
+  # --- Frontend de Dulzia (Vite/Vue) ---
+  dulzia-frontend:
     build:
       context: ./frontend
-      target: dev
+      target: dev # O 'prod'
+    container_name: dulzia-frontend
+    restart: unless-stopped
     environment:
-      VITE_API_URL: ${VITE_API_URL:-http://localhost:8000}
-    depends_on:
-      - backend
+      # La URL de la API es ahora tu dominio público con /api
+      VITE_API_URL: "https://dulziasalamanca.es/api"
     networks:
       - shared-network
-    ports:
-      - "5174:5173"
+    # Quitamos ports: "5174:5173"
     volumes:
       - ./frontend:/app
       - /app/node_modules
-
-  # Servicio Nginx para producción
-  nginx:
-    build:
-      context: ./frontend
-      target: prod
-      args:
-        VITE_API_URL: ""
-    environment:
-      PORT: 80
-      BACKEND_UPSTREAM: http://dulziasalamanca-backend-1:8000
-    networks:
-      - shared-network
     depends_on:
-      - backend
-    # No exponemos puertos - solo accesible vía cloudflared
+      - dulzia-backend
 
-  # Servicio placeholder para dependencias - se conecta al postgres de infra
+  # Placeholder para no romper dependencias
   postgres:
     image: alpine:latest
     command: echo "Using shared PostgreSQL from infra"
