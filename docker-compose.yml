@@ -24,7 +24,7 @@ services:
     depends_on:
       - postgres
 
-  # --- Frontend de Dulzia (Vite/Vue) ---
+  # --- Frontend de Dulzia (Vite/Vue) --- 
   dulzia-frontend:
     build:
       context: ./frontend

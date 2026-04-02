@@ -16,7 +16,7 @@ async function handleResponse(res) {
 // ── Auth ─────────────────────────────────────────────────────────────────
 
 export async function apiLogin(username, password) {
-  const res = await fetch(`${BASE}/api/admin/login`, {
+  const res = await fetch(`${BASE}/admin/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ username, password }),
@@ -25,23 +25,23 @@ export async function apiLogin(username, password) {
 }
 
 export async function apiLogout() {
-  await fetch(`${BASE}/api/admin/logout`, { method: 'POST', headers: headers() })
+  await fetch(`${BASE}/admin/logout`, { method: 'POST', headers: headers() })
 }
 
 // ── Secciones ─────────────────────────────────────────────────────────────
 
 export async function apiGetServices() {
-  const res = await fetch(`${BASE}/api/admin/services`, { headers: headers() })
+  const res = await fetch(`${BASE}/admin/services`, { headers: headers() })
   return handleResponse(res)
 }
 
 export async function apiGetService(id) {
-  const res = await fetch(`${BASE}/api/admin/services/${id}`, { headers: headers() })
+  const res = await fetch(`${BASE}/admin/services/${id}`, { headers: headers() })
   return handleResponse(res)
 }
 
 export async function apiCreateService(data) {
-  const res = await fetch(`${BASE}/api/admin/services`, {
+  const res = await fetch(`${BASE}/admin/services`, {
     method: 'POST',
     headers: { ...headers(), 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
@@ -50,7 +50,7 @@ export async function apiCreateService(data) {
 }
 
 export async function apiUpdateService(id, data) {
-  const res = await fetch(`${BASE}/api/admin/services/${id}`, {
+  const res = await fetch(`${BASE}/admin/services/${id}`, {
     method: 'PUT',
     headers: { ...headers(), 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
@@ -59,7 +59,7 @@ export async function apiUpdateService(id, data) {
 }
 
 export async function apiDeactivateService(id) {
-  const res = await fetch(`${BASE}/api/admin/services/${id}`, {
+  const res = await fetch(`${BASE}/admin/services/${id}`, {
     method: 'DELETE',
     headers: headers(),
   })
@@ -67,7 +67,7 @@ export async function apiDeactivateService(id) {
 }
 
 export async function apiActivateService(id) {
-  const res = await fetch(`${BASE}/api/admin/services/${id}/activate`, {
+  const res = await fetch(`${BASE}/admin/services/${id}/activate`, {
     method: 'POST',
     headers: headers(),
   })
@@ -77,7 +77,7 @@ export async function apiActivateService(id) {
 // ── Fotos ─────────────────────────────────────────────────────────────────
 
 export async function apiAddPhoto(serviceId, formData) {
-  const res = await fetch(`${BASE}/api/admin/services/${serviceId}/photos`, {
+  const res = await fetch(`${BASE}/admin/services/${serviceId}/photos`, {
     method: 'POST',
     headers: headers(),
     body: formData,
@@ -86,7 +86,7 @@ export async function apiAddPhoto(serviceId, formData) {
 }
 
 export async function apiUpdatePhoto(photoId, formData) {
-  const res = await fetch(`${BASE}/api/admin/photos/${photoId}`, {
+  const res = await fetch(`${BASE}/admin/photos/${photoId}`, {
     method: 'POST',
     headers: headers(),
     body: formData,
@@ -95,7 +95,7 @@ export async function apiUpdatePhoto(photoId, formData) {
 }
 
 export async function apiDeletePhoto(photoId) {
-  const res = await fetch(`${BASE}/api/admin/photos/${photoId}`, {
+  const res = await fetch(`${BASE}/admin/photos/${photoId}`, {
     method: 'DELETE',
     headers: headers(),
   })
