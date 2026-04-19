@@ -5,15 +5,12 @@ services:
       target: dev
     container_name: dulzia-backend
     restart: unless-stopped
+    env_file: .env
     environment:
       APP_ENV: dev
       APP_DEBUG: "1"
-      APP_SECRET: "${APP_SECRET}"
+      DEFAULT_URI: "http://localhost"
       DATABASE_URL: "postgresql://dulzia:${DULZIA_DB_PASS}@shared-postgres-db:5432/dulzia?serverVersion=16&charset=utf8"
-      EMAIL_API_KEY: "${BREVO_API_KEY}"
-      CORS_ALLOW_ORIGIN: "${CORS_ALLOW_ORIGIN}"
-      TRUSTED_PROXIES: "${TRUSTED_PROXIES}"
-      TRUSTED_HEADERS: "${TRUSTED_HEADERS}"
     networks:
       - shared-network
     volumes:
