@@ -3,8 +3,8 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install
 COPY . .
-EXPOSE 5173
-CMD ["npm", "run", "dev"]
+EXPOSE 80
+CMD ["npx", "vite", "--host", "0.0.0.0", "--port", "80"]
 
 FROM node:20-alpine AS build
 # Instalar Chrome dependencies para Puppeteer

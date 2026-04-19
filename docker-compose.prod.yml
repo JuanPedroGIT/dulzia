@@ -2,12 +2,12 @@ services:
   dulzia-backend:
     build:
       context: ./backend
-      target: dev
+      target: prod
     container_name: dulzia-backend
     restart: unless-stopped
     environment:
-      APP_ENV: dev
-      APP_DEBUG: "1"
+      APP_ENV: prod
+      APP_DEBUG: "0"
       APP_SECRET: "${APP_SECRET}"
       DATABASE_URL: "postgresql://dulzia:${DULZIA_DB_PASS}@shared-postgres-db:5432/dulzia?serverVersion=16&charset=utf8"
       EMAIL_API_KEY: "${BREVO_API_KEY}"
@@ -17,21 +17,19 @@ services:
     networks:
       - shared-network
     volumes:
-      - ./backend:/var/www/html
-      - /var/www/html/vendor
       - ./backend/public/uploads:/var/www/html/public/uploads
 
   dulzia-frontend:
     build:
       context: ./frontend
-      target: dev
+      target: prod
     container_name: dulzia-frontend
     restart: unless-stopped
+    environment:
+      PORT: "80"
+      BACKEND_UPSTREAM: "http://dulzia-backend:8000"
     networks:
       - shared-network
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
 
 networks:
   shared-network:
