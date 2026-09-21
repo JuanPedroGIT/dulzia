@@ -9,8 +9,8 @@ defineProps({ size: { type: String, default: '24px' } })
 <style lang="scss" scoped>
 .spinner {
   display: inline-block;
-  border: 3px solid rgba($color-teal, 0.2);
-  border-top-color: $color-teal;
+  border: 3px solid rgba($color-mint-mid, 0.2);
+  border-top-color: $color-mint-mid;
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
 

@@ -36,7 +36,7 @@ defineEmits(['update:modelValue'])
   &__label {
     font-size: $text-sm;
     font-weight: 600;
-    color: $color-navy;
+    color: $color-green-dark;
   }
 
   &__input {
@@ -53,8 +53,8 @@ defineEmits(['update:modelValue'])
     &::placeholder { color: $color-text-muted; }
 
     &:focus {
-      border-color: $color-teal;
-      box-shadow: 0 0 0 3px rgba($color-teal, 0.12);
+      border-color: $color-mint-mid;
+      box-shadow: 0 0 0 3px rgba($color-mint-mid, 0.12);
     }
   }
 

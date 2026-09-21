@@ -111,20 +111,20 @@ const lastUpdated = new Date().toLocaleDateString('es-ES', { day: 'numeric', mon
 
 <style lang="scss" scoped>
 .hero-small {
-  background: linear-gradient(135deg, $color-navy 0%, $color-navy-light 100%);
+  background: linear-gradient(160deg, $color-mint-light 0%, $color-mint 60%, $color-mint-mid 140%);
   padding-block: $space-12;
   text-align: center;
 
   &__title {
     font-size: $text-4xl;
     font-weight: 900;
-    color: $color-white;
+    color: $color-green-dark;
     margin-bottom: $space-2;
   }
 
   &__sub {
     font-size: $text-sm;
-    color: rgba($color-white, 0.55);
+    color: $color-text-muted;
   }
 }
 
@@ -138,7 +138,7 @@ const lastUpdated = new Date().toLocaleDateString('es-ES', { day: 'numeric', mon
     h2 {
       font-size: $text-xl;
       font-weight: 700;
-      color: $color-navy;
+      color: $color-green-dark;
       margin-bottom: $space-4;
       padding-bottom: $space-3;
       border-bottom: 2px solid $color-bg-alt;
@@ -150,10 +150,10 @@ const lastUpdated = new Date().toLocaleDateString('es-ES', { day: 'numeric', mon
       line-height: 1.8;
       margin-bottom: $space-4;
 
-      strong { color: $color-navy; }
+      strong { color: $color-green-dark; }
 
       a {
-        color: $color-teal;
+        color: $color-mint-mid;
         &:hover { text-decoration: underline; }
       }
     }
@@ -171,7 +171,7 @@ const lastUpdated = new Date().toLocaleDateString('es-ES', { day: 'numeric', mon
         color: $color-text-muted;
         line-height: 1.7;
 
-        strong { color: $color-navy; }
+        strong { color: $color-green-dark; }
       }
     }
   }
@@ -187,7 +187,7 @@ const lastUpdated = new Date().toLocaleDateString('es-ES', { day: 'numeric', mon
     @include respond-to(md) { display: table; }
 
     th {
-      background: $color-navy;
+      background: $color-green-dark;
       color: $color-white;
       padding: $space-3 $space-4;
       text-align: left;
@@ -206,7 +206,7 @@ const lastUpdated = new Date().toLocaleDateString('es-ES', { day: 'numeric', mon
         padding: 2px 6px;
         border-radius: $radius-sm;
         font-size: $text-xs;
-        color: $color-teal-dark;
+        color: $color-green-dark;
       }
     }
 

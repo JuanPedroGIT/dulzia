@@ -51,7 +51,7 @@ const categoryLabel = computed(() => categories[props.service.category] ?? '')
   }
 
   &:hover &__emoji {
-    background: linear-gradient(135deg, rgba($color-teal, 0.12), rgba($color-teal-dark, 0.08));
+    background: linear-gradient(135deg, rgba($color-pink, 0.1), rgba($color-pink-dark, 0.06));
   }
 
   &__body {
@@ -67,13 +67,13 @@ const categoryLabel = computed(() => categories[props.service.category] ?? '')
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    color: $color-teal;
+    color: $color-pink;
   }
 
   &__name {
     font-size: $text-lg;
     font-weight: 700;
-    color: $color-navy;
+    color: $color-green-dark;
   }
 
   &__desc {
@@ -96,7 +96,7 @@ const categoryLabel = computed(() => categories[props.service.category] ?? '')
       font-size: $text-sm;
       color: $color-text;
 
-      svg { color: $color-teal; flex-shrink: 0; }
+      svg { color: $color-pink; flex-shrink: 0; }
     }
   }
 
@@ -108,7 +108,7 @@ const categoryLabel = computed(() => categories[props.service.category] ?? '')
   &__link {
     font-size: $text-sm;
     font-weight: 700;
-    color: $color-teal;
+    color: $color-mint-mid;
     transition: gap $transition-fast;
   }
 }

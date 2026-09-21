@@ -54,14 +54,14 @@ const total = computed(() => services.value.length)
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    color: $color-teal;
+    color: $color-pink;
     margin-bottom: $space-3;
   }
 
   &__title {
     font-size: $text-4xl;
     font-weight: 900;
-    color: $color-navy;
+    color: $color-green-dark;
     margin-bottom: $space-4;
   }
 

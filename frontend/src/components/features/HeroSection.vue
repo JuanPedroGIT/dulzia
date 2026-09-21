@@ -71,7 +71,7 @@ import BaseButton from '@/components/ui/BaseButton.vue'
   min-height: calc(100vh - $nav-height);
   @include flex-center;
   overflow: hidden;
-  background: linear-gradient(160deg, $color-navy 0%, #1e3a5f 50%, color.adjust($color-teal-dark, $lightness: -10%) 100%);
+  background: linear-gradient(160deg, $color-mint-light 0%, $color-mint 55%, $color-mint-mid 140%);
 
   &__bg {
     position: absolute;
@@ -88,7 +88,7 @@ import BaseButton from '@/components/ui/BaseButton.vue'
     &--1 {
       width: 600px;
       height: 600px;
-      background: $color-teal;
+      background: $color-mint;
       top: -200px;
       right: -100px;
     }
@@ -96,7 +96,8 @@ import BaseButton from '@/components/ui/BaseButton.vue'
     &--2 {
       width: 400px;
       height: 400px;
-      background: color.adjust($color-teal, $lightness: 20%);
+      background: $color-pink;
+      opacity: 0.12;
       bottom: -100px;
       left: -50px;
     }
@@ -120,9 +121,9 @@ import BaseButton from '@/components/ui/BaseButton.vue'
     display: inline-block;
     font-size: $text-sm;
     font-weight: 600;
-    color: $color-teal;
-    background: rgba($color-teal, 0.12);
-    border: 1px solid rgba($color-teal, 0.3);
+    color: $color-green-dark;
+    background: rgba($color-pink, 0.08);
+    border: 1px solid rgba($color-pink, 0.35);
     padding: $space-2 $space-4;
     border-radius: $radius-full;
     margin-bottom: $space-6;
@@ -131,7 +132,7 @@ import BaseButton from '@/components/ui/BaseButton.vue'
   &__title {
     font-size: $text-4xl;
     font-weight: 900;
-    color: $color-white;
+    color: $color-green-dark;
     line-height: 1.1;
     margin-bottom: $space-6;
 
@@ -140,7 +141,7 @@ import BaseButton from '@/components/ui/BaseButton.vue'
 
     em {
       font-style: normal;
-      @include text-gradient;
+      @include text-gradient-pink;
     }
 
     &-line2 {
@@ -150,7 +151,7 @@ import BaseButton from '@/components/ui/BaseButton.vue'
 
   &__subtitle {
     font-size: $text-lg;
-    color: rgba($color-white, 0.75);
+    color: $color-text-muted;
     line-height: 1.7;
     max-width: 520px;
     margin-bottom: $space-10;
@@ -180,8 +181,8 @@ import BaseButton from '@/components/ui/BaseButton.vue'
     flex-direction: column;
     gap: $space-2;
     padding: $space-5 $space-4;
-    background: rgba($color-white, 0.06);
-    border: 1px solid rgba($color-white, 0.1);
+    background: rgba($color-white, 0.78);
+    border: 1px solid rgba($color-mint-mid, 0.3);
     border-radius: $radius-xl;
     backdrop-filter: blur(8px);
     transition: all $transition-base;
@@ -190,13 +191,13 @@ import BaseButton from '@/components/ui/BaseButton.vue'
     span:last-child {
       font-size: $text-xs;
       font-weight: 600;
-      color: rgba($color-white, 0.7);
+      color: $color-text-muted;
       text-align: center;
     }
 
     &:hover {
-      background: rgba($color-teal, 0.15);
-      border-color: rgba($color-teal, 0.3);
+      background: $color-white;
+      border-color: rgba($color-pink, 0.45);
       transform: translateY(-4px);
     }
 
@@ -215,7 +216,7 @@ import BaseButton from '@/components/ui/BaseButton.vue'
     bottom: $space-8;
     left: 50%;
     transform: translateX(-50%);
-    color: rgba($color-white, 0.4);
+    color: rgba($color-green-dark, 0.45);
     animation: bounce 2s infinite;
 
     @keyframes bounce {

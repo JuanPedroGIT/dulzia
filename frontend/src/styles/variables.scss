@@ -1,15 +1,19 @@
 // === COLORS ===
-$color-teal:         #22a6a4;
-$color-teal-dark:    #157372;
-$color-teal-light:   #e4f0ed;
-$color-navy:         #2c344c;
-$color-navy-light:   #3d4f70;
+// Verde menta (#7bdcb5) y rosa (#ff00c1): colores principales de la marca
+$color-mint:         #7bdcb5;   // menta principal (fondos)
+$color-mint-light:   #e8faf2;   // tinte suave para secciones alternas
+$color-mint-mid:     #3fc08e;   // menta medio (degradados, bordes, focus)
+$color-green-dark:   #0d5958;   // verde profundo (textos y contraste sobre menta)
+$color-green-deep:   #083f3e;   // tiras oscuras (footer bottom, hovers fuertes)
+$color-pink:         #ff00c1;   // rosa (textos destacados y acentos)
+$color-pink-dark:    #cc009a;
+$color-pink-light:   #ffe6f8;
 $color-white:        #ffffff;
 $color-bg:           #f8fffe;
-$color-bg-alt:       #e4f0ed;
-$color-text:         #1a2332;
-$color-text-muted:   #5a6e7f;
-$color-border:       #c8dbd6;
+$color-bg-alt:       $color-mint-light;
+$color-text:         #090a0a;
+$color-text-muted:   #5c6b68;
+$color-border:       #bfe8d8;
 $color-error:        #d63031;
 $color-success:      #00b894;
 
@@ -52,10 +56,10 @@ $radius-2xl:  32px;
 $radius-full: 9999px;
 
 // === SHADOWS ===
-$shadow-sm: 0 1px 4px rgba(44, 52, 76, 0.08);
-$shadow-md: 0 4px 16px rgba(44, 52, 76, 0.10);
-$shadow-lg: 0 8px 32px rgba(44, 52, 76, 0.14);
-$shadow-xl: 0 20px 60px rgba(44, 52, 76, 0.18);
+$shadow-sm: 0 1px 4px rgba(9, 10, 10, 0.08);
+$shadow-md: 0 4px 16px rgba(9, 10, 10, 0.10);
+$shadow-lg: 0 8px 32px rgba(9, 10, 10, 0.14);
+$shadow-xl: 0 20px 60px rgba(9, 10, 10, 0.18);
 
 // === TRANSITIONS ===
 $transition-fast: 150ms ease;

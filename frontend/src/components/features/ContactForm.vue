@@ -122,7 +122,7 @@ const { form, errors, isLoading, isSuccess, serverError, submitForm } = useConta
 
     h3 {
       font-size: $text-2xl;
-      color: $color-navy;
+      color: $color-green-dark;
       margin-bottom: $space-2;
     }
 
@@ -138,7 +138,7 @@ const { form, errors, isLoading, isSuccess, serverError, submitForm } = useConta
   &__label {
     font-size: $text-sm;
     font-weight: 600;
-    color: $color-navy;
+    color: $color-green-dark;
   }
 
   &__select {
@@ -160,8 +160,8 @@ const { form, errors, isLoading, isSuccess, serverError, submitForm } = useConta
     padding-right: $space-10;
 
     &:focus {
-      border-color: $color-teal;
-      box-shadow: 0 0 0 3px rgba($color-teal, 0.12);
+      border-color: $color-mint-mid;
+      box-shadow: 0 0 0 3px rgba($color-mint-mid, 0.12);
     }
   }
 }

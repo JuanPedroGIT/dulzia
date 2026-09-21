@@ -92,7 +92,7 @@ useSeo({
 
 <style lang="scss" scoped>
 .hero-small {
-  background: linear-gradient(135deg, $color-navy 0%, $color-navy-light 100%);
+  background: linear-gradient(160deg, $color-mint-light 0%, $color-mint 60%, $color-mint-mid 140%);
   padding-block: $space-16;
   text-align: center;
 
@@ -102,20 +102,20 @@ useSeo({
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    color: $color-teal;
+    color: $color-pink;
     margin-bottom: $space-3;
   }
 
   &__title {
     font-size: $text-5xl;
     font-weight: 900;
-    color: $color-white;
+    color: $color-green-dark;
     margin-bottom: $space-4;
   }
 
   &__sub {
     font-size: $text-lg;
-    color: rgba($color-white, 0.75);
+    color: $color-text-muted;
     max-width: 560px;
     margin-inline: auto;
     line-height: 1.7;
@@ -131,16 +131,16 @@ useSeo({
 }
 
 .contact-info {
-  background: $color-navy;
+  @include gradient-mint;
   border-radius: $radius-2xl;
   padding: $space-10 $space-8;
-  color: $color-white;
+  color: $color-green-dark;
   height: fit-content;
 
   &__title {
     font-size: $text-xl;
     font-weight: 700;
-    color: $color-white;
+    color: $color-green-dark;
     margin-bottom: $space-8;
   }
 
@@ -166,13 +166,13 @@ useSeo({
       font-size: $text-xs;
       text-transform: uppercase;
       letter-spacing: 0.06em;
-      color: $color-teal;
+      color: $color-pink;
       margin-bottom: $space-1;
     }
 
     span {
       font-size: $text-sm;
-      color: rgba($color-white, 0.8);
+      color: rgba($color-green-dark, 0.8);
       line-height: 1.6;
     }
   }
@@ -182,18 +182,18 @@ useSeo({
     width: 40px;
     height: 40px;
     border-radius: $radius-md;
-    background: rgba($color-teal, 0.15);
+    background: rgba($color-white, 0.55);
     font-size: $text-lg;
     flex-shrink: 0;
   }
 
   &__social {
-    border-top: 1px solid rgba($color-white, 0.1);
+    border-top: 1px solid rgba($color-green-dark, 0.15);
     padding-top: $space-6;
 
     p {
       font-size: $text-sm;
-      color: rgba($color-white, 0.5);
+      color: rgba($color-green-dark, 0.7);
       margin-bottom: $space-4;
     }
   }
@@ -206,16 +206,16 @@ useSeo({
     a {
       padding: $space-2 $space-4;
       border-radius: $radius-full;
-      border: 1px solid rgba($color-white, 0.2);
+      border: 1px solid rgba($color-green-dark, 0.3);
       font-size: $text-sm;
       font-weight: 600;
-      color: rgba($color-white, 0.8);
+      color: $color-green-dark;
       text-decoration: none;
       transition: all $transition-fast;
 
       &:hover {
-        background: $color-teal;
-        border-color: $color-teal;
+        background: $color-pink;
+        border-color: $color-pink;
         color: $color-white;
       }
     }
@@ -226,7 +226,7 @@ useSeo({
   &__title {
     font-size: $text-2xl;
     font-weight: 900;
-    color: $color-navy;
+    color: $color-green-dark;
     margin-bottom: $space-2;
   }
 

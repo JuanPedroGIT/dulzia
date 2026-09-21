@@ -77,9 +77,9 @@ const year = new Date().getFullYear()
 @use "@/styles/mixins" as *;
 .footer {
   &__top {
-    @include gradient-navy;
+    @include gradient-mint;
     padding-block: $space-16;
-    color: rgba($color-white, 0.85);
+    color: $color-green-dark;
   }
 
   &__grid {
@@ -95,18 +95,18 @@ const year = new Date().getFullYear()
     font-family: $font-heading;
     font-size: $text-2xl;
     font-weight: 700;
-    color: $color-white;
+    color: $color-green-dark;
     margin-bottom: $space-3;
 
     em {
       font-style: normal;
-      color: $color-teal;
+      color: $color-pink;
     }
   }
 
   &__tagline {
     font-size: $text-sm;
-    color: rgba($color-white, 0.6);
+    color: rgba($color-green-dark, 0.7);
     line-height: 1.6;
     margin-bottom: $space-6;
   }
@@ -120,12 +120,12 @@ const year = new Date().getFullYear()
       width: 40px;
       height: 40px;
       border-radius: $radius-full;
-      background: rgba($color-white, 0.08);
-      color: rgba($color-white, 0.7);
+      background: rgba($color-white, 0.55);
+      color: $color-green-dark;
       transition: all $transition-base;
 
       &:hover {
-        background: $color-teal;
+        background: $color-pink;
         color: $color-white;
         transform: translateY(-2px);
       }
@@ -138,7 +138,7 @@ const year = new Date().getFullYear()
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    color: $color-white;
+    color: $color-green-deep;
     margin-bottom: $space-4;
   }
 
@@ -149,11 +149,11 @@ const year = new Date().getFullYear()
 
     li a {
       font-size: $text-sm;
-      color: rgba($color-white, 0.65);
+      color: rgba($color-green-dark, 0.75);
       text-decoration: none;
       transition: color $transition-fast;
 
-      &:hover { color: $color-teal; }
+      &:hover { color: $color-pink; }
     }
   }
 
@@ -166,23 +166,23 @@ const year = new Date().getFullYear()
       display: flex;
       gap: $space-3;
       font-size: $text-sm;
-      color: rgba($color-white, 0.65);
+      color: rgba($color-green-dark, 0.75);
       align-items: flex-start;
 
-      svg { flex-shrink: 0; margin-top: 2px; color: $color-teal; }
+      svg { flex-shrink: 0; margin-top: 2px; color: $color-green-dark; }
 
       a {
-        color: rgba($color-white, 0.65);
+        color: rgba($color-green-dark, 0.75);
         text-decoration: none;
         transition: color $transition-fast;
 
-        &:hover { color: $color-teal; }
+        &:hover { color: $color-pink; }
       }
     }
   }
 
   &__bottom {
-    background: color.adjust(#2c344c, $lightness: -8%);
+    background: $color-green-deep;
     padding-block: $space-4;
 
     .container {

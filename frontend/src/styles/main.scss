@@ -31,7 +31,7 @@ ul, ol { list-style: none; }
 h1, h2, h3, h4, h5, h6 {
   font-family: $font-heading;
   line-height: 1.2;
-  color: $color-navy;
+  color: $color-green-dark;
 }
 
 // === UTILITIES ===
@@ -41,8 +41,9 @@ h1, h2, h3, h4, h5, h6 {
 
 .section--alt { background-color: $color-bg-alt; }
 
-.text-teal { color: $color-teal; }
-.text-navy { color: $color-navy; }
+.text-teal { color: $color-mint-mid; }
+.text-pink { color: $color-pink; }
+.text-dark { color: $color-green-dark; }
 .text-muted { color: $color-text-muted; }
 
 .sr-only {

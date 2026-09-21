@@ -80,7 +80,7 @@ const filtered = computed(() =>
 
 <style lang="scss" scoped>
 .hero-small {
-  background: linear-gradient(135deg, $color-navy 0%, $color-navy-light 100%);
+  background: linear-gradient(160deg, $color-mint-light 0%, $color-mint 60%, $color-mint-mid 140%);
   padding-block: $space-16;
   text-align: center;
 
@@ -90,20 +90,20 @@ const filtered = computed(() =>
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    color: $color-teal;
+    color: $color-pink;
     margin-bottom: $space-3;
   }
 
   &__title {
     font-size: $text-5xl;
     font-weight: 900;
-    color: $color-white;
+    color: $color-green-dark;
     margin-bottom: $space-4;
   }
 
   &__sub {
     font-size: $text-lg;
-    color: rgba($color-white, 0.75);
+    color: $color-text-muted;
     max-width: 560px;
     margin-inline: auto;
     line-height: 1.7;
@@ -127,11 +127,11 @@ const filtered = computed(() =>
     transition: all $transition-base;
     cursor: pointer;
 
-    &:hover { border-color: $color-teal; color: $color-teal; }
+    &:hover { border-color: $color-pink; color: $color-pink; }
 
     &--active {
-      background: $color-teal;
-      border-color: $color-teal;
+      background: $color-green-dark;
+      border-color: $color-green-dark;
       color: $color-white;
     }
   }

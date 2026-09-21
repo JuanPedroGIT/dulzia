@@ -49,16 +49,23 @@
   }
 }
 
-@mixin gradient-teal {
-  background: linear-gradient(135deg, $color-teal-dark 0%, $color-teal 100%);
+@mixin gradient-mint {
+  background: linear-gradient(135deg, $color-mint 0%, $color-mint-mid 100%);
 }
 
-@mixin gradient-navy {
-  background: linear-gradient(135deg, $color-navy 0%, $color-navy-light 100%);
+@mixin gradient-pink {
+  background: linear-gradient(135deg, $color-pink-dark 0%, $color-pink 100%);
 }
 
-@mixin text-gradient {
-  background: linear-gradient(135deg, $color-teal-dark, $color-teal);
+@mixin text-gradient-mint {
+  background: linear-gradient(135deg, $color-green-dark, $color-mint-mid);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+@mixin text-gradient-pink {
+  background: linear-gradient(135deg, $color-pink, $color-pink-dark);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;

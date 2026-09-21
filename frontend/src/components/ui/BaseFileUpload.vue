@@ -161,7 +161,7 @@ onBeforeUnmount(() => {
   &__label {
     font-size: $text-sm;
     font-weight: 700;
-    color: $color-navy;
+    color: $color-green-dark;
   }
 
   &__dropzone {
@@ -180,13 +180,13 @@ onBeforeUnmount(() => {
     justify-content: center;
 
     &:hover {
-      border-color: $color-teal;
-      background: $color-teal-light;
+      border-color: $color-mint-mid;
+      background: $color-mint-light;
     }
 
     &--active {
-      border-color: $color-teal;
-      background: $color-teal-light;
+      border-color: $color-mint-mid;
+      background: $color-mint-light;
       transform: scale(1.01);
     }
 
@@ -212,7 +212,7 @@ onBeforeUnmount(() => {
 
     .upload__dropzone:hover & {
       background: white;
-      color: $color-teal;
+      color: $color-mint-mid;
     }
   }
 
@@ -222,7 +222,7 @@ onBeforeUnmount(() => {
   }
 
   &__highlight {
-    color: $color-teal;
+    color: $color-mint-mid;
     font-weight: 700;
   }
 
@@ -249,7 +249,7 @@ onBeforeUnmount(() => {
   &__overlay {
     position: absolute;
     inset: 0;
-    background: rgba($color-navy, 0.4);
+    background: rgba($color-green-dark, 0.4);
     display: flex;
     flex-direction: column;
     align-items: center;

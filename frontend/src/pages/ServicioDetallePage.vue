@@ -189,7 +189,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
 
 <style lang="scss" scoped>
 .hero {
-  background: linear-gradient(135deg, $color-navy 0%, $color-navy-light 100%);
+  background: linear-gradient(160deg, $color-mint-light 0%, $color-mint 60%, $color-mint-mid 140%);
   padding-block: $space-12 $space-16;
 
   &__inner {
@@ -204,12 +204,12 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
     gap: $space-2;
     font-size: $text-sm;
     font-weight: 600;
-    color: rgba($color-white, 0.6);
+    color: rgba($color-green-dark, 0.65);
     text-decoration: none;
     transition: color $transition-fast;
     width: fit-content;
 
-    &:hover { color: $color-teal; }
+    &:hover { color: $color-pink; }
   }
 
   &__content {
@@ -228,11 +228,12 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
   &__emoji {
     font-size: 4rem;
     flex-shrink: 0;
-    background: rgba($color-white, 0.06);
-    border: 1px solid rgba($color-white, 0.1);
+    background: $color-white;
+    border: 1px solid rgba($color-mint-mid, 0.35);
     border-radius: $radius-xl;
     padding: $space-5;
     display: block;
+    box-shadow: $shadow-sm;
   }
 
   &__category {
@@ -241,14 +242,14 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    color: $color-teal;
+    color: $color-pink;
     margin-bottom: $space-2;
   }
 
   &__title {
     font-size: $text-4xl;
     font-weight: 900;
-    color: $color-white;
+    color: $color-green-dark;
     margin-bottom: $space-4;
 
     @include respond-to(md) { font-size: $text-5xl; }
@@ -256,7 +257,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
 
   &__desc {
     font-size: $text-lg;
-    color: rgba($color-white, 0.75);
+    color: $color-text-muted;
     line-height: 1.7;
     max-width: 600px;
     margin-bottom: $space-5;
@@ -273,13 +274,13 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
       gap: $space-2;
       font-size: $text-sm;
       font-weight: 600;
-      color: rgba($color-white, 0.8);
-      background: rgba($color-white, 0.06);
-      border: 1px solid rgba($color-white, 0.1);
+      color: $color-green-dark;
+      background: $color-white;
+      border: 1px solid rgba($color-mint-mid, 0.35);
       padding: $space-2 $space-3;
       border-radius: $radius-full;
 
-      svg { color: $color-teal; flex-shrink: 0; }
+      svg { color: $color-pink; flex-shrink: 0; }
     }
   }
 }
@@ -296,14 +297,14 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    color: $color-teal;
+    color: $color-pink;
     margin-bottom: $space-3;
   }
 
   &__title {
     font-size: $text-4xl;
     font-weight: 900;
-    color: $color-navy;
+    color: $color-green-dark;
     margin-bottom: $space-4;
   }
 
@@ -359,7 +360,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
   &__overlay {
     position: absolute;
     inset: 0;
-    background: rgba($color-navy, 0.45);
+    background: rgba($color-green-dark, 0.45);
     @include flex-center;
     opacity: 0;
     transition: opacity $transition-base;
@@ -373,7 +374,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
   &__title {
     font-size: $text-lg;
     font-weight: 700;
-    color: $color-navy;
+    color: $color-green-dark;
     margin-bottom: $space-3;
   }
 
@@ -389,7 +390,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
   position: fixed;
   inset: 0;
   z-index: 300;
-  background: rgba($color-navy, 0.95);
+  background: rgba($color-green-dark, 0.95);
   @include flex-center;
   padding: $space-4;
 
@@ -470,7 +471,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
   &__title {
     font-size: $text-2xl;
     font-weight: 900;
-    color: $color-navy;
+    color: $color-green-dark;
   }
 
   &__grid {
@@ -493,7 +494,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
     align-items: center;
     gap: $space-6;
 
-    h1 { font-size: $text-3xl; color: $color-navy; }
+    h1 { font-size: $text-3xl; color: $color-green-dark; }
   }
 }
 </style>

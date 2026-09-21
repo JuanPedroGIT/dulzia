@@ -87,11 +87,11 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
       font-family: $font-heading;
       font-size: $text-xl;
       font-weight: 700;
-      color: $color-navy;
+      color: $color-green-dark;
 
       em {
         font-style: normal;
-        color: $color-teal;
+        color: $color-pink;
       }
     }
   }
@@ -115,8 +115,8 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
 
     &:hover,
     &.router-link-active {
-      color: $color-teal;
-      border-bottom-color: $color-teal;
+      color: $color-pink;
+      border-bottom-color: $color-pink;
     }
   }
 
@@ -132,7 +132,7 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
       display: block;
       width: 24px;
       height: 2px;
-      background: $color-navy;
+      background: $color-green-dark;
       border-radius: $radius-full;
       transition: all $transition-base;
     }
@@ -171,19 +171,19 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
     transition: color $transition-fast, background $transition-fast;
 
     &:hover, &.router-link-active {
-      color: $color-teal;
+      color: $color-pink;
       background: $color-bg-alt;
     }
 
     &--cta {
       margin: $space-4 $space-6 $space-2;
       text-align: center;
-      background: $color-teal;
+      background: $color-green-dark;
       color: $color-white !important;
       border-radius: $radius-full;
       padding: $space-3 $space-6;
 
-      &:hover { background: $color-teal-dark; }
+      &:hover { background: $color-green-deep; }
     }
   }
 

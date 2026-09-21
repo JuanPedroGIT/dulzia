@@ -57,11 +57,11 @@ function dismiss() {
     display: flex;
     flex-direction: column;
     gap: $space-4;
-    background: $color-navy;
+    background: $color-white;
     border-radius: $radius-xl;
     padding: $space-5 $space-6;
     box-shadow: $shadow-xl;
-    border: 1px solid rgba($color-white, 0.08);
+    border: 1px solid rgba($color-mint-mid, 0.35);
 
     @include respond-to(md) {
       flex-direction: row;
@@ -78,14 +78,14 @@ function dismiss() {
 
     p {
       font-size: $text-sm;
-      color: rgba($color-white, 0.8);
+      color: $color-text;
       line-height: 1.6;
       margin: 0;
 
       a {
-        color: $color-teal;
+        color: $color-pink;
         text-decoration: underline;
-        &:hover { color: color.adjust($color-teal, $lightness: 10%); }
+        &:hover { color: color.adjust($color-pink, $lightness: 15%); }
       }
     }
   }

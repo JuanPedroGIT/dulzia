@@ -3,7 +3,7 @@
     <div class="container">
       <div class="cta__inner">
         <div class="cta__text">
-          <h2 class="cta__title">¿Tienes un evento en mente?</h2>
+          <h2 class="cta__title">¿Tienes un <em>evento</em> en mente?</h2>
           <p class="cta__sub">
             Cuéntanos tu idea y te preparamos un presupuesto sin compromiso.
             Respondemos en menos de 24 horas.
@@ -33,7 +33,7 @@ import BaseButton from '@/components/ui/BaseButton.vue'
   padding-block: $space-16;
 
   &__inner {
-    background: $color-navy;
+    @include gradient-mint;
     border-radius: $radius-2xl;
     padding: $space-12 $space-8;
     display: flex;
@@ -58,7 +58,7 @@ import BaseButton from '@/components/ui/BaseButton.vue'
       width: 300px;
       height: 300px;
       border-radius: 50%;
-      background: rgba($color-teal, 0.1);
+      background: rgba($color-white, 0.35);
       pointer-events: none;
     }
   }
@@ -68,15 +68,20 @@ import BaseButton from '@/components/ui/BaseButton.vue'
   &__title {
     font-size: $text-3xl;
     font-weight: 900;
-    color: $color-white;
+    color: $color-green-dark;
     margin-bottom: $space-3;
 
     @include respond-to(md) { font-size: $text-4xl; }
+
+    em {
+      font-style: normal;
+      color: $color-pink;
+    }
   }
 
   &__sub {
     font-size: $text-base;
-    color: rgba($color-white, 0.7);
+    color: rgba($color-green-dark, 0.75);
     max-width: 460px;
     line-height: 1.7;
   }
@@ -97,11 +102,11 @@ import BaseButton from '@/components/ui/BaseButton.vue'
     gap: $space-2;
     font-size: $text-base;
     font-weight: 600;
-    color: rgba($color-white, 0.7);
+    color: $color-green-dark;
     text-decoration: none;
     transition: color $transition-fast;
 
-    &:hover { color: $color-teal; }
+    &:hover { color: $color-pink; }
   }
 }
 </style>

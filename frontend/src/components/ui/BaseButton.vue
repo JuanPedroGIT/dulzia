@@ -55,46 +55,46 @@ const tag = computed(() => {
 
   // Variants
   &--primary {
-    background: $color-teal;
+    background: $color-green-dark;
     color: $color-white;
-    box-shadow: 0 4px 16px rgba($color-teal, 0.3);
+    box-shadow: 0 4px 16px rgba($color-green-dark, 0.25);
 
     &:hover:not(:disabled) {
-      background: $color-teal-dark;
+      background: $color-green-deep;
       transform: translateY(-2px);
-      box-shadow: 0 8px 24px rgba($color-teal, 0.4);
+      box-shadow: 0 8px 24px rgba($color-green-dark, 0.35);
     }
   }
 
   &--secondary {
-    @include gradient-navy;
+    @include gradient-pink;
     color: $color-white;
-    box-shadow: $shadow-md;
+    box-shadow: 0 4px 16px rgba($color-pink, 0.3);
 
     &:hover:not(:disabled) {
       transform: translateY(-2px);
-      box-shadow: $shadow-lg;
+      box-shadow: 0 8px 24px rgba($color-pink, 0.4);
     }
   }
 
   &--outline {
     background: transparent;
-    color: $color-teal;
-    border: 2px solid $color-teal;
+    color: $color-green-dark;
+    border: 2px solid $color-green-dark;
 
     &:hover:not(:disabled) {
-      background: $color-teal;
+      background: $color-green-dark;
       color: $color-white;
     }
   }
 
   &--ghost {
     background: transparent;
-    color: $color-teal;
+    color: $color-green-dark;
     border: 2px solid transparent;
 
     &:hover:not(:disabled) {
-      background: rgba($color-teal, 0.08);
+      background: rgba($color-green-dark, 0.06);
     }
   }
 

@@ -23,7 +23,7 @@ const stats = [
 
 <style lang="scss" scoped>
 .stats {
-  @include gradient-teal;
+  @include gradient-mint;
   padding-block: $space-12;
 
   &__grid {
@@ -48,13 +48,13 @@ const stats = [
     font-family: $font-heading;
     font-size: $text-3xl;
     font-weight: 900;
-    color: $color-white;
+    color: $color-green-dark;
     line-height: 1;
   }
 
   &__label {
     font-size: $text-sm;
-    color: rgba($color-white, 0.8);
+    color: rgba($color-green-dark, 0.75);
     font-weight: 500;
   }
 }

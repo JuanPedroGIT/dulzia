@@ -144,7 +144,7 @@ const values = [
 
 <style lang="scss" scoped>
 .hero-small {
-  background: linear-gradient(135deg, $color-navy 0%, $color-navy-light 100%);
+  background: linear-gradient(160deg, $color-mint-light 0%, $color-mint 60%, $color-mint-mid 140%);
   padding-block: $space-16;
   text-align: center;
 
@@ -154,20 +154,20 @@ const values = [
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    color: $color-teal;
+    color: $color-pink;
     margin-bottom: $space-3;
   }
 
   &__title {
     font-size: $text-5xl;
     font-weight: 900;
-    color: $color-white;
+    color: $color-green-dark;
     margin-bottom: $space-4;
   }
 
   &__sub {
     font-size: $text-lg;
-    color: rgba($color-white, 0.75);
+    color: $color-text-muted;
     max-width: 560px;
     margin-inline: auto;
     line-height: 1.7;
@@ -191,8 +191,8 @@ const values = [
     width: 300px;
     height: 300px;
     border-radius: 60% 40% 70% 30% / 50% 60% 40% 50%;
-    background: linear-gradient(135deg, rgba($color-teal, 0.15), rgba($color-navy, 0.08));
-    border: 2px solid rgba($color-teal, 0.2);
+    background: linear-gradient(135deg, rgba($color-mint, 0.55), rgba($color-pink, 0.12));
+    border: 2px solid rgba($color-mint-mid, 0.45);
   }
 
   &__big-emoji { font-size: 5rem; }
@@ -203,14 +203,14 @@ const values = [
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    color: $color-teal;
+    color: $color-pink;
     margin-bottom: $space-3;
   }
 
   &__title {
     font-size: $text-3xl;
     font-weight: 900;
-    color: $color-navy;
+    color: $color-green-dark;
     margin-bottom: $space-5;
 
     @include respond-to(md) { font-size: $text-4xl; }
@@ -222,7 +222,7 @@ const values = [
     line-height: 1.75;
     margin-bottom: $space-4;
 
-    strong { color: $color-navy; }
+    strong { color: $color-green-dark; }
   }
 }
 
@@ -238,14 +238,14 @@ const values = [
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    color: $color-teal;
+    color: $color-pink;
     margin-bottom: $space-3;
   }
 
   &__title {
     font-size: $text-4xl;
     font-weight: 900;
-    color: $color-navy;
+    color: $color-green-dark;
   }
 
   &__grid {
@@ -263,7 +263,7 @@ const values = [
   background: $color-white;
   border-radius: $radius-xl;
   box-shadow: $shadow-md;
-  border-left: 4px solid $color-teal;
+  border-left: 4px solid $color-pink;
   animation: fadeInUp 0.6s ease both;
   animation-delay: var(--delay, 0ms);
   transition: transform $transition-base, box-shadow $transition-base;
@@ -278,7 +278,7 @@ const values = [
   &__title {
     font-size: $text-lg;
     font-weight: 700;
-    color: $color-navy;
+    color: $color-green-dark;
     margin-bottom: $space-2;
   }
 
@@ -309,7 +309,7 @@ const values = [
       display: block;
       font-size: $text-sm;
       font-weight: 700;
-      color: $color-navy;
+      color: $color-green-dark;
       margin-bottom: $space-1;
     }
 
@@ -319,7 +319,7 @@ const values = [
       line-height: 1.6;
 
       a {
-        color: $color-teal;
+        color: $color-pink;
         text-decoration: none;
         &:hover { text-decoration: underline; }
       }

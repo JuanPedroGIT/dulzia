@@ -175,7 +175,7 @@ function confirm() {
 .cropper-modal {
   position: fixed;
   inset: 0;
-  background: rgba($color-navy, 0.88);
+  background: rgba($color-green-deep, 0.62);
   backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
@@ -202,7 +202,7 @@ function confirm() {
     justify-content: space-between;
     align-items: flex-start;
 
-    h3 { font-size: $text-xl; color: $color-navy; margin-bottom: $space-1; }
+    h3 { font-size: $text-xl; color: $color-green-dark; margin-bottom: $space-1; }
     p  { font-size: $text-xs; color: $color-text-muted; margin: 0; }
   }
 
@@ -236,7 +236,7 @@ function confirm() {
       }
       input[type="range"] {
         flex: 1;
-        accent-color: $color-teal;
+        accent-color: $color-mint-mid;
       }
     }
   }
@@ -268,7 +268,7 @@ function confirm() {
   color: $color-text-muted;
   cursor: pointer;
   padding: $space-1;
-  &:hover { color: $color-navy; }
+  &:hover { color: $color-green-dark; }
 }
 
 .btn-reset {
@@ -291,12 +291,12 @@ function confirm() {
   font-size: $text-sm;
   color: $color-text-muted;
   transition: all 0.15s;
-  &:hover { background: $color-bg-alt; color: $color-navy; }
+  &:hover { background: $color-bg-alt; color: $color-green-dark; }
 }
 
 .btn-confirm {
   padding: $space-3 $space-8;
-  background: $color-teal;
+  background: $color-mint-mid;
   color: white;
   border: none;
   border-radius: $radius-md;
@@ -305,9 +305,9 @@ function confirm() {
   display: flex;
   align-items: center;
   gap: $space-2;
-  box-shadow: 0 4px 12px rgba($color-teal, 0.3);
+  box-shadow: 0 4px 12px rgba($color-mint-mid, 0.3);
   transition: all 0.15s;
-  &:hover { background: $color-teal-dark; transform: translateY(-1px); }
+  &:hover { background: $color-green-dark; transform: translateY(-1px); }
 }
 
 @keyframes scaleIn {
