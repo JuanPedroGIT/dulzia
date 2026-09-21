@@ -25,7 +25,7 @@ EXPOSE 8000
 CMD ["php", "-S", "0.0.0.0:8000", "-t", "public"]
 
 FROM base AS prod
-RUN echo "opcache.enable=1\nopcache.memory_consumption=128\nopcache.max_accelerated_files=10000\nopcache.validate_timestamps=0" \
+RUN printf "opcache.enable=1\nopcache.memory_consumption=128\nopcache.max_accelerated_files=10000\nopcache.validate_timestamps=0\n" \
     > /usr/local/etc/php/conf.d/zz-opcache-prod.ini
 COPY composer.json composer.lock* ./
 RUN composer install --no-dev --optimize-autoloader --no-interaction --no-scripts
