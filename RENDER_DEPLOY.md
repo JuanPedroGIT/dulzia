@@ -26,12 +26,14 @@ Esta guía detalla cómo desplegar el proyecto completo en [Render](https://rend
    - `APP_ENV`: `prod`
    - `APP_SECRET`: (Genera una cadena aleatoria larga)
    - `CORS_ALLOW_ORIGIN`: `https://tu-frontend.onrender.com` (Actualízalo después de crear el front)
-5. **Persistent Disk** (Crítico para las fotos):
-   - Ve a la pestaña **Disks**.
-   - Haz clic en **Add Disk**.
-   - **Name**: `uploads-disk`
-   - **Mount Path**: `/app/public/uploads`
-   - **Size**: `1GB` (suficiente para empezar)
+   - `R2_ACCOUNT_ID`: Account ID de Cloudflare
+   - `R2_ACCESS_KEY_ID`: Access Key ID del token R2 (Object Read & Write)
+   - `R2_ACCESS_KEY_SECRET`: Secret Access Key del token R2
+   - `R2_BUCKET_NAME`: nombre del bucket
+   - `R2_PUBLIC_URL`: URL pública del bucket (r2.dev o dominio propio)
+
+> [!NOTE]
+> Las fotos se sirven desde Cloudflare R2 (`R2_PUBLIC_URL`); el bucket debe tener el acceso público r2.dev habilitado. **No hace falta disco persistente.**
 
 ## 3. Frontend (Vue.js)
 

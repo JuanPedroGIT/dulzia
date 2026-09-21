@@ -24,6 +24,7 @@ Cada funcionalidad vive en su propia ruta protegida y consume una API REST en el
 | Base de datos | PostgreSQL 16 |
 | Cola de mensajes | Symfony Messenger + Redis 7 |
 | Email transaccional | Brevo REST API |
+| Almacenamiento de archivos | Cloudflare R2 (S3 API, aws-sdk-php) |
 | Autenticación | JWT HS256 propio (`hash_hmac`, sin librería externa) |
 | Contraseñas | bcrypt vía `password_hash()` PHP nativo |
 | CORS | NelmioCorsBundle |
@@ -69,6 +70,7 @@ project-root/
 │   │   ├── Entity/             # Entidades Doctrine
 │   │   ├── Infrastructure/
 │   │   │   ├── Email/          # Implementación del mailer (Brevo)
+│   │   │   ├── Storage/        # Implementación del almacenamiento de archivos (Cloudflare R2)
 │   │   │   ├── Repository/     # DoctrineXxxRepository
 │   │   │   └── Security/       # JwtService + JwtServiceInterface
 │   │   ├── Service/            # Servicios de aplicación complejos
@@ -201,6 +203,11 @@ services:
 | `DEFAULT_URI` | URL base del frontend (para links en emails) |
 | `EMAIL_API_KEY` | API key del proveedor de email |
 | `CORS_ALLOW_ORIGIN` | Regex de orígenes permitidos |
+| `R2_ACCOUNT_ID` | Account ID de Cloudflare |
+| `R2_ACCESS_KEY_ID` | Access Key ID del token R2 (Object Read & Write) |
+| `R2_ACCESS_KEY_SECRET` | Secret Access Key del token R2 |
+| `R2_BUCKET_NAME` | Nombre del bucket R2 |
+| `R2_PUBLIC_URL` | URL pública del bucket (r2.dev o dominio propio) |
 
 ### Frontend (Nginx)
 | Variable | Descripción |

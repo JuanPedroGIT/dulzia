@@ -18,6 +18,9 @@ backend/var/
 backend/.env
 backend/.env.prod
 
+# Fotos servidas desde Cloudflare R2 (ya no se versionan)
+backend/public/uploads/
+
 # Docker Compose generados por Symfony Flex (usamos el del root)
 backend/compose.yaml
 backend/compose.override.yaml
@@ -49,6 +52,11 @@ frontend/dist/
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# ===========================
+# DOCS — planes locales (no versionar)
+# ===========================
+docs/
 
 # ===========================
 # IDEs

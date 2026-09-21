@@ -53,7 +53,15 @@ El archivo `docker-compose.yml` de este repositorio ya está modificado. Sólo t
    # Ejemplo en backend/.env o raíz:
    POSTGRES_PASSWORD=tu_contraseña_de_dulzia
    ```
-3. Inicia el servidor mediante `make`:
+3. Configura en el `.env` raíz del servidor las variables de Cloudflare R2 (las fotos ya no dependen de volumen local):
+   ```env
+   R2_ACCOUNT_ID=tu_account_id
+   R2_ACCESS_KEY_ID=tu_access_key_id
+   R2_ACCESS_KEY_SECRET=tu_access_key_secret
+   R2_BUCKET_NAME=dulzia-salamanca
+   R2_PUBLIC_URL=https://pub-xxxxxxxxxxxxxxxxxxxxxxxxxxxx.r2.dev
+   ```
+4. Inicia el servidor mediante `make`:
    ```bash
    make up
    ```

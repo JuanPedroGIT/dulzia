@@ -6,17 +6,20 @@ services:
     container_name: dulzia-backend
     restart: unless-stopped
     env_file: .env
+    ports:
+      - "8000:8000"
     environment:
       APP_ENV: dev
       APP_DEBUG: "1"
       DEFAULT_URI: "http://localhost"
       DATABASE_URL: "postgresql://dulzia:${DULZIA_DB_PASS}@shared-postgres-db:5432/dulzia?serverVersion=16&charset=utf8"
     networks:
-      - shared-network
+      shared-network:
+        aliases:
+          - backend
     volumes:
       - ./backend:/var/www/html
       - /var/www/html/vendor
-      - ./backend/public/uploads:/var/www/html/public/uploads
 
   dulzia-frontend:
     build:
@@ -24,6 +27,8 @@ services:
       target: dev
     container_name: dulzia-frontend
     restart: unless-stopped
+    ports:
+      - "5173:80"
     networks:
       - shared-network
     volumes:

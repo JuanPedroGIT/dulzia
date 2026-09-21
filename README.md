@@ -11,6 +11,7 @@ Web de marketing para [Dulzia Salamanca Eventos](https://www.dulziasalamancaeven
 | Backend | Symfony 7 · PHP 8.3 · Arquitectura Hexagonal + CQRS |
 | Base de datos | PostgreSQL 16 |
 | Email | Brevo REST API v3 |
+| Almacenamiento | Cloudflare R2 (S3 API) |
 | Frontend | Vue 3 (Composition API) · Vite 5 · SCSS |
 | Routing | Vue Router 4 |
 | Estado global | Pinia |
@@ -31,7 +32,7 @@ dulziasalamanca/
 │   │   ├── Domain/           # Interfaces de repositorio
 │   │   ├── Entity/           # Entidades Doctrine
 │   │   ├── EventListener/    # ApiExceptionListener
-│   │   └── Infrastructure/   # Email (Brevo) + Repositorios
+│   │   └── Infrastructure/   # Email (Brevo) + Repositorios + Storage (R2)
 │   ├── migrations/           # Migraciones de base de datos
 │   ├── config/               # Configuración Symfony
 │   └── tests/                # PHPUnit
@@ -188,6 +189,11 @@ make sync-npm        # Sincronizar node_modules del contenedor → local
 | `BREVO_API_KEY` | API key de Brevo para envío de emails |
 | `APP_SECRET` | Clave secreta de Symfony (mínimo 32 caracteres) |
 | `CORS_ALLOW_ORIGIN` | Regex de orígenes permitidos para CORS |
+| `R2_ACCOUNT_ID` | Account ID de Cloudflare (dash → R2) |
+| `R2_ACCESS_KEY_ID` | Access Key ID del API token de R2 (Object Read & Write) |
+| `R2_ACCESS_KEY_SECRET` | Secret Access Key del API token de R2 |
+| `R2_BUCKET_NAME` | Nombre del bucket R2 de fotos |
+| `R2_PUBLIC_URL` | URL pública del bucket (r2.dev o dominio propio) |
 
 ### Backend (`backend/.env`)
 
@@ -222,6 +228,7 @@ Los tests del frontend cubren el composable `useContactForm` (lógica del formul
    - `APP_SECRET`
    - `CORS_ALLOW_ORIGIN` (dominio de producción)
    - `BACKEND_UPSTREAM` (URL interna del backend para Nginx)
+   - `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_ACCESS_KEY_SECRET`, `R2_BUCKET_NAME`, `R2_PUBLIC_URL` (fotos en Cloudflare R2 — el bucket debe tener r2.dev público habilitado)
 6. Ejecuta la migración inicial:
    ```bash
    railway run php bin/console doctrine:migrations:migrate --no-interaction

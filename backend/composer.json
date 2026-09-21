@@ -5,6 +5,7 @@
     "license": "proprietary",
     "require": {
         "php": ">=8.3",
+        "aws/aws-sdk-php": "^3.0",
         "doctrine/doctrine-bundle": "^2.11",
         "doctrine/doctrine-migrations-bundle": "^3.3",
         "doctrine/orm": "^3.0",

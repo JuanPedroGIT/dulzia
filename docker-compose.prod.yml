@@ -12,8 +12,6 @@ services:
       DATABASE_URL: "postgresql://dulzia:${DULZIA_DB_PASS}@shared-postgres-db:5432/dulzia?serverVersion=16&charset=utf8"
     networks:
       - shared-network
-    volumes:
-      - ./backend/public/uploads:/var/www/html/public/uploads
 
   dulzia-frontend:
     build:

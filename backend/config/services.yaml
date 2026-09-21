@@ -16,12 +16,21 @@ services:
     App\Domain\Contact\ContactRepositoryInterface: '@App\Infrastructure\Repository\DoctrineContactRepository'
     App\Domain\Service\ServiceRepositoryInterface: '@App\Infrastructure\Repository\DoctrineServiceRepository'
     App\Domain\Service\ServiceExampleRepositoryInterface: '@App\Infrastructure\Repository\DoctrineServiceExampleRepository'
-    App\Infrastructure\Storage\FileStorageInterface: '@App\Infrastructure\Storage\LocalFileStorage'
+    App\Infrastructure\Storage\FileStorageInterface: '@App\Infrastructure\Storage\CloudflareR2Storage'
 
     App\Infrastructure\Email\BrevoMailer:
         arguments:
             $apiKey: '%env(EMAIL_API_KEY)%'
 
+    App\Infrastructure\Storage\CloudflareR2Storage:
+        arguments:
+            $accountId: '%env(R2_ACCOUNT_ID)%'
+            $accessKeyId: '%env(R2_ACCESS_KEY_ID)%'
+            $accessKeySecret: '%env(R2_ACCESS_KEY_SECRET)%'
+            $bucket: '%env(R2_BUCKET_NAME)%'
+            $publicUrl: '%env(R2_PUBLIC_URL)%'
+
+    # Conservado para rollback rápido: volver el alias de arriba a LocalFileStorage
     App\Infrastructure\Storage\LocalFileStorage:
         arguments:
             $uploadDir: '%kernel.project_dir%/public/uploads/services'
