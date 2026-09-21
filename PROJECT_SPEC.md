@@ -1,14 +1,15 @@
-# PROJECT SPEC — Full-Stack Web App (Symfony + Vue 3)
+# PROJECT SPEC — Dulzia Salamanca Eventos (Symfony + Vue 3)
 
-> Plantilla de arquitectura, stack y patrones para proyectos full-stack con backend PHP y frontend SPA.
-> Al iniciar un proyecto nuevo con esta spec, leer este archivo para saber cómo estructurarlo.
+> Especificación del proyecto: arquitectura, stack y patrones realmente implementados.
+> Sirve como referencia para mantener el proyecto y como plantilla para proyectos nuevos.
 
 ---
 
 ## Concepto General
 
-Aplicación web con múltiples funcionalidades independientes bajo un mismo frontend SPA autenticado.
-Cada funcionalidad vive en su propia ruta protegida y consume una API REST en el backend.
+Web de marketing de Dulzia Salamanca Eventos: catálogo público de servicios con fotos
+y formulario de contacto, más un panel de administración autenticado para gestionar
+servicios, fotos y mensajes recibidos. Backend API REST en Symfony, frontend SPA en Vue.
 
 ---
 
@@ -19,125 +20,166 @@ Cada funcionalidad vive en su propia ruta protegida y consume una API REST en el
 |---|---|
 | Framework | Symfony 7 |
 | Lenguaje | PHP 8.3 |
-| Arquitectura | Hexagonal (DDD) + CQRS ligero |
+| Arquitectura | Hexagonal + CQRS ligero + SOLID |
 | ORM | Doctrine ORM 3 + Doctrine Migrations |
-| Base de datos | PostgreSQL 16 |
-| Cola de mensajes | Symfony Messenger + Redis 7 |
-| Email transaccional | Brevo REST API |
+| Base de datos | PostgreSQL 16 (contenedor compartido de infra) |
+| Email transaccional | Brevo REST API (curl) |
 | Almacenamiento de archivos | Cloudflare R2 (S3 API, aws-sdk-php) |
-| Autenticación | JWT HS256 propio (`hash_hmac`, sin librería externa) |
+| Autenticación | Token único de admin en BD (64-hex, expiración 8 h) — sin JWT |
 | Contraseñas | bcrypt vía `password_hash()` PHP nativo |
 | CORS | NelmioCorsBundle |
+| Tests | PHPUnit 11 (unit + integración WebTestCase) |
+
+> No hay procesamiento asíncrono: no se usa Messenger ni colas. El stack de infra
+> incluye Redis para otros proyectos, pero esta app no lo consume.
 
 ### Frontend
 | Elemento | Tecnología |
 |---|---|
 | Framework | Vue 3 (Composition API) |
 | Bundler | Vite 5 |
-| Routing | Vue Router 4 |
-| Estado global | Pinia + `pinia-plugin-persistedstate` |
+| Routing | Vue Router 4 (guards por `meta.requiresAuth`) |
+| Estado | Composable `useAuth` + `localStorage` (sin stores Pinia hoy) |
 | Estilos | SCSS con variables y mixins propios |
 | Tests | Vitest |
-| PWA | vite-plugin-pwa |
-| Servidor estático | Nginx (con `envsubst` para inyección de variables) |
+| Servidor | Nginx (con `envsubst` para inyección de variables) |
 
 ### Infraestructura
 | Elemento | Tecnología |
 |---|---|
-| Local | Docker Compose |
-| Producción | Railway + Nixpacks |
-| Reverse proxy | Nginx dentro del contenedor frontend |
+| Local | Docker Compose (servicios dulzia-backend y dulzia-frontend en la red compartida `shared-network`) |
+| Producción | VPS compartido media-tools (`docker-compose.prod.yml` + nginx de infra + túnel cloudflared). Alternativa Render documentada en `RENDER_DEPLOY.md` |
+| Base de datos | `shared-postgres-db` (proyecto infra compartido, BD propia `dulzia`) |
+| Reverse proxy | Nginx de infra (routing por `server_name`) + nginx del contenedor frontend (SPA + proxy `/api`) |
 
 ---
 
 ## Estructura de Directorios
 
 ```
-project-root/
+dulziasalamanca/
 ├── .env                        # Secrets raíz — .gitignored
-├── docker-compose.yml
-├── Makefile                    # Comandos de desarrollo
+├── .env.example                # Placeholders sin secretos
+├── docker-compose.yml          # Dev (2 servicios, red externa shared-network)
+├── docker-compose.prod.yml     # Producción (servidor compartido)
+├── Makefile                    # Comandos de desarrollo, tests y producción
 ├── README.md
 ├── PROJECT_SPEC.md
 ├── backend/                    # Symfony 7
-│   ├── config/packages/        # messenger.yaml, doctrine.yaml, nelmio_cors.yaml, etc.
+│   ├── config/
+│   │   ├── packages/           # doctrine.yaml, framework.yaml, nelmio_cors.yaml... + test/
+│   │   ├── services.yaml       # Alias puertos→adaptadores
+│   │   └── services_test.yaml  # Dobles de test (mailer y storage)
 │   ├── migrations/             # Una migration por cambio de esquema
 │   ├── public/
 │   ├── src/
-│   │   ├── Application/        # Command Handlers (CQRS) — una carpeta por feature
-│   │   ├── Controller/         # HTTP Controllers (delgados: solo deserializar y responder)
-│   │   ├── Domain/             # Interfaces de repositorio y excepciones — una carpeta por feature
-│   │   ├── Entity/             # Entidades Doctrine
-│   │   ├── Infrastructure/
-│   │   │   ├── Email/          # Implementación del mailer (Brevo)
-│   │   │   ├── Storage/        # Implementación del almacenamiento de archivos (Cloudflare R2)
-│   │   │   ├── Repository/     # DoctrineXxxRepository
-│   │   │   └── Security/       # JwtService + JwtServiceInterface
-│   │   ├── Service/            # Servicios de aplicación complejos
-│   │   ├── EventListener/
-│   │   │   ├── JwtAuthListener.php      # Valida JWT en rutas protegidas
-│   │   │   └── ApiExceptionListener.php # Convierte excepciones de dominio a JSON
-│   │   ├── Command/            # Comandos de consola Symfony
-│   │   └── Message/            # Mensajes para Symfony Messenger
+│   │   ├── Application/        # Commands/Queries + Handlers — una carpeta por caso de uso
+│   │   │   ├── AdminAuth/      #   Login, Logout
+│   │   │   ├── Contact/SubmitContact/
+│   │   │   └── Service/        #   CreateService, UpdateService, ActivateService,
+│   │   │                       #   AddPhoto, UpdatePhoto, DeletePhoto, ListServices,
+│   │   │                       #   GetService, ListCatalogServices, GetCatalogService,
+│   │   │                       #   ServiceCommandFactory (parseo body→command)
+│   │   ├── Command/            # app:admin:init
+│   │   ├── Controller/         # Delgados: ServiceController, ContactController,
+│   │   │                       #   AdminAuthController, AdminServiceController,
+│   │   │                       #   AdminPhotoController, HealthController
+│   │   ├── Domain/             # Puertos (interfaces) y excepciones — una carpeta por feature
+│   │   │   ├── Admin/          #   AdminUserRepositoryInterface, AdminTokenStoreInterface,
+│   │   │   │                   #   InvalidCredentialsException
+│   │   │   ├── Contact/        #   ContactRepositoryInterface, MailerInterface
+│   │   │   ├── Service/        #   ServiceRepositoryInterface, ServiceExampleRepositoryInterface
+│   │   │   ├── Storage/        #   FileStorageInterface, InvalidFileException
+│   │   │   └── Shared/         #   NotFoundException, InvalidInputException,
+│   │   │                       #   HttpMappableExceptionInterface
+│   │   ├── Entity/             # Service, ServiceExample, ContactSubmission, AdminUser, AdminToken
+│   │   ├── EventListener/      # ApiExceptionListener + AdminAuthListener
+│   │   └── Infrastructure/
+│   │       ├── Email/          # BrevoMailer (transporte) + ContactMailRenderer (plantillas)
+│   │       ├── Repository/     # DoctrineXxxRepository
+│   │       ├── Security/       # DatabaseAdminTokenStore
+│   │       └── Storage/        # CloudflareR2Storage (+ LocalFileStorage de rollback)
 │   ├── tests/
-│   │   ├── Unit/
-│   │   └── Integration/
-│   ├── Dockerfile              # Multi-stage build
+│   │   ├── Unit/               # Un test por handler, entidades, storage, security, listeners
+│   │   ├── Integration/        # WebTestCase por controller sobre BD dulzia_test
+│   │   ├── Support/            # TestFactory (fixtures)
+│   │   └── TestDoubles/        # NullMailer, FakeFileStorage
+│   ├── Dockerfile              # Multi-stage (dev con xdebug, prod con opcache)
 │   └── composer.json
 │
 └── frontend/                   # Vue 3
     ├── src/
-    │   ├── pages/              # Un componente por ruta
+    │   ├── pages/              # Home, Servicios, ServicioDetalle, Nosotros, Contacto,
+    │   │                       # PoliticaCookies + admin/ (Login, Dashboard, ServiceDetail)
     │   ├── components/
-    │   │   ├── ui/             # Componentes base: BaseButton, BaseInput, BaseModal, BaseAlert, BaseSpinner
-    │   │   ├── layout/         # Wrappers de layout
-    │   │   └── features/       # Componentes específicos de cada feature
-    │   ├── composables/        # Lógica de negocio (useAuth, useXxx)
-    │   ├── services/           # Clientes HTTP (api.js + un service por dominio)
-    │   ├── stores/             # Pinia stores (solo estado global persistente)
+    │   │   ├── ui/             # BaseButton, BaseInput, BaseTextarea, BaseSpinner,
+    │   │   │                   # BaseFileUpload, ImageCropperModal
+    │   │   ├── layout/         # NavBar, AppFooter
+    │   │   └── features/       # HeroSection, StatsBar, ServicesOverview, ServiceCard,
+    │   │                       # ContactForm, CtaBanner, CookieBanner
+    │   ├── composables/        # useAuth, useContactForm, useSeo, useServices
+    │   ├── services/           # api.js (cliente base) + contactService.js + adminService.js
     │   ├── router/             # index.js con guards de navegación
-    │   ├── styles/             # _variables.scss, _mixins.scss, _animations.scss, main.scss
-    │   ├── App.vue
-    │   └── main.js
-    ├── __tests__/              # Vitest
+    │   └── styles/             # variables.scss, mixins.scss, main.scss
+    ├── __tests__/              # Vitest (useContactForm.spec.js)
     ├── Dockerfile
-    ├── nginx.conf              # Proxy + SPA fallback + headers de seguridad
-    └── vite.config.js
+    └── nginx.conf              # SPA fallback + proxy /api + envsubst
 ```
 
 ---
 
-## Arquitectura Backend (Hexagonal + CQRS)
+## Arquitectura Backend (Hexagonal + CQRS + SOLID)
 
 ### Flujo de una petición
 ```
 HTTP Request
-  → Controller (deserializa + valida input básico)
+  → Controller (deserializa + valida input básico; construye command/query)
     → Application/CommandHandler (orquesta dominio e infraestructura)
-      → Domain (lógica pura, interfaces)
-      → Infrastructure (DB, email, filesystem, etc.)
+      → Domain (puertos y excepciones)
+      → Infrastructure (DB, email, storage, tokens)
   → Controller (serializa respuesta JSON)
 ```
 
 ### Reglas
-- **Controllers**: nunca lógica de negocio. Solo deserializar input y serializar respuesta.
-- **CommandHandlers** (`Application/`): no saben nada de HTTP.
-- **Domain**: solo interfaces de repositorio y excepciones. Sin dependencias de infraestructura.
-- **Infrastructure**: implementa las interfaces del dominio.
-- **ApiExceptionListener**: centraliza la conversión de excepciones de dominio a respuestas JSON con el código HTTP apropiado.
+- **Controllers**: nunca lógica de negocio. Solo deserializar, validar input básico
+  y responder. Sin try/catch de excepciones de dominio (las mapea el listener).
+  Agrupados por agregado: `AdminServiceController` (Service) y `AdminPhotoController`
+  (ServiceExample) — SRP.
+- **Factories de comandos**: el parseo del body JSON vive en factories
+  (`ServiceCommandFactory`), no duplicado en los controllers.
+- **CommandHandlers** (`Application/`): no saben nada de HTTP. Un handler por caso
+  de uso, una carpeta por feature. Solo dependen de puertos del Domain (DIP).
+- **Domain**: solo puertos (interfaces) y excepciones. Sin dependencias de
+  infraestructura.
+- **Excepciones de dominio**: implementan `HttpMappableExceptionInterface`
+  (`getStatusCode()`). El `ApiExceptionListener` no cambia cuando se añade una
+  excepción nueva — principio abierto/cerrado.
+- **Infrastructure**: implementa los puertos del dominio; el wiring es por alias
+  en `services.yaml`.
+- **Validación de entrada**: las reglas viven en los commands (`#[Assert]` en
+  `SubmitContactCommand`) — única fuente de verdad. El controller valida y lanza
+  `ValidationFailedException` → el listener responde 422 con errores por campo.
 
-### Autenticación JWT
-- Implementación propia con `hash_hmac('SHA256', ...)` — sin librería externa
-- `JwtService::generateToken(userId, username, expiresIn)` → JWT firmado HS256
-- `JwtAuthListener` intercepta cada request a rutas protegidas y valida firma + expiración
-- Expiración: 24 horas
-- Token almacenado en `localStorage` del frontend (gestionado por el Pinia store)
+### Mapeo de errores (`ApiExceptionListener`)
+| Excepción | Respuesta |
+|---|---|
+| `ValidationFailedException` | 422 `{errors: {campo: [mensajes]}}` |
+| `HttpMappableExceptionInterface` (`NotFoundException` 404, `InvalidFileException` 400, `InvalidInputException` 400, `InvalidCredentialsException` 401) | status propio, `{error: mensaje}` |
+| `HttpExceptionInterface` | status propio, `{error: mensaje}` |
+| Cualquier otra | 500 `{error: 'Error interno del servidor'}` |
 
-### Procesamiento asíncrono (cuando aplique)
-- Los jobs pesados se despachan como mensajes Messenger al transporte Redis
-- Worker separado en su propio contenedor Docker — mismo Dockerfile que el backend, diferente comando de inicio
-- Retry: 3 intentos, delay inicial 1s, multiplicador 2x
-- Estado del job en archivos temporales en `/tmp/`; auto-limpiados tras la respuesta
+### Autenticación admin
+- `POST /api/admin/login` → verifica bcrypt contra `admin_user` → genera token
+  64-hex almacenado en `admin_token` (expiración 8 h, un solo token válido a la vez).
+- `AdminAuthListener` exige `Authorization: Bearer <token>` en todas las rutas
+  `/api/admin` excepto el login.
+- `POST /api/admin/logout` borra todos los tokens.
+- La lógica vive en `Application/AdminAuth/Login` y `Logout` (handlers), no en
+  el controller.
+
+### IDs de servicio
+`ServiceIdGenerator`: slug del nombre (`preg_replace` + `strtolower` + trim) y
+sufijo numérico (`time()`) si el ID ya existe.
 
 ---
 
@@ -148,26 +190,27 @@ HTTP Request
 Page Component
   → Composable (useXxx.js)    ← toda la lógica de negocio
     → Service (xxxService.js) ← llamadas HTTP puras
-      → api.js                ← cliente base (añade JWT, maneja 401)
+      → api.js                ← cliente base (añade JWT/token, maneja 401)
 ```
 
 ### Convenciones
-- **Pages**: orquestan composables; no contienen lógica de negocio directamente
+- **Pages**: orquestan composables; no contienen lógica de negocio directamente.
 - **Composables**: devuelven `{ state, actions }`. Son la unidad testeble del frontend.
-- **Services**: funciones puras sin estado; solo fetch
-- **Stores (Pinia)**: únicamente para estado global persistente (token JWT, usuario autenticado)
-- **Componentes UI base** (`ui/`): reutilizables en toda la app, sin lógica de dominio
+- **Services**: funciones puras sin estado; solo fetch.
+- **Auth**: `useAuth` + `localStorage('admin_token')`; no hay stores Pinia.
 
 ### Routing
-- Rutas públicas: `/`, `/login`, `/register`, `/verify-email`, `/forgot-password`, `/reset-password`
-- Rutas protegidas: cualquier funcionalidad que requiera autenticación
-- Guard: si no hay token en el store → redirect a `/login`
+- Rutas públicas: `/`, `/servicios`, `/servicios/:id`, `/nosotros`, `/contacto`, `/cookies`.
+- Rutas admin protegidas (`meta.requiresAuth`): `/dulzia-panel`, `/dulzia-panel/login`,
+  `/dulzia-panel/servicios/:id`.
+- Guard: si no hay token en localStorage → redirect al login.
 
 ### Comunicación con el backend
-- **Nginx actúa como proxy**: el frontend solo habla con su propio origen — sin CORS
-- Nginx reenvía `/api/*` y cualquier path de la API al backend
-- En desarrollo, Vite proxy replica el mismo comportamiento
-- `api.js`: inyecta `Authorization: Bearer <token>` y hace auto-logout en 401
+- **Nginx actúa como proxy**: el frontend solo habla con su mismo origen — sin CORS
+  en producción (el `CORS_ALLOW_ORIGIN` cubre accesos directos y dev).
+- Nginx reenvía `/api/*` al backend (`BACKEND_UPSTREAM`).
+- En desarrollo, Vite replica el mismo comportamiento con proxy a `backend:8000`.
+- `api.js`: inyecta `Authorization: Bearer <token>` y maneja 401.
 
 ---
 
@@ -175,50 +218,46 @@ Page Component
 
 ```yaml
 services:
-  backend:    # Symfony — expone puerto de API
-  worker:     # Mismo Dockerfile que backend; comando: messenger:consume async
-  redis:      # Redis 7
-  postgres:   # PostgreSQL 16
-  frontend:   # Nginx + Vue build estático
+  dulzia-backend:   # Symfony, puerto 8000 publicado, alias "backend" en la red
+  dulzia-frontend:  # Nginx + Vue (dev), puerto 5173 publicado
+networks:
+  shared-network:   # externa: la crea el proyecto infra (postgres, redis, nginx, cloudflared)
 ```
 
-- Red `app-network` bridge para comunicación entre servicios
-- Volumen `pgdata` para persistencia de PostgreSQL
-- Volúmenes compartidos entre backend y worker para archivos temporales si aplica
-- El worker reutiliza la imagen del backend (no hay Dockerfile extra)
+- La BD vive en `shared-postgres-db` (proyecto infra); `DATABASE_URL` la inyecta compose.
+- El `.env` raíz se inyecta a los contenedores vía `env_file`.
+- Sin volúmenes de uploads: las fotos van a Cloudflare R2.
 
 ---
 
 ## Variables de Entorno
 
-### Backend
+### Raíz (`.env`, gitignored)
 | Variable | Descripción |
 |---|---|
-| `APP_ENV` | `prod` en producción |
+| `APP_ENV` | `dev` local / `prod` en producción |
 | `APP_SECRET` | String aleatorio de 32+ chars (Symfony) |
-| `JWT_SECRET` | Clave de firma JWT |
-| `DATABASE_URL` | DSN PostgreSQL |
-| `REDIS_URL` | URL Redis |
-| `MESSENGER_TRANSPORT_DSN` | DSN Redis para Messenger |
-| `DEFAULT_URI` | URL base del frontend (para links en emails) |
-| `EMAIL_API_KEY` | API key del proveedor de email |
 | `CORS_ALLOW_ORIGIN` | Regex de orígenes permitidos |
+| `APP_URL` | URL base pública de la web |
+| `DEFAULT_URI` | URL base del frontend (links en emails) |
+| `BREVO_API_KEY` | API key de Brevo (email) |
+| `DULZIA_DB_PASS` | Contraseña del usuario `dulzia` en el postgres compartido |
+| `TRUSTED_PROXIES` / `TRUSTED_HEADERS` | Proxy de confianza (cloudflared → nginx → backend) |
 | `R2_ACCOUNT_ID` | Account ID de Cloudflare |
 | `R2_ACCESS_KEY_ID` | Access Key ID del token R2 (Object Read & Write) |
 | `R2_ACCESS_KEY_SECRET` | Secret Access Key del token R2 |
 | `R2_BUCKET_NAME` | Nombre del bucket R2 |
 | `R2_PUBLIC_URL` | URL pública del bucket (r2.dev o dominio propio) |
+| `VITE_API_URL` | Vacío = rutas relativas (proxy por nginx/Vite) |
 
-### Frontend (Nginx)
-| Variable | Descripción |
-|---|---|
-| `BACKEND_UPSTREAM` | URL del backend |
-| `PORT` | Puerto en el que escucha Nginx |
+### Backend (`backend/.env`)
+Solo passthrough `${VAR}` sin valores reales (template versionable).
+El `.env` raíz inyecta los valores vía `env_file` del compose.
 
 ### Gestión de secrets
-- `.env` en la raíz contiene los secrets reales → **nunca commitear**
-- `backend/.env` es un template con valores de ejemplo para desarrollo local
-- En producción (Railway): variables configuradas en el dashboard
+- `.env` en la raíz contiene los secrets reales → **nunca commitear**.
+- `.env.example` lleva los placeholders.
+- En el servidor compartido, el `.env` se copia manualmente (ver Despliegue).
 
 ---
 
@@ -227,94 +266,105 @@ services:
 | Medida | Implementación |
 |---|---|
 | Contraseñas | bcrypt (`password_hash` PHP nativo) |
-| JWT | HS256 con `hash_hmac`, expiry 24h |
-| Tokens de verificación/reset | 64-char hex; expiry 24h (verificación) / 1h (reset) |
-| Anti-enumeración | Reset password y verify email siempre devuelven 200 OK |
-| Comandos de sistema | Usar array de argumentos en `proc_open`, nunca strings construidos con input del usuario |
-| Archivos temporales | Auto-eliminados tras la respuesta |
+| Token admin | 64-hex con expiración de 8 h en BD |
+| Anti-enumeración | Login devuelve siempre el mismo mensaje genérico (`InvalidCredentialsException`) |
+| XSS en emails | `htmlspecialchars` en `ContactMailRenderer` |
 | Headers HTTP | X-Frame-Options, X-Content-Type-Options, Referrer-Policy vía Nginx |
-| CORS | NelmioCorsBundle con allowlist configurable por entorno |
+| CORS | NelmioCorsBundle con allowlist por regex configurable |
 
 ---
 
 ## Emails Transaccionales
 
-- **Proveedor**: Brevo REST API v3
-- **Implementación**: `Infrastructure/Email/BrevoMailer.php` implementa una interfaz del dominio
-- **Emails estándar**: verificación de cuenta (token 24h) y reset de contraseña (token 1h)
-- **Patrón anti-enumeración**: siempre responder 200 OK aunque el email no exista
+- **Proveedor**: Brevo REST API v3 (`BrevoMailer`, transporte con curl).
+- **Plantillas**: `ContactMailRenderer` (HTML con escapado), separadas del transporte.
+- **Emails del formulario de contacto**:
+  1. Notificación al negocio (mensaje, email, teléfono, tipo de evento).
+  2. Confirmación al remitente.
+- **Fallo de email no fatal**: el mensaje se guarda igualmente y el handler
+  captura el error (el campo `email_sent` registra si se envió).
 
 ---
 
 ## Base de Datos
 
-### Entidad de usuario (siempre presente)
+### Entidades (Doctrine)
 ```
-user
-  id (PK, auto-increment)
-  username (unique)
-  password_hash
-  email (unique)
-  is_verified (bool, default false)
-  verification_token (nullable)
-  verification_token_expires (nullable)
-  reset_token (nullable)
-  reset_token_expires (nullable)
-  created_at
+admin_user         id, username (unique), password_hash
+admin_token        id, token (unique), expires_at
+service            id (string slug, PK), name, emoji, description, features (json),
+                   category, sort_order, is_active
+service_example    id (string 32-hex), service_id (FK), title, description,
+                   image_url (URL completa R2 o externa), sort_order
+contact_submission id (string 32-hex), name, email, phone, event_type, message,
+                   ip_address, submitted_at, email_sent, email_sent_at
 ```
 
 ### Convenciones de migración
-- Una migration por cambio de esquema
-- Nomenclatura: `VersionYYYYMMDDNNNNNN.php`
-- Nunca modificar una migration ya ejecutada en producción
+- Una migration por cambio de esquema.
+- Nomenclatura: `VersionYYYYMMDDNNNNNN.php`.
+- Nunca modificar una migration ya ejecutada en producción.
 
 ---
 
-## API — Endpoints de Auth (siempre presentes)
+## API — Endpoints
 
-| Método | Ruta | Descripción |
-|---|---|---|
-| GET | `/health` | Health check |
-| POST | `/api/auth/register` | Registro → envía email de verificación |
-| POST | `/api/auth/login` | Login → JWT |
-| GET | `/api/auth/verify-email?token=` | Verificar email |
-| POST | `/api/auth/request-reset` | Solicitar reset de contraseña |
-| POST | `/api/auth/reset-password` | Resetear contraseña con token |
-
-Los endpoints de cada feature se añaden bajo `/api/{feature}/` siguiendo la misma convención.
-Los endpoints protegidos requieren `Authorization: Bearer <token>`.
-
----
-
-## Despliegue en Producción (Railway)
-
-1. PostgreSQL y Redis como servicios gestionados de Railway
-2. **Backend**: servicio Nixpacks apuntando a `/backend`
-3. **Worker** (si hay procesamiento asíncrono): otro servicio Nixpacks, mismo repo, start command override con `messenger:consume async -vv`
-4. **Frontend**: servicio Nixpacks apuntando a `/frontend`, build Vite + serve con Nginx
-5. Variables de entorno configuradas en el dashboard de Railway por servicio
-6. Crear usuario admin manualmente vía `railway run php bin/console app:admin:create`
+| Método | Ruta | Auth | Descripción |
+|---|---|---|---|
+| GET | `/health` | — | Health check |
+| GET | `/api/services` | — | Catálogo público (solo activos, con fotos) |
+| GET | `/api/services/{id}` | — | Detalle de servicio (404 si no existe o está inactivo) |
+| POST | `/api/contact` | — | Formulario de contacto (422 con errores por campo) |
+| POST | `/api/admin/login` | — | Login → `{token}` |
+| POST | `/api/admin/logout` | token | Invalida todos los tokens |
+| GET | `/api/admin/services` | token | Lista completa (incluye inactivos) |
+| GET | `/api/admin/services/{id}` | token | Detalle con fotos y sort_order |
+| POST | `/api/admin/services` | token | Crear servicio (201, id slug) |
+| PUT | `/api/admin/services/{id}` | token | Actualizar servicio |
+| DELETE | `/api/admin/services/{id}` | token | Desactivar (soft delete) |
+| POST | `/api/admin/services/{id}/activate` | token | Reactivar |
+| POST | `/api/admin/services/{serviceId}/photos` | token | Añadir foto (multipart `image` o `imageUrl`) |
+| POST | `/api/admin/photos/{photoId}` | token | Actualizar foto |
+| DELETE | `/api/admin/photos/{photoId}` | token | Borrar foto (y su archivo en R2) |
 
 ---
 
-## Makefile — Comandos estándar
+## Despliegue en Producción (servidor compartido media-tools)
+
+1. Subir el código al servidor (`/home/ubuntu/apps/dulzia`).
+2. Copiar el `.env` con los secrets reales.
+3. Añadir/actualizar el vhost en el nginx de infra (`conf.d/dulzia.conf` → `server_name`).
+4. `make prod-up` (build + arranque con `docker-compose.prod.yml`).
+5. `make migrate` (o equivalente en el contenedor prod) — las migraciones van en la imagen.
+6. Crear/resetear el admin: `app:admin:init`.
+7. Los cambios de código requieren redeploy (`prod-up`); el `.env` también se copia manual.
+
+Alternativa: Render (ver `RENDER_DEPLOY.md`). El servidor compartido es el destino activo.
+
+---
+
+## Makefile — Comandos
 
 ```bash
-make up               # Levantar todos los contenedores
+make up               # Levantar los contenedores dev
 make down             # Parar contenedores
-make rebuild          # Rebuild completo
-make logs             # Logs de backend + worker
+make rebuild          # Rebuild completo (borra volúmenes)
+make logs             # Logs del backend
 make shell            # Shell en el contenedor backend
 make migrate          # Ejecutar migraciones pendientes
 make migration-diff   # Generar migration por cambios en entidades
 make cache-clear      # Limpiar caché Symfony
-make test             # Todos los tests
-make test-unit        # Tests unitarios PHP
-make test-integration # Tests de integración PHP
+make test             # Todos los tests (PHP + frontend)
+make test-setup       # Crear la BD de test dulzia_test (una vez)
+make test-unit        # Tests unitarios PHPUnit
+make test-integration # Tests de integración PHPUnit
 make test-frontend    # Tests Vitest
-make test-coverage    # Cobertura (HTML)
 make install          # Instalar dependencias
-make build-front      # Reconstruir solo el frontend
+make composer-require pkg="vendor/nombre"  # Añadir paquete PHP
+make sync-vendor      # Sincronizar vendor del contenedor → local
+make prod-up          # Deploy en producción (docker-compose.prod.yml)
+make prod-down        # Parar producción
+make prod-logs        # Logs de producción
 ```
 
 ---
@@ -323,27 +373,55 @@ make build-front      # Reconstruir solo el frontend
 
 ### Backend (PHPUnit)
 ```
-tests/Unit/Application/{Feature}/   # Un test por CommandHandler
-tests/Unit/Infrastructure/Security/ # JwtService
-tests/Integration/Controller/       # Tests HTTP de integración
+tests/Unit/Application/{Feature}/   # Un test por CommandHandler (+ factories, generadores)
+tests/Unit/Entity/                  # Comportamiento de entidades
+tests/Unit/Infrastructure/          # Storage (R2 con MockHandler, local), Email, Security
+tests/Unit/EventListener/           # ApiExceptionListener (mapeos)
+tests/Integration/Controller/       # Tests HTTP WebTestCase
+tests/Support/TestFactory.php       # Fixtures
+tests/TestDoubles/                  # NullMailer, FakeFileStorage
 ```
+
+- **Unit**: handlers con repositorios mockeados, sin base de datos. El storage R2 se
+  testea con `Aws\MockHandler` (sin red real).
+- **Integration**: WebTestCase contra la BD dedicada `dulzia_test` (schema creado
+  desde los mappings de Doctrine y truncado entre tests; `make test-setup` la crea).
+  Los adaptadores reales se sustituyen por dobles (`services_test.yaml`): los tests
+  nunca llaman a Brevo ni a R2.
 
 ### Frontend (Vitest)
 ```
-__tests__/useXxx.spec.js   # Un test por composable
+__tests__/useContactForm.spec.js   # Un test por composable
 ```
 
 ---
 
 ## Patrones y Decisiones de Diseño
 
-1. **Hexagonal + CQRS ligero**: separa HTTP, lógica y persistencia. Permite testear handlers sin base de datos real.
-2. **Worker como contenedor separado**: el backend no bloquea en tareas largas. Reutiliza la misma imagen Docker.
-3. **JWT propio sin librería**: reduce dependencias. `hash_hmac` es suficiente para HS256 estándar.
-4. **Nginx como proxy en el frontend**: elimina CORS por completo. El frontend habla siempre con su mismo origen.
-5. **`envsubst` en Nginx**: variables de entorno inyectadas en `nginx.conf` al arrancar el contenedor, sin rebuilds de imagen.
-6. **Pinia + persistedstate**: el token y el usuario autenticado sobreviven recargas sin código adicional.
-7. **Composables para lógica de negocio**: los Page components solo orquestan; la lógica testeble vive en composables.
-8. **Anti-enumeración en auth**: reset y verificación siempre devuelven 200 OK para no revelar qué emails existen.
-9. **`ApiExceptionListener` centralizado**: los handlers lanzan excepciones de dominio; un solo listener las convierte a JSON con el código HTTP correcto. No hay lógica de error duplicada en controllers.
-10. **Una migration por cambio**: nunca editar migrations existentes; siempre crear una nueva.
+1. **Hexagonal + CQRS ligero**: separa HTTP, lógica y persistencia. Permite testear
+   handlers sin base de datos real.
+2. **SOLID aplicado**:
+   - S: un handler por caso de uso, controllers por agregado, factories de comandos,
+     plantillas de email separadas del transporte.
+   - O: puertos (añadir adaptador sin tocar handlers — así entró R2) y excepciones
+     auto-mapeables (añadir excepción sin tocar el listener).
+   - L: los adaptadores cumplen el contrato de los puertos (el fake de test sustituye
+     a R2 sin tocar producción).
+   - I: puertos pequeños y todos los métodos usados.
+   - D: Application y Controllers dependen solo de puertos del Domain.
+3. **Puertos en el Domain**: las interfaces viven en `Domain/` y las implementaciones
+   en `Infrastructure/`; el wiring por alias en `services.yaml`.
+4. **Validación en los commands**: `#[Assert]` en el DTO de entrada, única fuente de
+   verdad; 422 centralizado vía `ValidationFailedException`.
+5. **Token único en BD en vez de JWT**: un solo admin, un solo token válido, sin
+   librerías externas. `AdminAuthListener` centraliza la protección de rutas.
+6. **Nginx como proxy**: elimina CORS en producción. `envsubst` inyecta variables
+   sin rebuilds de imagen.
+7. **Anti-enumeración en login**: siempre el mismo mensaje genérico.
+8. **Una migration por cambio**: nunca editar migrations existentes; siempre crear
+   una nueva (ver ejemplo: recreación de `admin_token`).
+9. **Fotos en Cloudflare R2**: `FileStorageInterface::store()` devuelve la URL
+   pública completa (la BD guarda la URL); `delete()` es idempotente y protegido
+   contra URLs externas (picsum) y legacy.
+10. **Dobles de test para adaptadores externos**: Brevo y R2 nunca se tocan en los
+    tests de integración.

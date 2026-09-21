@@ -27,12 +27,12 @@ Web de marketing para [Dulzia Salamanca Eventos](https://www.dulziasalamancaeven
 dulziasalamanca/
 ├── backend/                  # API Symfony 7
 │   ├── src/
-│   │   ├── Application/      # Command Handlers (CQRS)
-│   │   ├── Controller/       # HTTP Controllers
-│   │   ├── Domain/           # Interfaces de repositorio
+│   │   ├── Application/      # Command/Query Handlers (CQRS) — una carpeta por feature
+│   │   ├── Controller/       # HTTP Controllers (delgados)
+│   │   ├── Domain/           # Puertos (interfaces) y excepciones por feature
 │   │   ├── Entity/           # Entidades Doctrine
-│   │   ├── EventListener/    # ApiExceptionListener
-│   │   └── Infrastructure/   # Email (Brevo) + Repositorios + Storage (R2)
+│   │   ├── EventListener/    # ApiExceptionListener + AdminAuthListener
+│   │   └── Infrastructure/   # Email (Brevo) + Repositorios + Storage (R2) + Security
 │   ├── migrations/           # Migraciones de base de datos
 │   ├── config/               # Configuración Symfony
 │   └── tests/                # PHPUnit
@@ -127,8 +127,9 @@ make cache-clear     # Limpiar caché de Symfony
 
 # Tests
 make test            # Todos los tests (PHP + frontend)
+make test-setup      # Crea la BD de test (dulzia_test) — solo la primera vez
 make test-unit       # Tests unitarios PHPUnit
-make test-integration# Tests de integración PHPUnit
+make test-integration# Tests de integración PHPUnit (requiere test-setup)
 make test-frontend   # Tests Vitest
 
 # Dependencias
@@ -205,12 +206,25 @@ Contiene los valores por defecto para desarrollo. Los valores reales se inyectan
 
 ```bash
 # PHPUnit (backend)
-make test-unit
-make test-integration
+make test-setup      # Una sola vez: crea la BD de test en el postgres compartido
+make test-unit       # 55 tests unitarios (handlers, entidades, storage, security)
+make test-integration# 25 tests HTTP sobre BD dulzia_test (WebTestCase)
+make test          # Todo lo anterior + frontend
 
 # Vitest (frontend)
 make test-frontend
 ```
+
+### Backend (PHPUnit)
+
+- **Unit** (`backend/tests/Unit/`): un test por CommandHandler/QueryHandler (CQRS)
+  con repositorios mockeados — sin base de datos. Cubre también entidades,
+  `CloudflareR2Storage` (con `Aws\MockHandler`, sin red real), `LocalFileStorage`
+  y `AdminTokenService`.
+- **Integration** (`backend/tests/Integration/`): tests HTTP (WebTestCase) contra
+  la BD dedicada `dulzia_test` (schema creado desde los mappings de Doctrine y
+  truncado entre tests). Los adaptadores reales se sustituyen por dobles de test
+  (`services_test.yaml`): el mailer nunca llama a Brevo y el storage nunca llama a R2.
 
 Los tests del frontend cubren el composable `useContactForm` (lógica del formulario de contacto, manejo de errores 422 y errores de red).
 
@@ -224,7 +238,7 @@ Los tests del frontend cubren el composable `useContactForm` (lógica del formul
 4. Crea un servicio para el **frontend** apuntando a `/frontend`
 5. Configura las variables de entorno en el dashboard de Railway:
    - `DATABASE_URL` (Railway lo genera automáticamente al enlazar PostgreSQL)
-   - `EMAIL_API_KEY`
+   - `BREVO_API_KEY`
    - `APP_SECRET`
    - `CORS_ALLOW_ORIGIN` (dominio de producción)
    - `BACKEND_UPSTREAM` (URL interna del backend para Nginx)
