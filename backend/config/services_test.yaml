@@ -1,0 +1,9 @@
+# Dobles de test: sustituyen a los adaptadores reales (Brevo, R2)
+# para que los tests de integración no hagan llamadas externas.
+services:
+    App\Domain\Contact\MailerInterface: '@App\Tests\TestDoubles\NullMailer'
+    App\Domain\Storage\FileStorageInterface: '@App\Tests\TestDoubles\FakeFileStorage'
+
+    # El destino de un alias debe estar registrado como servicio
+    App\Tests\TestDoubles\NullMailer: ~
+    App\Tests\TestDoubles\FakeFileStorage: ~

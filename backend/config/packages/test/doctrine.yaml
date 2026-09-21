@@ -1,0 +1,5 @@
+# BD dedicada a tests (dulzia_test en el mismo shared-postgres-db que dev).
+# Crearla una vez con: make test-setup
+doctrine:
+    dbal:
+        url: 'postgresql://dulzia:%env(DULZIA_DB_PASS)%@shared-postgres-db:5432/dulzia_test?serverVersion=16&charset=utf8'

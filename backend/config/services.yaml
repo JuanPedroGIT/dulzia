@@ -12,15 +12,18 @@ services:
             - '../src/Entity/'
             - '../src/Kernel.php'
 
-    App\Infrastructure\Email\MailerInterface: '@App\Infrastructure\Email\BrevoMailer'
+    # Puertos del dominio → adaptadores de infraestructura
+    App\Domain\Contact\MailerInterface: '@App\Infrastructure\Email\BrevoMailer'
     App\Domain\Contact\ContactRepositoryInterface: '@App\Infrastructure\Repository\DoctrineContactRepository'
+    App\Domain\Admin\AdminUserRepositoryInterface: '@App\Infrastructure\Repository\DoctrineAdminUserRepository'
+    App\Domain\Admin\AdminTokenStoreInterface: '@App\Infrastructure\Security\DatabaseAdminTokenStore'
     App\Domain\Service\ServiceRepositoryInterface: '@App\Infrastructure\Repository\DoctrineServiceRepository'
     App\Domain\Service\ServiceExampleRepositoryInterface: '@App\Infrastructure\Repository\DoctrineServiceExampleRepository'
-    App\Infrastructure\Storage\FileStorageInterface: '@App\Infrastructure\Storage\CloudflareR2Storage'
+    App\Domain\Storage\FileStorageInterface: '@App\Infrastructure\Storage\CloudflareR2Storage'
 
     App\Infrastructure\Email\BrevoMailer:
         arguments:
-            $apiKey: '%env(EMAIL_API_KEY)%'
+            $apiKey: '%env(BREVO_API_KEY)%'
 
     App\Infrastructure\Storage\CloudflareR2Storage:
         arguments:
