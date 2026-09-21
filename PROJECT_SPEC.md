@@ -48,7 +48,7 @@ servicios, fotos y mensajes recibidos. Backend API REST en Symfony, frontend SPA
 | Elemento | Tecnología |
 |---|---|
 | Local | Docker Compose (servicios dulzia-backend y dulzia-frontend en la red compartida `shared-network`) |
-| Producción | VPS compartido media-tools (`docker-compose.prod.yml` + nginx de infra + túnel cloudflared). Alternativa Render documentada en `RENDER_DEPLOY.md` |
+| Producción | VPS compartido media-tools (`docker-compose.prod.yml` + nginx de infra + túnel cloudflared) |
 | Base de datos | `shared-postgres-db` (proyecto infra compartido, BD propia `dulzia`) |
 | Reverse proxy | Nginx de infra (routing por `server_name`) + nginx del contenedor frontend (SPA + proxy `/api`) |
 
@@ -339,7 +339,7 @@ contact_submission id (string 32-hex), name, email, phone, event_type, message,
 6. Crear/resetear el admin: `app:admin:init`.
 7. Los cambios de código requieren redeploy (`prod-up`); el `.env` también se copia manual.
 
-Alternativa: Render (ver `RENDER_DEPLOY.md`). El servidor compartido es el destino activo.
+El servidor compartido es el destino activo y el único documentado.
 
 ---
 
