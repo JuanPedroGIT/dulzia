@@ -4,8 +4,9 @@ namespace App\Application\Service\AddPhoto;
 
 use App\Domain\Service\ServiceExampleRepositoryInterface;
 use App\Domain\Service\ServiceRepositoryInterface;
+use App\Domain\Shared\NotFoundException;
+use App\Domain\Storage\FileStorageInterface;
 use App\Entity\ServiceExample;
-use App\Infrastructure\Storage\FileStorageInterface;
 
 final class AddPhotoHandler
 {
@@ -20,7 +21,7 @@ final class AddPhotoHandler
         $service = $this->services->findById($command->serviceId);
 
         if ($service === null) {
-            throw new \DomainException('Servicio no encontrado');
+            throw new NotFoundException('Servicio no encontrado');
         }
 
         $imageUrl = $command->file !== null

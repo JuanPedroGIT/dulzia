@@ -45,12 +45,6 @@ final class DoctrineServiceRepository implements ServiceRepositoryInterface
         $this->em->flush();
     }
 
-    public function delete(Service $service): void
-    {
-        $this->em->remove($service);
-        $this->em->flush();
-    }
-
     public function nextSortOrder(): int
     {
         $max = $this->em->createQuery(

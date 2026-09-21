@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Infrastructure\Email;
+namespace App\Domain\Contact;
 
 use App\Entity\ContactSubmission;
 

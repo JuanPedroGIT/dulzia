@@ -3,6 +3,7 @@
 namespace App\Application\Service\UpdateService;
 
 use App\Domain\Service\ServiceRepositoryInterface;
+use App\Domain\Shared\NotFoundException;
 
 final class UpdateServiceHandler
 {
@@ -15,7 +16,7 @@ final class UpdateServiceHandler
         $service = $this->services->findById($command->id);
 
         if ($service === null) {
-            throw new \DomainException('Servicio no encontrado');
+            throw new NotFoundException('Servicio no encontrado');
         }
 
         $service->update(

@@ -2,6 +2,8 @@
 
 namespace App\Infrastructure\Storage;
 
+use App\Domain\Storage\FileStorageInterface;
+use App\Domain\Storage\InvalidFileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 final class LocalFileStorage implements FileStorageInterface
@@ -16,12 +18,12 @@ final class LocalFileStorage implements FileStorageInterface
     public function store(UploadedFile $file): string
     {
         if (!$file->isValid()) {
-            throw new \InvalidArgumentException('Archivo inválido o corrupto: ' . $file->getErrorMessage());
+            throw new InvalidFileException('Archivo inválido o corrupto: ' . $file->getErrorMessage());
         }
 
         $mime = $file->getMimeType();
         if ($mime === null || !in_array($mime, self::ALLOWED_MIMES, true)) {
-            throw new \InvalidArgumentException('Tipo de archivo no permitido: ' . ($mime ?? 'desconocido'));
+            throw new InvalidFileException('Tipo de archivo no permitido: ' . ($mime ?? 'desconocido'));
         }
 
         if (!is_dir($this->uploadDir)) {

@@ -2,14 +2,20 @@
 
 namespace App\Infrastructure\Email;
 
+use App\Domain\Contact\MailerInterface;
 use App\Entity\ContactSubmission;
 
+/**
+ * Transporte de email contra la API REST de Brevo.
+ * El renderizado de las plantillas vive en ContactMailRenderer.
+ */
 final class BrevoMailer implements MailerInterface
 {
     private const API_URL = 'https://api.brevo.com/v3/smtp/email';
 
     public function __construct(
         private string $apiKey,
+        private ContactMailRenderer $renderer,
         private string $toEmail = 'salumvi@gmail.com',
         private string $toName = 'Dulzia Salamanca Eventos',
     ) {}
@@ -20,14 +26,14 @@ final class BrevoMailer implements MailerInterface
             'sender'  => ['name' => 'Web Dulzia Salamanca', 'email' => 'salumvi@gmail.com'],
             'to'      => [['email' => $this->toEmail, 'name' => $this->toName]],
             'subject' => '📩 Nuevo mensaje de ' . $submission->getName(),
-            'htmlContent' => $this->buildNotificationHtml($submission),
+            'htmlContent' => $this->renderer->renderNotification($submission),
         ]);
 
         $this->send([
             'sender'  => ['name' => 'Dulzia Salamanca Eventos', 'email' => 'noreply@dulziasalamancaeventos.com'],
             'to'      => [['email' => $submission->getEmail(), 'name' => $submission->getName()]],
             'subject' => '¡Hemos recibido tu mensaje!',
-            'htmlContent' => $this->buildConfirmationHtml($submission),
+            'htmlContent' => $this->renderer->renderConfirmation($submission),
         ]);
     }
 
@@ -52,37 +58,5 @@ final class BrevoMailer implements MailerInterface
         if ($status >= 400) {
             throw new \RuntimeException('Brevo API error: ' . $response);
         }
-    }
-
-    private function buildNotificationHtml(ContactSubmission $s): string
-    {
-        return sprintf(
-            '<h2>Nuevo contacto desde la web</h2>
-            <p><strong>Nombre:</strong> %s</p>
-            <p><strong>Email:</strong> %s</p>
-            <p><strong>Teléfono:</strong> %s</p>
-            <p><strong>Tipo de evento:</strong> %s</p>
-            <p><strong>Mensaje:</strong></p>
-            <blockquote>%s</blockquote>
-            <p><em>Recibido el %s</em></p>',
-            htmlspecialchars($s->getName()),
-            htmlspecialchars($s->getEmail()),
-            htmlspecialchars($s->getPhone() ?? '—'),
-            htmlspecialchars($s->getEventType() ?? '—'),
-            nl2br(htmlspecialchars($s->getMessage())),
-            $s->getSubmittedAt()->format('d/m/Y H:i'),
-        );
-    }
-
-    private function buildConfirmationHtml(ContactSubmission $s): string
-    {
-        return sprintf(
-            '<h2>¡Gracias por contactarnos, %s!</h2>
-            <p>Hemos recibido tu mensaje y nos pondremos en contacto contigo lo antes posible.</p>
-            <p>Si necesitas respuesta urgente, puedes llamarnos al <strong>+34 629 991 659</strong>.</p>
-            <br>
-            <p>Un saludo,<br><strong>Dulzia Salamanca Eventos</strong></p>',
-            htmlspecialchars($s->getName()),
-        );
     }
 }

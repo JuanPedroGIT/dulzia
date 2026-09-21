@@ -3,7 +3,8 @@
 namespace App\Application\Service\DeletePhoto;
 
 use App\Domain\Service\ServiceExampleRepositoryInterface;
-use App\Infrastructure\Storage\FileStorageInterface;
+use App\Domain\Shared\NotFoundException;
+use App\Domain\Storage\FileStorageInterface;
 
 final class DeletePhotoHandler
 {
@@ -17,7 +18,7 @@ final class DeletePhotoHandler
         $example = $this->examples->findById($command->photoId);
 
         if ($example === null) {
-            throw new \DomainException('Foto no encontrada');
+            throw new NotFoundException('Foto no encontrada');
         }
 
         $this->storage->delete($example->getImageUrl());

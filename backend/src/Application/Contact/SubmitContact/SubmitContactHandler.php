@@ -3,8 +3,8 @@
 namespace App\Application\Contact\SubmitContact;
 
 use App\Domain\Contact\ContactRepositoryInterface;
+use App\Domain\Contact\MailerInterface;
 use App\Entity\ContactSubmission;
-use App\Infrastructure\Email\MailerInterface;
 
 final class SubmitContactHandler
 {

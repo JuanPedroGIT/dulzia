@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Infrastructure\Storage;
 
+use App\Domain\Storage\FileStorageInterface;
+use App\Domain\Storage\InvalidFileException;
 use Aws\S3\S3Client;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
@@ -21,11 +23,12 @@ final class CloudflareR2Storage implements FileStorageInterface
         string $accessKeySecret,
         string $bucket,
         string $publicUrl,
+        ?S3Client $client = null,   // inyectable en tests (MockHandler); null = cliente real
     ) {
         $this->bucket    = $bucket;
         $this->publicUrl = rtrim($publicUrl, '/');
 
-        $this->client = new S3Client([
+        $this->client = $client ?? new S3Client([
             'region'  => 'auto',
             'version' => 'latest',
             'endpoint' => "https://{$accountId}.r2.cloudflarestorage.com",
@@ -38,14 +41,14 @@ final class CloudflareR2Storage implements FileStorageInterface
 
     public function store(UploadedFile $file): string
     {
-        // Misma validación que LocalFileStorage → el controller ya la convierte en 400
+        // Misma validación que LocalFileStorage → ApiExceptionListener lo convierte en 400
         if (!$file->isValid()) {
-            throw new \InvalidArgumentException('Archivo inválido o corrupto: ' . $file->getErrorMessage());
+            throw new InvalidFileException('Archivo inválido o corrupto: ' . $file->getErrorMessage());
         }
 
         $mime = $file->getMimeType();
         if ($mime === null || !in_array($mime, self::ALLOWED_MIMES, true)) {
-            throw new \InvalidArgumentException('Tipo de archivo no permitido: ' . ($mime ?? 'desconocido'));
+            throw new InvalidFileException('Tipo de archivo no permitido: ' . ($mime ?? 'desconocido'));
         }
 
         $ext      = $file->guessExtension() ?? 'jpg';
@@ -54,7 +57,7 @@ final class CloudflareR2Storage implements FileStorageInterface
 
         $realPath = $file->getRealPath();
         if ($realPath === false) {
-            throw new \InvalidArgumentException('No se pudo leer el archivo subido');
+            throw new InvalidFileException('No se pudo leer el archivo subido');
         }
 
         $this->client->putObject([

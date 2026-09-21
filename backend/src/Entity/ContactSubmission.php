@@ -3,8 +3,9 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Validator\Constraints as Assert;
 
+// Sin constraints de validación: la frontera de validación es
+// SubmitContactCommand (Application) — una única fuente de verdad.
 #[ORM\Entity]
 #[ORM\Table(name: 'contact_submission')]
 class ContactSubmission
@@ -14,13 +15,9 @@ class ContactSubmission
     private string $id;
 
     #[ORM\Column(length: 255)]
-    #[Assert\NotBlank(message: 'El nombre es obligatorio')]
-    #[Assert\Length(max: 255)]
     private string $name;
 
     #[ORM\Column(length: 255)]
-    #[Assert\NotBlank(message: 'El email es obligatorio')]
-    #[Assert\Email(message: 'El email no es válido')]
     private string $email;
 
     #[ORM\Column(length: 50, nullable: true)]
@@ -30,8 +27,6 @@ class ContactSubmission
     private ?string $eventType = null;
 
     #[ORM\Column(type: 'text')]
-    #[Assert\NotBlank(message: 'El mensaje es obligatorio')]
-    #[Assert\Length(max: 2000)]
     private string $message;
 
     #[ORM\Column(length: 45, nullable: true)]

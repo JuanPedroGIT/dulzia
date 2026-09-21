@@ -3,6 +3,7 @@
 namespace App\Application\Service\DeleteService;
 
 use App\Domain\Service\ServiceRepositoryInterface;
+use App\Domain\Shared\NotFoundException;
 
 final class DeleteServiceHandler
 {
@@ -15,7 +16,7 @@ final class DeleteServiceHandler
         $service = $this->services->findById($command->id);
 
         if ($service === null) {
-            throw new \DomainException('Servicio no encontrado');
+            throw new NotFoundException('Servicio no encontrado');
         }
 
         $service->deactivate();

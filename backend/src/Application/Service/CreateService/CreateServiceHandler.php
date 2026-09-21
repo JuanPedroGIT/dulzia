@@ -9,11 +9,12 @@ final class CreateServiceHandler
 {
     public function __construct(
         private ServiceRepositoryInterface $services,
+        private ServiceIdGenerator $idGenerator,
     ) {}
 
     public function handle(CreateServiceCommand $command): array
     {
-        $id = $this->generateId($command->name);
+        $id = $this->idGenerator->generate($command->name);
 
         $service = new Service(
             id:          $id,
@@ -28,17 +29,5 @@ final class CreateServiceHandler
         $this->services->save($service);
 
         return ['id' => $id, 'name' => $command->name];
-    }
-
-    private function generateId(string $name): string
-    {
-        $id = preg_replace('/[^a-z0-9]+/', '-', strtolower($name));
-        $id = trim($id, '-');
-
-        if ($this->services->findById($id) !== null) {
-            $id .= '-' . substr((string) time(), -4);
-        }
-
-        return $id;
     }
 }

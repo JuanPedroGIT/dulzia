@@ -1,8 +1,11 @@
 <?php
+
 namespace App\Controller;
 
-use App\Security\AdminTokenService;
-use Doctrine\DBAL\Connection;
+use App\Application\AdminAuth\Login\LoginCommand;
+use App\Application\AdminAuth\Login\LoginHandler;
+use App\Application\AdminAuth\Logout\LogoutCommand;
+use App\Application\AdminAuth\Logout\LogoutHandler;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
@@ -10,8 +13,8 @@ use Symfony\Component\Routing\Attribute\Route;
 final class AdminAuthController
 {
     public function __construct(
-        private Connection $connection,
-        private AdminTokenService $tokenService,
+        private LoginHandler $login,
+        private LogoutHandler $logout,
     ) {}
 
     #[Route('/api/admin/login', methods: ['POST'])]
@@ -25,29 +28,17 @@ final class AdminAuthController
             return new JsonResponse(['error' => 'Credenciales requeridas'], 400);
         }
 
-        $admin = $this->connection->fetchAssociative(
-            'SELECT password_hash FROM admin_user WHERE username = ?',
-            [$username]
-        );
-
-        if (!$admin || !password_verify($password, $admin['password_hash'])) {
-            return new JsonResponse(['error' => 'Credenciales incorrectas'], 401);
-        }
-
-        $token = $this->tokenService->createToken();
+        // InvalidCredentialsException → 401 JSON vía ApiExceptionListener
+        $token = $this->login->handle(new LoginCommand($username, $password));
 
         return new JsonResponse(['token' => $token]);
     }
 
+    // Protegida por AdminAuthListener (requiere token válido)
     #[Route('/api/admin/logout', methods: ['POST'])]
-    public function logout(Request $request): JsonResponse
+    public function logout(): JsonResponse
     {
-        try {
-            $this->tokenService->validateRequest($request);
-            $this->connection->executeStatement('DELETE FROM admin_token');
-        } catch (\RuntimeException) {
-            // already logged out
-        }
+        $this->logout->handle(new LogoutCommand());
 
         return new JsonResponse(['ok' => true]);
     }

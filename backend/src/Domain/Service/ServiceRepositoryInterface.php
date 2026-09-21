@@ -16,7 +16,5 @@ interface ServiceRepositoryInterface
 
     public function save(Service $service): void;
 
-    public function delete(Service $service): void;
-
     public function nextSortOrder(): int;
 }
