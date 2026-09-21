@@ -1,5 +1,5 @@
-// Usar VITE_API_URL si está definida, sino usar ruta relativa (para proxy via nginx)
-const BASE = import.meta.env.VITE_API_URL || ''
+// Usar VITE_API_URL si está definida, sino usar /api (proxy de Vite en dev / nginx en prod)
+const BASE = import.meta.env.VITE_API_URL || '/api'
 
 function headers() {
   const token = localStorage.getItem('admin_token')
