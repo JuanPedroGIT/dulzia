@@ -1,6 +1,7 @@
 .PHONY: up down rebuild logs shell migrate migration-diff cache-clear \
         test test-unit test-integration test-frontend \
-        install composer-require npm-install sync-vendor sync-npm
+        install composer-require npm-install sync-vendor sync-npm \
+        prod-up prod-down prod-logs
 
 up:
 	docker compose up -d
@@ -76,3 +77,14 @@ sync-npm:
 
 build-front:
 	docker compose exec frontend npm run build
+
+# ─── Producción (servidor compartido, docker-compose.prod.yml) ──────────────
+
+prod-up:
+	docker compose -f docker-compose.prod.yml up -d --build
+
+prod-down:
+	docker compose -f docker-compose.prod.yml down
+
+prod-logs:
+	docker compose -f docker-compose.prod.yml logs -f
