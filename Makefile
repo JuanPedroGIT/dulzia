@@ -1,5 +1,5 @@
 .PHONY: up down rebuild logs shell migrate migration-diff cache-clear \
-        test test-unit test-integration test-frontend \
+        test test-unit test-integration test-setup test-frontend \
         install composer-require npm-install sync-vendor sync-npm \
         prod-up prod-down prod-logs
 
@@ -15,19 +15,19 @@ rebuild:
 	docker compose up -d
 
 logs:
-	docker compose logs -f backend
+	docker compose logs -f dulzia-backend
 
 shell:
-	docker compose exec backend bash
+	docker compose exec dulzia-backend bash
 
 migrate:
-	docker compose exec backend php bin/console doctrine:migrations:migrate --no-interaction
+	docker compose exec dulzia-backend php bin/console doctrine:migrations:migrate --no-interaction
 
 migration-diff:
-	docker compose exec backend php bin/console doctrine:migrations:diff
+	docker compose exec dulzia-backend php bin/console doctrine:migrations:diff
 
 cache-clear:
-	docker compose exec backend php bin/console cache:clear
+	docker compose exec dulzia-backend php bin/console cache:clear
 
 # ─── Tests ──────────────────────────────────────────────────────────────────
 
@@ -37,10 +37,15 @@ test:
 	$(MAKE) test-frontend
 
 test-unit:
-	docker compose exec backend php bin/phpunit tests/Unit
+	docker compose exec -T dulzia-backend php vendor/bin/phpunit tests/Unit
 
-test-integration:
-	docker compose exec backend php bin/phpunit tests/Integration
+test-integration: test-setup
+	docker compose exec -T dulzia-backend php vendor/bin/phpunit tests/Integration
+
+# Crea la BD de test (dulzia_test) en el postgres compartido — idempotente
+test-setup:
+	docker exec -i shared-postgres-db psql -U postgres -tAc "SELECT 1 FROM pg_database WHERE datname='dulzia_test'" | grep -q 1 \
+		|| docker exec -i shared-postgres-db psql -U postgres -c "CREATE DATABASE dulzia_test OWNER dulzia"
 
 test-frontend:
 	npm --prefix frontend run test
@@ -68,12 +73,12 @@ npm-install:
 
 # Copia vendor del contenedor → disco local (IDE lo necesita)
 sync-vendor:
-	docker cp dulziasalamanca-backend-1:/var/www/html/vendor ./backend/vendor
+	docker cp dulzia-backend:/var/www/html/vendor ./backend/vendor
 
 # Copia node_modules del contenedor → disco local (IDE lo necesita)
 # Nota: usa --archive para preservar symlinks en Linux→Windows
 sync-npm:
-	docker cp dulziasalamanca-frontend-1:/app/node_modules ./frontend/
+	docker cp dulzia-frontend:/app/node_modules ./frontend/
 
 build-front:
 	docker compose exec frontend npm run build
