@@ -16,7 +16,9 @@ final class StderrLogger extends AbstractLogger
 
     public function __construct(string $target = 'php://stderr')
     {
-        $stream = fopen($target, 'a');
+        // El warning de fopen se suprime a propósito: el fallo se maneja
+        // explícitamente con el retorno false (PHPUnit con failOnWarning).
+        $stream = @fopen($target, 'a');
         if ($stream === false) {
             throw new \RuntimeException("No se pudo abrir el stream de log: $target");
         }

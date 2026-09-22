@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Support;
 
+use App\Entity\ContactSubmission;
 use App\Entity\Service;
 use App\Entity\ServiceExample;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -54,6 +55,17 @@ final class TestFactory
     {
         $reflection = new \ReflectionProperty(Service::class, 'examples');
         $reflection->setValue($service, new ArrayCollection($examples));
+    }
+
+    public static function contactSubmission(
+        string $name = 'María',
+        string $email = 'maria@example.com',
+        string $message = 'Hola, quiero un presupuesto',
+        ?string $phone = '+34 600 000 000',
+        ?string $eventType = 'boda',
+        ?string $ipAddress = '127.0.0.1',
+    ): ContactSubmission {
+        return new ContactSubmission($name, $email, $message, $phone, $eventType, $ipAddress);
     }
 
     /**

@@ -41,6 +41,9 @@ class ContactSubmission
     #[ORM\Column(type: 'datetime_immutable', nullable: true)]
     private ?\DateTimeImmutable $emailSentAt = null;
 
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    private ?\DateTimeImmutable $readAt = null;
+
     public function __construct(
         string $name,
         string $email,
@@ -65,12 +68,26 @@ class ContactSubmission
     public function getPhone(): ?string { return $this->phone; }
     public function getEventType(): ?string { return $this->eventType; }
     public function getMessage(): string { return $this->message; }
+    public function getIpAddress(): ?string { return $this->ipAddress; }
     public function getSubmittedAt(): \DateTimeImmutable { return $this->submittedAt; }
     public function isEmailSent(): bool { return $this->emailSent; }
+    public function getEmailSentAt(): ?\DateTimeImmutable { return $this->emailSentAt; }
+    public function getReadAt(): ?\DateTimeImmutable { return $this->readAt; }
+    public function isRead(): bool { return $this->readAt !== null; }
 
     public function markEmailSent(): void
     {
         $this->emailSent = true;
         $this->emailSentAt = new \DateTimeImmutable();
+    }
+
+    public function markRead(): void
+    {
+        $this->readAt = new \DateTimeImmutable();
+    }
+
+    public function markUnread(): void
+    {
+        $this->readAt = null;
     }
 }
