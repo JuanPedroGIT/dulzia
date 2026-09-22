@@ -159,12 +159,12 @@ function goToPhotos(id) { router.push('/dulzia-panel/servicios/' + id) }
 .btn-primary:hover{background:#b5637a}
 .state-msg{text-align:center;padding:3rem;color:#888;font-size:.95rem}
 .state-msg--error{color:#c0392b}
-.table-wrap{background:white;border-radius:14px;box-shadow:0 2px 12px rgba(0,0,0,.06);overflow:hidden}
-.services-table{width:100%;border-collapse:collapse}
+.table-wrap{background:white;border-radius:14px;box-shadow:0 2px 12px rgba(0,0,0,.06);overflow-x:auto}
+.services-table{width:100%;min-width:700px;border-collapse:collapse}
 .services-table thead{background:#faf8f6;border-bottom:1px solid #ebe8e4}
-.services-table th{padding:.75rem 1.25rem;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#999;text-align:left}
+.services-table th{padding:.75rem 1.25rem;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#999;text-align:left;white-space:nowrap}
 .th-center{text-align:center}.th-right{text-align:right}
-.services-table td{padding:1rem 1.25rem;border-bottom:1px solid #f2efec;vertical-align:middle}
+.services-table td{padding:1rem 1.25rem;border-bottom:1px solid #f2efec;vertical-align:middle;white-space:nowrap}
 .services-table tbody tr:last-child td{border-bottom:none}
 .services-table tbody tr:hover{background:#fdfbf9}
 .td-center{text-align:center}.td-right{text-align:right}
@@ -172,7 +172,7 @@ function goToPhotos(id) { router.push('/dulzia-panel/servicios/' + id) }
 .badge{display:inline-block;padding:.25rem .65rem;background:#f0ece8;border-radius:20px;font-size:.75rem;font-weight:600;color:#666}
 .photo-count{display:inline-block;background:#eef6f4;color:#3a8a7a;font-weight:700;font-size:.85rem;border-radius:20px;padding:.2rem .7rem}
 .actions{display:flex;gap:.5rem;justify-content:flex-end}
-.btn-action{padding:.4rem .85rem;border:none;border-radius:7px;font-size:.8rem;font-weight:600;cursor:pointer;transition:opacity .15s}
+.btn-action{padding:.4rem .85rem;border:none;border-radius:7px;font-size:.8rem;font-weight:600;cursor:pointer;transition:opacity .15s;white-space:nowrap}
 .btn-action:hover{opacity:.8}
 .btn-action--photos{background:#e8f4f2;color:#2e7d6e}
 .btn-action--edit{background:#f0ece8;color:#555}
