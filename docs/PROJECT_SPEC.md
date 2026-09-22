@@ -64,7 +64,7 @@ dulziasalamanca/
 ├── docker-compose.prod.yml     # Producción (servidor compartido)
 ├── Makefile                    # Comandos de desarrollo, tests y producción
 ├── README.md
-├── PROJECT_SPEC.md
+├── docs/                      # PROJECT_SPEC.md, PRD_MENSAJES_ADMIN.md
 ├── backend/                    # Symfony 7
 │   ├── config/
 │   │   ├── packages/           # doctrine.yaml, framework.yaml, nelmio_cors.yaml... + test/
@@ -75,7 +75,8 @@ dulziasalamanca/
 │   ├── src/
 │   │   ├── Application/        # Commands/Queries + Handlers — una carpeta por caso de uso
 │   │   │   ├── AdminAuth/      #   Login, Logout
-│   │   │   ├── Contact/SubmitContact/
+│   │   │   ├── Contact/        #   SubmitContact, ListMessages, GetMessage,
+│   │   │                       #   MarkMessageRead, DeleteMessage
 │   │   │   └── Service/        #   CreateService, UpdateService, ActivateService,
 │   │   │                       #   AddPhoto, UpdatePhoto, DeletePhoto, ListServices,
 │   │   │                       #   GetService, ListCatalogServices, GetCatalogService,
@@ -83,7 +84,8 @@ dulziasalamanca/
 │   │   ├── Command/            # app:admin:init
 │   │   ├── Controller/         # Delgados: ServiceController, ContactController,
 │   │   │                       #   AdminAuthController, AdminServiceController,
-│   │   │                       #   AdminPhotoController, HealthController
+│   │   │                       #   AdminPhotoController, AdminContactController,
+│   │   │                       #   HealthController
 │   │   ├── Domain/             # Puertos (interfaces) y excepciones — una carpeta por feature
 │   │   │   ├── Admin/          #   AdminUserRepositoryInterface, AdminTokenStoreInterface,
 │   │   │   │                   #   InvalidCredentialsException
@@ -110,18 +112,19 @@ dulziasalamanca/
 └── frontend/                   # Vue 3
     ├── src/
     │   ├── pages/              # Home, Servicios, ServicioDetalle, Nosotros, Contacto,
-    │   │                       # PoliticaCookies + admin/ (Login, Dashboard, ServiceDetail)
+    │   │                       # PoliticaCookies + admin/ (Login, Dashboard, ServiceDetail,
+    │   │                       # AdminMessages, AdminMessageDetail)
     │   ├── components/
     │   │   ├── ui/             # BaseButton, BaseInput, BaseTextarea, BaseSpinner,
     │   │   │                   # BaseFileUpload, ImageCropperModal
     │   │   ├── layout/         # NavBar, AppFooter
     │   │   └── features/       # HeroSection, StatsBar, ServicesOverview, ServiceCard,
     │   │                       # ContactForm, CtaBanner, CookieBanner
-    │   ├── composables/        # useAuth, useContactForm, useSeo, useServices
+    │   ├── composables/        # useAuth, useContactForm, useMessages, useSeo, useServices
     │   ├── services/           # api.js (cliente base) + contactService.js + adminService.js
     │   ├── router/             # index.js con guards de navegación
     │   └── styles/             # variables.scss, mixins.scss, main.scss
-    ├── __tests__/              # Vitest (useContactForm.spec.js)
+    ├── __tests__/              # Vitest (useContactForm.spec.js, useMessages.spec.js)
     ├── Dockerfile
     └── nginx.conf              # SPA fallback + proxy /api + envsubst
 ```
@@ -202,7 +205,7 @@ Page Component
 ### Routing
 - Rutas públicas: `/`, `/servicios`, `/servicios/:id`, `/nosotros`, `/contacto`, `/cookies`.
 - Rutas admin protegidas (`meta.requiresAuth`): `/dulzia-panel`, `/dulzia-panel/login`,
-  `/dulzia-panel/servicios/:id`.
+  `/dulzia-panel/servicios/:id`, `/dulzia-panel/mensajes`, `/dulzia-panel/mensajes/:id`.
 - Guard: si no hay token en localStorage → redirect al login.
 
 ### Comunicación con el backend
@@ -297,7 +300,7 @@ service            id (string slug, PK), name, emoji, description, features (jso
 service_example    id (string 32-hex), service_id (FK), title, description,
                    image_url (URL completa R2 o externa), sort_order
 contact_submission id (string 32-hex), name, email, phone, event_type, message,
-                   ip_address, submitted_at, email_sent, email_sent_at
+                   ip_address, submitted_at, email_sent, email_sent_at, read_at
 ```
 
 ### Convenciones de migración
@@ -326,6 +329,11 @@ contact_submission id (string 32-hex), name, email, phone, event_type, message,
 | POST | `/api/admin/services/{serviceId}/photos` | token | Añadir foto (multipart `image` o `imageUrl`) |
 | POST | `/api/admin/photos/{photoId}` | token | Actualizar foto |
 | DELETE | `/api/admin/photos/{photoId}` | token | Borrar foto (y su archivo en R2) |
+| GET | `/api/admin/messages` | token | Mensajes paginados: `?page=1` → `{items, page, totalPages, total, unreadCount}` |
+| GET | `/api/admin/messages/{id}` | token | Detalle de mensaje (404 si no existe) |
+| POST | `/api/admin/messages/{id}/read` | token | Marcar leído |
+| POST | `/api/admin/messages/{id}/unread` | token | Marcar no leído |
+| DELETE | `/api/admin/messages/{id}` | token | Borrar mensaje |
 
 ---
 

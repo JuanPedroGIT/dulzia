@@ -1,6 +1,6 @@
 # PRD — Gestión de mensajes de contacto en el panel de administración
 
-> Estado: **Borrador para revisión** — 2026-09-22
+> Estado: **Fase 1 implementada** (2026-09-22) — Fases 2 y 3 pendientes.
 > Implementación prevista por fases (ver "Plan por fases").
 
 ---
@@ -135,7 +135,10 @@ AdminDashboardPage.vue          # enlace "Mensajes" + badge con unreadCount
 
 ## 8. Plan por fases (paso a paso)
 
-### Fase 1 — MVP: ver y gestionar lo básico
+### Fase 1 — MVP: ver y gestionar lo básico ✅ Implementada (2026-09-22)
+
+> Decisión de implementación aplicada: read/unread agrupados en un solo caso
+> de uso `MarkMessageRead` (parámetro `bool $read`), como permitía el PRD.
 
 1. Migration `read_at` en `contact_submission`.
 2. `ContactSubmission::markRead()/markUnread()/isRead()` + tests de entidad.
