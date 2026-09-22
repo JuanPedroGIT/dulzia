@@ -1,4 +1,13 @@
 parameters:
+    # Emails del formulario de contacto — valores por defecto en backend/.env
+    # (versionable) y sobreescritura sin rebuild desde el .env raíz
+    # (env_file del compose, que tiene prioridad sobre backend/.env).
+    mailer.to_email: '%env(MAILER_TO_EMAIL)%'
+    mailer.to_name: '%env(MAILER_TO_NAME)%'
+    mailer.from_email: '%env(MAILER_FROM_EMAIL)%'
+    mailer.from_name: '%env(MAILER_FROM_NAME)%'
+    mailer.confirm_from_email: '%env(MAILER_CONFIRM_FROM_EMAIL)%'
+    mailer.confirm_from_name: '%env(MAILER_CONFIRM_FROM_NAME)%'
 
 services:
     _defaults:
@@ -25,6 +34,12 @@ services:
     App\Infrastructure\Email\BrevoMailer:
         arguments:
             $apiKey: '%env(BREVO_API_KEY)%'
+            $toEmail: '%mailer.to_email%'
+            $toName: '%mailer.to_name%'
+            $fromEmail: '%mailer.from_email%'
+            $fromName: '%mailer.from_name%'
+            $confirmFromEmail: '%mailer.confirm_from_email%'
+            $confirmFromName: '%mailer.confirm_from_name%'
 
     App\Infrastructure\Storage\CloudflareR2Storage:
         arguments:

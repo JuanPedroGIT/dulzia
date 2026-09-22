@@ -18,21 +18,28 @@ final class BrevoMailer implements MailerInterface
     public function __construct(
         private string $apiKey,
         private ContactMailRenderer $renderer,
+        // Destinatario de la notificación al negocio
         private string $toEmail = 'salumvi@gmail.com',
         private string $toName = 'Dulzia Salamanca Eventos',
+        // Remitente de la notificación
+        private string $fromEmail = 'salumvi@gmail.com',
+        private string $fromName = 'Web Dulzia Salamanca',
+        // Remitente de la confirmación al usuario
+        private string $confirmFromEmail = 'noreply@dulziasalamancaeventos.com',
+        private string $confirmFromName = 'Dulzia Salamanca Eventos',
     ) {}
 
     public function sendContactNotification(ContactSubmission $submission): void
     {
         $this->send([
-            'sender'  => ['name' => 'Web Dulzia Salamanca', 'email' => 'salumvi@gmail.com'],
+            'sender'  => ['name' => $this->fromName, 'email' => $this->fromEmail],
             'to'      => [['email' => $this->toEmail, 'name' => $this->toName]],
             'subject' => '📩 Nuevo mensaje de ' . $submission->getName(),
             'htmlContent' => $this->renderer->renderNotification($submission),
         ]);
 
         $this->send([
-            'sender'  => ['name' => 'Dulzia Salamanca Eventos', 'email' => 'noreply@dulziasalamancaeventos.com'],
+            'sender'  => ['name' => $this->confirmFromName, 'email' => $this->confirmFromEmail],
             'to'      => [['email' => $submission->getEmail(), 'name' => $submission->getName()]],
             'subject' => '¡Hemos recibido tu mensaje!',
             'htmlContent' => $this->renderer->renderConfirmation($submission),

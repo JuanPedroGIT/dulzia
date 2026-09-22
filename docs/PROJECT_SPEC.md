@@ -244,6 +244,9 @@ networks:
 | `APP_URL` | URL base pública de la web |
 | `DEFAULT_URI` | URL base del frontend (links en emails) |
 | `BREVO_API_KEY` | API key de Brevo (email) |
+| `MAILER_TO_EMAIL` / `MAILER_TO_NAME` | Destinatario de la notificación de contacto (obligatoria: sin ella el backend no arranca) |
+| `MAILER_FROM_EMAIL` / `MAILER_FROM_NAME` | Remitente de la notificación (obligatoria) |
+| `MAILER_CONFIRM_FROM_EMAIL` / `MAILER_CONFIRM_FROM_NAME` | Remitente de la confirmación al usuario (obligatoria) |
 | `DULZIA_DB_PASS` | Contraseña del usuario `dulzia` en el postgres compartido |
 | `TRUSTED_PROXIES` / `TRUSTED_HEADERS` | Proxy de confianza (cloudflared → nginx → backend) |
 | `R2_ACCOUNT_ID` | Account ID de Cloudflare |
@@ -254,8 +257,10 @@ networks:
 | `VITE_API_URL` | Vacío = rutas relativas (proxy por nginx/Vite) |
 
 ### Backend (`backend/.env`)
-Solo passthrough `${VAR}` sin valores reales (template versionable).
-El `.env` raíz inyecta los valores vía `env_file` del compose.
+Solo passthrough `${VAR}` sin valores reales (template local, gitignored).
+El `.env` raíz inyecta los valores vía `env_file` del compose. **Único `.env`
+de configuración**: los valores reales (incluidos los emails `MAILER_*`)
+solo se tocan en el `.env` raíz; `backend/.env` no se modifica a mano.
 
 ### Gestión de secrets
 - `.env` en la raíz contiene los secrets reales → **nunca commitear**.
@@ -340,7 +345,9 @@ contact_submission id (string 32-hex), name, email, phone, event_type, message,
 ## Despliegue en Producción (servidor compartido media-tools)
 
 1. Subir el código al servidor (`/home/ubuntu/apps/dulzia`).
-2. Copiar el `.env` con los secrets reales.
+2. Copiar el `.env` con los secrets reales — debe incluir las variables
+   `MAILER_*` de los emails de contacto (ver `.env.example`): sin ellas el
+   backend no arranca.
 3. Añadir/actualizar el vhost en el nginx de infra (`conf.d/dulzia.conf` → `server_name`).
 4. `make prod-up` (build + arranque con `docker-compose.prod.yml`).
 5. `make migrate` (o equivalente en el contenedor prod) — las migraciones van en la imagen.
