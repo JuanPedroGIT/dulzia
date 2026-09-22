@@ -2,7 +2,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuth } from '@/composables/useAuth'
-import { apiGetServices, apiCreateService, apiUpdateService, apiDeactivateService, apiActivateService } from '@/services/adminService'
+import { apiGetServices, apiGetMessages, apiCreateService, apiUpdateService, apiDeactivateService, apiActivateService } from '@/services/adminService'
 
 const router = useRouter()
 const { logout } = useAuth()
@@ -30,7 +30,12 @@ async function fetchServices() {
   catch (e) { if (e.message === '401') { router.push('/dulzia-panel/login'); return } pageError.value = 'Error al cargar' }
   finally { loading.value = false }
 }
-onMounted(fetchServices)
+const unreadMessages = ref(0)
+async function fetchUnreadCount() {
+  try { unreadMessages.value = (await apiGetMessages(1)).unreadCount }
+  catch { /* el badge se queda a 0 si la petición falla */ }
+}
+onMounted(() => { fetchServices(); fetchUnreadCount() })
 async function handleLogout() { await logout(); router.push('/dulzia-panel/login') }
 function openCreate() {
   form.value = { id: '', name: '', emoji: '', description: '', features: '', category: 'food' }
@@ -76,7 +81,13 @@ function goToPhotos(id) { router.push('/dulzia-panel/servicios/' + id) }
           <h2 class="toolbar__title">Secciones</h2>
           <p class="toolbar__sub">Gestiona los servicios que aparecen en la web.</p>
         </div>
-        <button class="btn-primary" @click="openCreate">+ Nueva sección</button>
+        <div class="toolbar__actions">
+          <router-link to="/dulzia-panel/mensajes" class="btn-messages">
+            📩 Mensajes
+            <span v-if="unreadMessages > 0" class="msg-badge">{{ unreadMessages }}</span>
+          </router-link>
+          <button class="btn-primary" @click="openCreate">+ Nueva sección</button>
+        </div>
       </div>
       <div class="filter-bar">
         <button :class="['filter-btn', { active: filter === 'all' }]"      @click="filter = 'all'">Todos <span class="filter-count">{{ services.length }}</span></button>
@@ -157,6 +168,10 @@ function goToPhotos(id) { router.push('/dulzia-panel/servicios/' + id) }
 .toolbar__sub{font-size:.875rem;color:#888;margin:0}
 .btn-primary{padding:.65rem 1.25rem;background:#c8748a;color:white;border:none;border-radius:9px;font-size:.9rem;font-weight:700;cursor:pointer;white-space:nowrap;transition:background .2s}
 .btn-primary:hover{background:#b5637a}
+.toolbar__actions{display:flex;align-items:center;gap:.75rem}
+.btn-messages{display:inline-flex;align-items:center;gap:.5rem;padding:.65rem 1.1rem;border:1.5px solid #e5e1dc;border-radius:9px;background:white;color:#555;text-decoration:none;font-size:.9rem;font-weight:700;white-space:nowrap;transition:border-color .2s,color .2s}
+.btn-messages:hover{border-color:#c8748a;color:#c8748a}
+.msg-badge{background:#c8748a;color:white;border-radius:20px;padding:.05rem .5rem;font-size:.75rem}
 .state-msg{text-align:center;padding:3rem;color:#888;font-size:.95rem}
 .state-msg--error{color:#c0392b}
 .table-wrap{background:white;border-radius:14px;box-shadow:0 2px 12px rgba(0,0,0,.06);overflow-x:auto}

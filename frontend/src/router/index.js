@@ -10,6 +10,8 @@ const routes = [
   { path: '/dulzia-panel/login', component: () => import('@/pages/admin/AdminLoginPage.vue') },
   { path: '/dulzia-panel', component: () => import('@/pages/admin/AdminDashboardPage.vue'), meta: { requiresAuth: true } },
   { path: '/dulzia-panel/servicios/:id', component: () => import('@/pages/admin/AdminServiceDetailPage.vue'), meta: { requiresAuth: true } },
+  { path: '/dulzia-panel/mensajes', component: () => import('@/pages/admin/AdminMessagesPage.vue'), meta: { requiresAuth: true } },
+  { path: '/dulzia-panel/mensajes/:id', component: () => import('@/pages/admin/AdminMessageDetailPage.vue'), meta: { requiresAuth: true } },
   { path: '/:pathMatch(.*)*', redirect: '/' },
 ]
 

@@ -74,6 +74,34 @@ export async function apiActivateService(id) {
   return handleResponse(res)
 }
 
+// ── Mensajes ──────────────────────────────────────────────────────────────
+
+export async function apiGetMessages(page = 1) {
+  const res = await fetch(`${BASE}/admin/messages?page=${page}`, { headers: headers() })
+  return handleResponse(res)
+}
+
+export async function apiGetMessage(id) {
+  const res = await fetch(`${BASE}/admin/messages/${id}`, { headers: headers() })
+  return handleResponse(res)
+}
+
+export async function apiMarkMessageRead(id, read) {
+  const res = await fetch(`${BASE}/admin/messages/${id}/${read ? 'read' : 'unread'}`, {
+    method: 'POST',
+    headers: headers(),
+  })
+  return handleResponse(res)
+}
+
+export async function apiDeleteMessage(id) {
+  const res = await fetch(`${BASE}/admin/messages/${id}`, {
+    method: 'DELETE',
+    headers: headers(),
+  })
+  return handleResponse(res)
+}
+
 // ── Fotos ─────────────────────────────────────────────────────────────────
 
 export async function apiAddPhoto(serviceId, formData) {
