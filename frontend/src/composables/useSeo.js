@@ -61,19 +61,6 @@ export const localBusinessJsonLd = {
   url: SITE_URL,
   telephone: '+34629991659',
   email: 'info@dulziasalamancaeventos.com',
-  address: {
-    '@type': 'PostalAddress',
-    streetAddress: 'C. Martín Alonso Pedraz, 14',
-    addressLocality: 'Salamanca',
-    addressRegion: 'Castilla y León',
-    postalCode: '37001',
-    addressCountry: 'ES',
-  },
-  geo: {
-    '@type': 'GeoCoordinates',
-    latitude: 40.9639725,
-    longitude: -5.6886876,
-  },
   openingHoursSpecification: [
     {
       '@type': 'OpeningHoursSpecification',

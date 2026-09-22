@@ -63,13 +63,6 @@
       <div class="container">
         <div class="info-band">
           <div class="info-band__item">
-            <span class="info-band__emoji">📍</span>
-            <div>
-              <strong>Ubicación</strong>
-              <p>C. Martín Alonso Pedraz, 14<br>Salamanca</p>
-            </div>
-          </div>
-          <div class="info-band__item">
             <span class="info-band__emoji">🕐</span>
             <div>
               <strong>Horario</strong>

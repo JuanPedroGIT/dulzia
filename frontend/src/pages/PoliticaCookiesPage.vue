@@ -75,7 +75,6 @@
             <h2>4. Responsable del tratamiento</h2>
             <p>
               <strong>Dulzia Salamanca Eventos</strong><br>
-              C. Martín Alonso Pedraz, 14, Salamanca<br>
               Email: <a href="mailto:info@dulziasalamancaeventos.com">info@dulziasalamancaeventos.com</a><br>
               Teléfono: <a href="tel:+34629991659">+34 629 991 659</a>
             </p>

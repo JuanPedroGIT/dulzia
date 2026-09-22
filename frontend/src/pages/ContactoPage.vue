@@ -34,13 +34,6 @@
                 </div>
               </a>
               <div class="contact-info__item">
-                <div class="contact-info__icon">📍</div>
-                <div>
-                  <strong>Dirección</strong>
-                  <span>C. Martín Alonso Pedraz, 14<br>Salamanca</span>
-                </div>
-              </div>
-              <div class="contact-info__item">
                 <div class="contact-info__icon">🕐</div>
                 <div>
                   <strong>Horario de atención</strong>
