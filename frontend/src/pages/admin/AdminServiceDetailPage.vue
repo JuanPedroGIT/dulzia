@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { apiGetService, apiAddPhoto, apiUpdatePhoto, apiDeletePhoto } from '@/services/adminService'
 import BaseFileUpload from '@/components/ui/BaseFileUpload.vue'
@@ -15,13 +15,22 @@ const addForm   = ref({ title: '', description: '', image: null })
 const editModal = ref({ open: false, photoId: '', loading: false, error: '' })
 const editForm  = ref({ title: '', description: '', image: null, currentImageUrl: '' })
 
-async function fetchService() {
+async function fetchService(id = route.params.id) {
   loading.value = true; pageError.value = ''
-  try { service.value = await apiGetService(route.params.id) }
+  try { service.value = await apiGetService(id) }
   catch (e) { if (e.message === '401') { router.push('/dulzia-panel/login'); return } pageError.value = 'Error al cargar' }
   finally { loading.value = false }
 }
 onMounted(fetchService)
+
+// Mismo caso que ServicioDetallePage: si se navega entre servicios del panel,
+// Vue Router reutiliza el componente y hay que recargar al cambiar el :id.
+watch(
+  () => route.params.id,
+  (newId, oldId) => {
+    if (newId !== oldId) fetchService(newId)
+  }
+)
 
 function goBack() { router.push('/dulzia-panel') }
 

@@ -144,8 +144,8 @@ const { service, loading, fetchOne } = useService(route.params.id)
 
 const { services: allServices, fetchAll } = useServices()
 
-onMounted(async () => {
-  await fetchOne()
+async function loadService(id) {
+  await fetchOne(id)
   if (service.value) {
     useSeo({
       title: service.value.name,
@@ -154,7 +154,19 @@ onMounted(async () => {
     })
     fetchAll()
   }
-})
+}
+
+onMounted(() => loadService(route.params.id))
+
+// Al navegar entre servicios (/servicios/a → /servicios/b) Vue Router reutiliza
+// el componente, así que onMounted no vuelve a ejecutarse: hay que recargar
+// cuando cambia el :id de la ruta.
+watch(
+  () => route.params.id,
+  (newId, oldId) => {
+    if (newId !== oldId) loadService(newId)
+  }
+)
 
 const categories = { food: 'Gastronomía', decoration: 'Decoración', experience: 'Experiencias' }
 const categoryLabel = computed(() => categories[service.value?.category] ?? '')
