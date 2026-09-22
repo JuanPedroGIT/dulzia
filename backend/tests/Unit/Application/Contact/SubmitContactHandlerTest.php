@@ -10,6 +10,7 @@ use App\Domain\Contact\ContactRepositoryInterface;
 use App\Entity\ContactSubmission;
 use App\Domain\Contact\MailerInterface;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 
 final class SubmitContactHandlerTest extends TestCase
 {
@@ -23,7 +24,9 @@ final class SubmitContactHandlerTest extends TestCase
         $mailer = $this->createMock(MailerInterface::class);
         $mailer->expects($this->once())->method('sendContactNotification');
 
-        $result = (new SubmitContactHandler($repository, $mailer))->handle(new SubmitContactCommand(
+        $logger = $this->createMock(LoggerInterface::class);
+
+        $result = (new SubmitContactHandler($repository, $mailer, $logger))->handle(new SubmitContactCommand(
             name: 'María',
             email: 'maria@example.com',
             message: 'Hola, quiero un presupuesto',
@@ -50,7 +53,18 @@ final class SubmitContactHandlerTest extends TestCase
         $mailer->method('sendContactNotification')
             ->willThrowException(new \RuntimeException('Brevo caído'));
 
-        $result = (new SubmitContactHandler($repository, $mailer))->handle(new SubmitContactCommand(
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())
+            ->method('error')
+            ->with(
+                'Fallo al enviar email de contacto',
+                $this->callback(fn (array $context): bool =>
+                    isset($context['submission_id'], $context['exception'])
+                    && $context['exception'] instanceof \RuntimeException
+                )
+            );
+
+        $result = (new SubmitContactHandler($repository, $mailer, $logger))->handle(new SubmitContactCommand(
             name: 'María',
             email: 'maria@example.com',
             message: 'Hola',
@@ -68,7 +82,9 @@ final class SubmitContactHandlerTest extends TestCase
 
         $mailer = $this->createMock(MailerInterface::class);
 
-        $result = (new SubmitContactHandler($repository, $mailer))->handle(new SubmitContactCommand(
+        $logger = $this->createMock(LoggerInterface::class);
+
+        $result = (new SubmitContactHandler($repository, $mailer, $logger))->handle(new SubmitContactCommand(
             name: 'María',
             email: 'maria@example.com',
             message: 'Hola',

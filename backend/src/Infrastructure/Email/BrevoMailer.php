@@ -12,6 +12,8 @@ use App\Entity\ContactSubmission;
 final class BrevoMailer implements MailerInterface
 {
     private const API_URL = 'https://api.brevo.com/v3/smtp/email';
+    private const CONNECT_TIMEOUT = 5;
+    private const TIMEOUT = 15;
 
     public function __construct(
         private string $apiKey,
@@ -49,6 +51,9 @@ final class BrevoMailer implements MailerInterface
                 'Content-Type: application/json',
                 'api-key: ' . $this->apiKey,
             ],
+            // Sin timeout, una API caída colgaría la petición PHP
+            CURLOPT_CONNECTTIMEOUT => self::CONNECT_TIMEOUT,
+            CURLOPT_TIMEOUT        => self::TIMEOUT,
         ]);
 
         $response = curl_exec($ch);

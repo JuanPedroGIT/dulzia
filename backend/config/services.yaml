@@ -13,6 +13,7 @@ services:
             - '../src/Kernel.php'
 
     # Puertos del dominio → adaptadores de infraestructura
+    Psr\Log\LoggerInterface: '@App\Infrastructure\Log\StderrLogger'
     App\Domain\Contact\MailerInterface: '@App\Infrastructure\Email\BrevoMailer'
     App\Domain\Contact\ContactRepositoryInterface: '@App\Infrastructure\Repository\DoctrineContactRepository'
     App\Domain\Admin\AdminUserRepositoryInterface: '@App\Infrastructure\Repository\DoctrineAdminUserRepository'
