@@ -271,7 +271,6 @@ https://www.dulziasalamancaeventos.com/sitemap.xml
 - Web: [dulziasalamancaeventos.com](https://www.dulziasalamancaeventos.com)
 - Email: info@dulziasalamancaeventos.com
 - Teléfono: +34 629 991 659
-- Dirección: C. Martín Alonso Pedraz, 14 · Salamanca
 - Horario: Lunes a viernes, 7:00–18:00
 
 ## [!IMPORTANT]
