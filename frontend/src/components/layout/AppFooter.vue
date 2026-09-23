@@ -59,6 +59,7 @@
     <div class="footer__bottom">
       <div class="container">
         <p>© {{ year }} Dulzia Salamanca Eventos. Todos los derechos reservados.</p>
+        <p class="footer__credit">Diseño web: <a href="mailto:juanpedrovm@hotmail.com">JP Studio</a></p>
         <router-link to="/politica-cookies">Política de cookies</router-link>
       </div>
     </div>
@@ -190,6 +191,16 @@ const year = new Date().getFullYear()
         font-size: $text-xs;
         color: rgba($color-white, 0.4);
       }
+    }
+  }
+
+  &__credit {
+    a {
+      color: rgba($color-white, 0.7);
+      text-decoration: none;
+      transition: color $transition-fast;
+
+      &:hover { color: $color-pink; }
     }
   }
 }
