@@ -163,12 +163,12 @@ function goToPhotos(id) { router.push('/dulzia-panel/servicios/' + id) }
 .btn-logout{padding:.45rem .9rem;background:transparent;border:1.5px solid #d0ccc8;border-radius:8px;cursor:pointer;font-size:.8rem;color:#666;transition:border-color .2s,color .2s}
 .btn-logout:hover{border-color:#c8748a;color:#c8748a}
 .admin-main{max-width:1000px;margin:0 auto;padding:2rem 1.5rem}
-.toolbar{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.75rem}
+.toolbar{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.75rem;flex-wrap:wrap}
 .toolbar__title{font-size:1.3rem;font-weight:800;color:#1a1a1a;margin:0 0 .25rem}
 .toolbar__sub{font-size:.875rem;color:#888;margin:0}
 .btn-primary{padding:.65rem 1.25rem;background:#c8748a;color:white;border:none;border-radius:9px;font-size:.9rem;font-weight:700;cursor:pointer;white-space:nowrap;transition:background .2s}
 .btn-primary:hover{background:#b5637a}
-.toolbar__actions{display:flex;align-items:center;gap:.75rem}
+.toolbar__actions{display:flex;align-items:center;gap:.75rem;flex-wrap:wrap}
 .btn-messages{display:inline-flex;align-items:center;gap:.5rem;padding:.65rem 1.1rem;border:1.5px solid #e5e1dc;border-radius:9px;background:white;color:#555;text-decoration:none;font-size:.9rem;font-weight:700;white-space:nowrap;transition:border-color .2s,color .2s}
 .btn-messages:hover{border-color:#c8748a;color:#c8748a}
 .msg-badge{background:#c8748a;color:white;border-radius:20px;padding:.05rem .5rem;font-size:.75rem}
