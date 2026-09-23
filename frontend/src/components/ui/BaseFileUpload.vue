@@ -175,6 +175,11 @@ onBeforeUnmount(() => {
     transition: all $transition-base;
     overflow: hidden;
     min-height: 200px;
+    // Zona en 4:3 apaisado fijo, igual que el recorte del modal
+    aspect-ratio: 4 / 3;
+    height: auto;
+    max-width: 420px;
+    align-self: center;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -240,8 +245,8 @@ onBeforeUnmount(() => {
 
   &__img {
     width: 100%;
-    max-height: 250px;
-    object-fit: contain;
+    height: 100%;
+    object-fit: cover;
     display: block;
     background: #f0f0f0;
   }

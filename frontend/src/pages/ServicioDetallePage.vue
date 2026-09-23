@@ -69,7 +69,14 @@
 
     <!-- Lightbox -->
     <Transition name="lightbox">
-      <div v-if="lightboxIndex !== null" class="lightbox" @click.self="closeLightbox">
+      <div
+        v-if="lightboxIndex !== null"
+        class="lightbox"
+        @click.self="onLightboxBackdropClick"
+        @touchstart.passive="onTouchStart"
+        @touchmove.passive="onTouchMove"
+        @touchend.passive="onTouchEnd"
+      >
         <button class="lightbox__close" @click="closeLightbox" aria-label="Cerrar">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>
@@ -77,11 +84,17 @@
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
         </button>
         <div class="lightbox__content">
-          <img
-            :src="service.examples[lightboxIndex].image"
-            :alt="service.examples[lightboxIndex].title"
-            class="lightbox__img"
-          />
+          <div class="lightbox__track-wrap">
+            <div
+              class="lightbox__track"
+              :class="{ 'lightbox__track--dragging': isDragging }"
+              :style="trackStyle"
+            >
+              <div v-for="(example, i) in service.examples" :key="i" class="lightbox__slide">
+                <img :src="example.image" :alt="example.title" class="lightbox__img" draggable="false" />
+              </div>
+            </div>
+          </div>
           <div class="lightbox__info">
             <h3>{{ service.examples[lightboxIndex].title }}</h3>
             <p>{{ service.examples[lightboxIndex].description }}</p>
@@ -187,6 +200,50 @@ function nextExample() {
 }
 function prevExample() {
   lightboxIndex.value = (lightboxIndex.value - 1 + service.value.examples.length) % service.value.examples.length
+}
+
+// Tras un swipe, el navegador puede disparar un click sobre el fondo
+// (que cerraría el lightbox por accidente): lo ignoramos una vez.
+let justSwiped = false
+function onLightboxBackdropClick() {
+  if (justSwiped) { justSwiped = false; return }
+  closeLightbox()
+}
+
+// Carrusel con arrastre: la foto sigue al dedo y, al soltar, desliza
+// hasta la siguiente/anterior o vuelve a su sitio si no llega al umbral.
+const dragX = ref(0)
+const isDragging = ref(false)
+const trackStyle = computed(() => ({
+  transform: `translateX(calc(${-100 * lightboxIndex.value}% + ${dragX.value}px))`,
+}))
+let touchStartX = null
+let touchStartY = null
+
+function onTouchStart(e) {
+  if (e.touches.length !== 1) return
+  isDragging.value = true
+  touchStartX = e.touches[0].clientX
+  touchStartY = e.touches[0].clientY
+}
+
+function onTouchMove(e) {
+  if (!isDragging.value || e.touches.length !== 1) return
+  const dx = e.touches[0].clientX - touchStartX
+  const dy = e.touches[0].clientY - touchStartY
+  // Si el gesto es más vertical, es scroll: soltamos el arrastre
+  if (Math.abs(dy) > Math.abs(dx)) { isDragging.value = false; dragX.value = 0; return }
+  dragX.value = dx
+}
+
+function onTouchEnd() {
+  if (!isDragging.value) return
+  isDragging.value = false
+  const dx = dragX.value
+  dragX.value = 0
+  const threshold = 60
+  if (dx < -threshold) { justSwiped = true; nextExample() }
+  else if (dx > threshold) { justSwiped = true; prevExample() }
 }
 
 function onKey(e) {
@@ -405,6 +462,8 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
   background: rgba($color-green-dark, 0.95);
   @include flex-center;
   padding: $space-4;
+  // El swipe horizontal lo gestiona el JS; el vertical queda libre para scroll
+  touch-action: pan-y;
 
   &__close {
     position: absolute;
@@ -447,11 +506,31 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
     gap: $space-5;
   }
 
+  &__track-wrap {
+    width: 100%;
+    overflow: hidden;
+    border-radius: $radius-lg;
+  }
+
+  &__track {
+    display: flex;
+    transition: transform 0.3s ease;
+
+    &--dragging { transition: none; }
+  }
+
+  &__slide {
+    flex: 0 0 100%;
+    min-width: 0;
+    @include flex-center;
+  }
+
   &__img {
     width: 100%;
     max-height: 70vh;
     object-fit: contain;
-    border-radius: $radius-lg;
+    user-select: none;
+    -webkit-user-drag: none;
   }
 
   &__info {

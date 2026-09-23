@@ -90,7 +90,7 @@ function resetTransform() {
   offset.value = { x: 0, y: 0 }
   if (!containerRef.value || !naturalW) { scale.value = 1; return }
   const cw = containerRef.value.clientWidth  || 800
-  const ch = containerRef.value.clientHeight || 400
+  const ch = containerRef.value.clientHeight || 600
   scale.value = Math.max(cw / naturalW, ch / naturalH)
 }
 
@@ -208,13 +208,18 @@ function confirm() {
 
   &__body {
     background: #111;
-    height: 400px;
     position: relative;
     overflow: hidden;
     cursor: grab;
     display: flex;
     align-items: center;
     justify-content: center;
+    // El recorte siempre en 4:3 apaisado, sin depender de la pantalla
+    aspect-ratio: 4 / 3;
+    height: auto;
+    width: min(100%, calc(min(60vh, 420px) * 4 / 3));
+    width: min(100%, calc(min(60dvh, 420px) * 4 / 3));
+    align-self: center;
     &:active { cursor: grabbing; }
   }
 
