@@ -9,7 +9,12 @@ function headers() {
 async function handleResponse(res) {
   if (res.status === 401) throw new Error('401')
   const data = await res.json()
-  if (!res.ok) throw new Error(data.error || `Error ${res.status}`)
+  if (!res.ok) {
+    // Los 422 de validación llegan como {errors: {campo: ["mensaje"]}}: sin
+    // esto el usuario vería un escueto "Error 422".
+    const fieldErrors = data.errors && Object.values(data.errors).flat().filter(Boolean)
+    throw new Error(data.error || fieldErrors?.[0] || `Error ${res.status}`)
+  }
   return data
 }
 
@@ -98,6 +103,24 @@ export async function apiDeleteMessage(id) {
   const res = await fetch(`${BASE}/admin/messages/${id}`, {
     method: 'DELETE',
     headers: headers(),
+  })
+  return handleResponse(res)
+}
+
+// ── Ajustes de email ──────────────────────────────────────────────────────
+
+export async function apiGetContactRecipient() {
+  const res = await fetch(`${BASE}/admin/settings/contact-recipient`, {
+    headers: headers(),
+  })
+  return handleResponse(res)
+}
+
+export async function apiUpdateContactRecipient(data) {
+  const res = await fetch(`${BASE}/admin/settings/contact-recipient`, {
+    method: 'PUT',
+    headers: { ...headers(), 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
   })
   return handleResponse(res)
 }

@@ -30,12 +30,18 @@ services:
     App\Domain\Service\ServiceRepositoryInterface: '@App\Infrastructure\Repository\DoctrineServiceRepository'
     App\Domain\Service\ServiceExampleRepositoryInterface: '@App\Infrastructure\Repository\DoctrineServiceExampleRepository'
     App\Domain\Storage\FileStorageInterface: '@App\Infrastructure\Storage\CloudflareR2Storage'
+    App\Domain\Settings\SettingsRepositoryInterface: '@App\Infrastructure\Repository\DoctrineSettingsRepository'
+
+    App\Domain\Settings\ContactRecipientResolver:
+        arguments:
+            # Respaldo cuando el panel no tiene nada configurado: los parámetros
+            # de arriba, que a su vez salen del .env raíz.
+            $defaultEmail: '%mailer.to_email%'
+            $defaultName: '%mailer.to_name%'
 
     App\Infrastructure\Email\BrevoMailer:
         arguments:
             $apiKey: '%env(BREVO_API_KEY)%'
-            $toEmail: '%mailer.to_email%'
-            $toName: '%mailer.to_name%'
             $fromEmail: '%mailer.from_email%'
             $fromName: '%mailer.from_name%'
             $confirmFromEmail: '%mailer.confirm_from_email%'

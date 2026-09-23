@@ -195,6 +195,22 @@ make sync-npm        # Sincronizar node_modules del contenedor → local
 | `R2_ACCESS_KEY_SECRET` | Secret Access Key del API token de R2 |
 | `R2_BUCKET_NAME` | Nombre del bucket R2 de fotos |
 | `R2_PUBLIC_URL` | URL pública del bucket (r2.dev o dominio propio) |
+| `MAILER_TO_EMAIL` | Email de destino de los mensajes del formulario de contacto (ver "Ajustes desde el panel") |
+| `MAILER_TO_NAME` | Nombre del destinatario de esos mensajes |
+| `MAILER_FROM_EMAIL` / `MAILER_FROM_NAME` | Remitente de la notificación al negocio |
+| `MAILER_CONFIRM_FROM_EMAIL` / `MAILER_CONFIRM_FROM_NAME` | Remitente de la confirmación al visitante |
+
+### Ajustes desde el panel
+
+El destinatario de los mensajes (`MAILER_TO_EMAIL` / `MAILER_TO_NAME`) se puede cambiar sin tocar
+el `.env`, desde **Panel → Mensajes → ⚙️ Ajustes de email** (tabla `settings` en la BD). Reglas:
+
+- Mientras no guardes nada en el panel, mandan las variables del `.env`.
+- En cuanto guardas un valor, **manda la BD** y el `.env` deja de aplicarse a ese campo.
+- Para volver al valor del `.env`, vacía el campo en el panel y guarda (o pulsa "Restablecer").
+- Un email vacío o mal formado no se puede guardar: la validación lo bloquea.
+- En producción, cambiar el `.env` exige `make cache-clear` **y reiniciar el contenedor**: los
+  valores de entorno se resuelven al compilar el contenedor de Symfony (`opcache` no revalida).
 
 ### Backend (`backend/.env`)
 

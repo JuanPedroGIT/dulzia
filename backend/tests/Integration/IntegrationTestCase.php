@@ -29,7 +29,7 @@ use Symfony\Component\HttpKernel\KernelInterface;
  */
 abstract class IntegrationTestCase extends WebTestCase
 {
-    private const TABLES = ['admin_token', 'admin_user', 'contact_submission', 'service_example', 'service'];
+    private const TABLES = ['admin_token', 'admin_user', 'contact_submission', 'service_example', 'service', 'settings'];
 
     private static bool $schemaCreated = false;
     private ?KernelBrowser $client = null;

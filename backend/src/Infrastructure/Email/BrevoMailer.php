@@ -3,11 +3,13 @@
 namespace App\Infrastructure\Email;
 
 use App\Domain\Contact\MailerInterface;
+use App\Domain\Settings\ContactRecipientResolver;
 use App\Entity\ContactSubmission;
 
 /**
  * Transporte de email contra la API REST de Brevo.
- * El renderizado de las plantillas vive en ContactMailRenderer.
+ * El renderizado de las plantillas vive en ContactMailRenderer y el
+ * destinatario de la notificación en ContactRecipientResolver.
  */
 final class BrevoMailer implements MailerInterface
 {
@@ -18,22 +20,26 @@ final class BrevoMailer implements MailerInterface
     public function __construct(
         private string $apiKey,
         private ContactMailRenderer $renderer,
-        // Destinatario de la notificación al negocio
-        private string $toEmail = 'salumvi@gmail.com',
-        private string $toName = 'Dulzia Salamanca Eventos',
+        // Destinatario de la notificación al negocio: se configura desde el
+        // panel y, si no hay nada, cae al valor del .env
+        private ContactRecipientResolver $recipients,
         // Remitente de la notificación
-        private string $fromEmail = 'salumvi@gmail.com',
-        private string $fromName = 'Web Dulzia Salamanca',
+        private string $fromEmail,
+        private string $fromName,
         // Remitente de la confirmación al usuario
-        private string $confirmFromEmail = 'noreply@dulziasalamancaeventos.com',
-        private string $confirmFromName = 'Dulzia Salamanca Eventos',
+        private string $confirmFromEmail,
+        private string $confirmFromName,
     ) {}
 
     public function sendContactNotification(ContactSubmission $submission): void
     {
+        // Se resuelve en cada envío: así un cambio en el panel se aplica sin
+        // reiniciar el contenedor.
+        $recipient = $this->recipients->resolve();
+
         $this->send([
             'sender'  => ['name' => $this->fromName, 'email' => $this->fromEmail],
-            'to'      => [['email' => $this->toEmail, 'name' => $this->toName]],
+            'to'      => [['email' => $recipient->email, 'name' => $recipient->name]],
             'subject' => '📩 Nuevo mensaje de ' . $submission->getName(),
             'htmlContent' => $this->renderer->renderNotification($submission),
         ]);

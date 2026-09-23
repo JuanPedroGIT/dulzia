@@ -1,6 +1,6 @@
 # Plan: Fotos de servicios en Cloudflare R2 (alcance mínimo)
 
-> Plan de implementación — carpeta `docs/` local, fuera del repo (gitignored).
+> Plan de implementación — fichero versionado en `docs/` del repo.
 > Fecha: 2026-09-21 · Proyecto: dulziasalamanca
 
 ## Contexto

@@ -23,6 +23,7 @@ function onDelete(m) {
         <router-link to="/dulzia-panel" class="btn-back">← Panel</router-link>
         <span class="header-title">📩 Mensajes</span>
         <span v-if="unreadCount > 0" class="header-badge">{{ unreadCount }} sin leer</span>
+        <router-link to="/dulzia-panel/ajustes-email" class="btn-config">⚙️ Ajustes de email</router-link>
       </div>
     </header>
 
@@ -88,6 +89,8 @@ function onDelete(m) {
 .btn-back:hover{border-color:#c8748a;color:#c8748a}
 .header-title{font-size:1.05rem;font-weight:700;color:#1a1a1a;flex:1}
 .header-badge{background:#c8748a;color:white;border-radius:20px;padding:.2rem .7rem;font-size:.75rem;font-weight:700}
+.btn-config{padding:.45rem .9rem;background:transparent;border:1.5px solid #d0ccc8;border-radius:8px;cursor:pointer;font-size:.85rem;color:#555;text-decoration:none;transition:border-color .2s,color .2s;white-space:nowrap}
+.btn-config:hover{border-color:#c8748a;color:#c8748a}
 .admin-main{max-width:1100px;margin:0 auto;padding:2rem 1.5rem}
 .summary{font-size:.875rem;color:#888;margin:0 0 1rem}
 .state-msg{text-align:center;padding:3rem;color:#888;font-size:.95rem}
