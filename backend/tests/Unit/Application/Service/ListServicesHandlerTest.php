@@ -34,10 +34,16 @@ final class ListServicesHandlerTest extends TestCase
         self::assertSame(1, $result[0]['sort_order']);
         self::assertTrue($result[0]['is_active']);
         self::assertSame(2, $result[0]['photoCount']);
+        self::assertSame(
+            'https://fake-storage.test/services/abc.jpg',
+            $result[0]['image'],
+            'Sin foto propia, la miniatura es la primera de la galería',
+        );
 
         self::assertSame('b', $result[1]['id']);
         self::assertFalse($result[1]['is_active']);
         self::assertSame(0, $result[1]['photoCount']);
+        self::assertNull($result[1]['image']);
     }
 
     public function testReturnsEmptyArrayWhenNoServices(): void

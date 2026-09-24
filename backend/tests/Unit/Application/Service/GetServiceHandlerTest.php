@@ -48,9 +48,32 @@ final class GetServiceHandlerTest extends TestCase
         self::assertSame('Candy Bar', $result['name']);
         self::assertSame(['A'], $result['features']);
         self::assertSame(4, $result['sort_order']);
+        self::assertNull($result['imageUrl'], 'Sin foto propia');
+        self::assertSame(
+            'https://fake-storage.test/services/abc.jpg',
+            $result['image'],
+            'Sin foto propia se muestra la primera de la galería',
+        );
         self::assertCount(2, $result['photos']);
         self::assertSame('Foto 1', $result['photos'][0]['title']);
         self::assertSame(1, $result['photos'][0]['sort_order']);
         self::assertArrayHasKey('imageUrl', $result['photos'][0]);
+    }
+
+    public function testReturnsOwnImageWhenSet(): void
+    {
+        $service = TestFactory::service(id: 'candy-bar', imageUrl: 'https://fake-storage.test/services/propia.jpg');
+        TestFactory::attachExamples(
+            $service,
+            TestFactory::example($service, imageUrl: 'https://fake-storage.test/services/galeria.jpg'),
+        );
+
+        $repo = $this->createMock(ServiceRepositoryInterface::class);
+        $repo->method('findById')->willReturn($service);
+
+        $result = (new GetServiceHandler($repo))->handle(new GetServiceQuery('candy-bar'));
+
+        self::assertSame('https://fake-storage.test/services/propia.jpg', $result['imageUrl']);
+        self::assertSame('https://fake-storage.test/services/propia.jpg', $result['image']);
     }
 }

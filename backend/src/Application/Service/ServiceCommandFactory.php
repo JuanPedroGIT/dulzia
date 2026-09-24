@@ -8,9 +8,10 @@ use App\Domain\Shared\InvalidInputException;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * Convierte el body JSON de las peticiones admin en comandos de servicio.
- * El parseo era idéntico en create y update: centralizado aquí para que
- * los controllers no repitan lógica.
+ * Convierte el body de las peticiones admin en comandos de servicio.
+ * El panel envía multipart (adjunta la foto de la sección en la misma petición);
+ * la API sigue aceptando JSON. El parseo era idéntico en create y update:
+ * centralizado aquí para que los controllers no repitan lógica.
  */
 final class ServiceCommandFactory
 {
@@ -20,10 +21,12 @@ final class ServiceCommandFactory
 
         return new CreateServiceCommand(
             name: $data['name'],
-            emoji: $data['emoji'],
+            // En el alta el emoji es NOT NULL en BD: cadena vacía si no llega.
+            emoji: $data['emoji'] ?? '',
             description: $data['description'],
             features: $data['features'],
             category: $data['category'],
+            image: $request->files->get('image'),
         );
     }
 
@@ -38,29 +41,41 @@ final class ServiceCommandFactory
             description: $data['description'],
             features: $data['features'],
             category: $data['category'],
+            image: $request->files->get('image'),
+            removeImage: $data['removeImage'],
         );
     }
 
-    /** @return array{name: string, emoji: string, description: string, features: string[], category: string} */
+    /**
+     * En multipart (el panel) los campos llegan en `$request->request` y
+     * `features` como `features[]`; en JSON, en el cuerpo crudo.
+     *
+     * @return array{name: string, emoji: string|null, description: string, features: string[], category: string, removeImage: bool}
+     */
     private function parse(Request $request): array
     {
-        $body = json_decode($request->getContent(), true) ?? [];
+        $body = $request->getContentTypeFormat() === 'json'
+            ? (json_decode($request->getContent(), true) ?? [])
+            : $request->request->all();
 
         $name = trim($body['name'] ?? '');
-        $emoji = trim($body['emoji'] ?? '');
         $description = trim($body['description'] ?? '');
+        $emoji = trim($body['emoji'] ?? '');
 
-        if ($name === '' || $emoji === '' || $description === '') {
+        if ($name === '' || $description === '') {
             // ApiExceptionListener lo convierte en 400
-            throw new InvalidInputException('name, emoji y description son requeridos');
+            throw new InvalidInputException('name y description son requeridos');
         }
 
         return [
             'name' => $name,
-            'emoji' => $emoji,
+            // El panel ya no edita el emoji: null = conservar el actual, que se
+            // mantiene como último respaldo visual de las secciones.
+            'emoji' => $emoji !== '' ? $emoji : null,
             'description' => $description,
             'features' => array_values(array_filter(array_map('trim', $body['features'] ?? []))),
             'category' => $body['category'] ?? 'food',
+            'removeImage' => filter_var($body['removeImage'] ?? false, FILTER_VALIDATE_BOOLEAN),
         ];
     }
 }

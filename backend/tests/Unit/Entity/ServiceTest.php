@@ -51,7 +51,45 @@ final class ServiceTest extends TestCase
 
         self::assertSame('servicio-test', $data['id']);
         self::assertSame('🎉', $data['emoji']);
+        self::assertSame('https://fake-storage.test/services/abc.jpg', $data['image']);
         self::assertCount(1, $data['examples']);
         self::assertSame('Foto', $data['examples'][0]['title']);
+    }
+
+    public function testImageUrlKeepedAndCleared(): void
+    {
+        $service = TestFactory::service(imageUrl: 'https://fake-storage.test/services/propia.jpg');
+        self::assertSame('https://fake-storage.test/services/propia.jpg', $service->getImageUrl());
+
+        $service->setImageUrl(null);
+        self::assertNull($service->getImageUrl());
+    }
+
+    public function testDisplayImageUsesOwnImageBeforeGallery(): void
+    {
+        $service = TestFactory::service(imageUrl: 'https://fake-storage.test/services/propia.jpg');
+        TestFactory::attachExamples(
+            $service,
+            TestFactory::example($service, imageUrl: 'https://fake-storage.test/services/galeria.jpg'),
+        );
+
+        self::assertSame('https://fake-storage.test/services/propia.jpg', $service->getDisplayImage());
+    }
+
+    public function testDisplayImageFallsBackToFirstGalleryPhoto(): void
+    {
+        $service = TestFactory::service();
+        TestFactory::attachExamples(
+            $service,
+            TestFactory::example($service, imageUrl: 'https://fake-storage.test/services/primera.jpg'),
+            TestFactory::example($service, imageUrl: 'https://fake-storage.test/services/segunda.jpg'),
+        );
+
+        self::assertSame('https://fake-storage.test/services/primera.jpg', $service->getDisplayImage());
+    }
+
+    public function testDisplayImageIsNullWithoutOwnImageNorGallery(): void
+    {
+        self::assertNull(TestFactory::service()->getDisplayImage());
     }
 }

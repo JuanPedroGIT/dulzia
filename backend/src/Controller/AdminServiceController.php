@@ -66,7 +66,12 @@ final class AdminServiceController
         return new JsonResponse($result, 201);
     }
 
-    #[Route('/api/admin/services/{id}', methods: ['PUT'])]
+    /**
+     * PUT (JSON) se mantiene por compatibilidad; el panel usa POST porque envía
+     * multipart con la foto de la sección y PHP solo rellena $_POST/$_FILES en
+     * POST (mismo motivo por el que la edición de fotos ya usa POST).
+     */
+    #[Route('/api/admin/services/{id}', methods: ['PUT', 'POST'])]
     public function updateService(string $id, Request $request): JsonResponse
     {
         $this->updateService->handle(

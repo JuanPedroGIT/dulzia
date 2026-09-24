@@ -27,8 +27,18 @@ final class TestFactory
         string $category = 'food',
         int $sortOrder = 0,
         bool $isActive = true,
+        ?string $imageUrl = null,
     ): Service {
-        $service = new Service($id, $name, $emoji, $description, $features, $category, $sortOrder);
+        $service = new Service(
+            id:          $id,
+            name:        $name,
+            emoji:       $emoji,
+            description: $description,
+            features:    $features,
+            category:    $category,
+            imageUrl:    $imageUrl,
+            sortOrder:   $sortOrder,
+        );
 
         if (!$isActive) {
             $service->deactivate();

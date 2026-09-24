@@ -3,6 +3,7 @@
 namespace App\Application\Service\CreateService;
 
 use App\Domain\Service\ServiceRepositoryInterface;
+use App\Domain\Storage\FileStorageInterface;
 use App\Entity\Service;
 
 final class CreateServiceHandler
@@ -10,6 +11,7 @@ final class CreateServiceHandler
     public function __construct(
         private ServiceRepositoryInterface $services,
         private ServiceIdGenerator $idGenerator,
+        private FileStorageInterface $storage,
     ) {}
 
     public function handle(CreateServiceCommand $command): array
@@ -23,6 +25,7 @@ final class CreateServiceHandler
             description: $command->description,
             features:    $command->features,
             category:    $command->category,
+            imageUrl:    $command->image !== null ? $this->storage->store($command->image) : null,
             sortOrder:   $this->services->nextSortOrder(),
         );
 

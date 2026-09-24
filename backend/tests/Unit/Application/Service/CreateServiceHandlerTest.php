@@ -8,14 +8,20 @@ use App\Application\Service\CreateService\CreateServiceCommand;
 use App\Application\Service\CreateService\CreateServiceHandler;
 use App\Application\Service\CreateService\ServiceIdGenerator;
 use App\Domain\Service\ServiceRepositoryInterface;
+use App\Domain\Storage\FileStorageInterface;
 use App\Entity\Service;
+use App\Tests\Support\TestFactory;
 use PHPUnit\Framework\TestCase;
 
 final class CreateServiceHandlerTest extends TestCase
 {
-    private function handler(ServiceRepositoryInterface $repo): CreateServiceHandler
+    private function handler(ServiceRepositoryInterface $repo, ?FileStorageInterface $storage = null): CreateServiceHandler
     {
-        return new CreateServiceHandler($repo, new ServiceIdGenerator($repo));
+        return new CreateServiceHandler(
+            $repo,
+            new ServiceIdGenerator($repo),
+            $storage ?? $this->createMock(FileStorageInterface::class),
+        );
     }
 
     public function testCreatesServiceWithSlugIdAndNextSortOrder(): void
@@ -23,6 +29,9 @@ final class CreateServiceHandlerTest extends TestCase
         $repo = $this->createMock(ServiceRepositoryInterface::class);
         $repo->method('findById')->willReturn(null);
         $repo->method('nextSortOrder')->willReturn(3);
+
+        $storage = $this->createMock(FileStorageInterface::class);
+        $storage->expects($this->never())->method('store');
 
         $repo->expects($this->once())
             ->method('save')
@@ -34,12 +43,13 @@ final class CreateServiceHandlerTest extends TestCase
                 self::assertSame(['Chuches', 'Personalizado'], $service->getFeatures());
                 self::assertSame('food', $service->getCategory());
                 self::assertSame(3, $service->getSortOrder());
+                self::assertNull($service->getImageUrl());
                 self::assertTrue($service->isActive());
 
                 return true;
             }));
 
-        $result = ($this->handler($repo))->handle(new CreateServiceCommand(
+        $result = ($this->handler($repo, $storage))->handle(new CreateServiceCommand(
             name: 'Candy Bar',
             emoji: '🍬',
             description: 'Candy bar para eventos',
@@ -94,6 +104,37 @@ final class CreateServiceHandlerTest extends TestCase
             description: 'd',
             features: [],
             category: 'food',
+        ));
+    }
+
+    public function testStoresUploadedImageAsCover(): void
+    {
+        $repo = $this->createMock(ServiceRepositoryInterface::class);
+        $repo->method('findById')->willReturn(null);
+        $repo->method('nextSortOrder')->willReturn(1);
+
+        $file = TestFactory::uploadedFile();
+        $storage = $this->createMock(FileStorageInterface::class);
+        $storage->expects($this->once())
+            ->method('store')
+            ->with($file)
+            ->willReturn('https://fake-storage.test/services/nueva.jpg');
+
+        $repo->expects($this->once())
+            ->method('save')
+            ->with($this->callback(function (Service $service): bool {
+                self::assertSame('https://fake-storage.test/services/nueva.jpg', $service->getImageUrl());
+
+                return true;
+            }));
+
+        ($this->handler($repo, $storage))->handle(new CreateServiceCommand(
+            name: 'Candy Bar',
+            emoji: '',
+            description: 'd',
+            features: [],
+            category: 'food',
+            image: $file,
         ));
     }
 }

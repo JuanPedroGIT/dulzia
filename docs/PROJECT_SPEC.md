@@ -300,8 +300,9 @@ solo se tocan en el `.env` raíz; `backend/.env` no se modifica a mano.
 ```
 admin_user         id, username (unique), password_hash
 admin_token        id, token (unique), expires_at
-service            id (string slug, PK), name, emoji, description, features (json),
-                   category, sort_order, is_active
+service            id (string slug, PK), name, emoji, image_url (foto de la sección en
+                   R2, NULL = se usa la 1ª foto de su galería y, si no hay, el emoji),
+                   description, features (json), category, sort_order, is_active
 service_example    id (string 32-hex), service_id (FK), title, description,
                    image_url (URL completa R2 o externa), sort_order
 contact_submission id (string 32-hex), name, email, phone, event_type, message,
@@ -327,8 +328,8 @@ contact_submission id (string 32-hex), name, email, phone, event_type, message,
 | POST | `/api/admin/logout` | token | Invalida todos los tokens |
 | GET | `/api/admin/services` | token | Lista completa (incluye inactivos) |
 | GET | `/api/admin/services/{id}` | token | Detalle con fotos y sort_order |
-| POST | `/api/admin/services` | token | Crear servicio (201, id slug) |
-| PUT | `/api/admin/services/{id}` | token | Actualizar servicio |
+| POST | `/api/admin/services` | token | Crear servicio (201, id slug). Multipart con `image` (foto de la sección) o JSON |
+| PUT · POST | `/api/admin/services/{id}` | token | Actualizar servicio: PUT con JSON, POST con multipart (`image`, `features[]`, `removeImage`) |
 | DELETE | `/api/admin/services/{id}` | token | Desactivar (soft delete) |
 | POST | `/api/admin/services/{id}/activate` | token | Reactivar |
 | POST | `/api/admin/services/{serviceId}/photos` | token | Añadir foto (multipart `image` o `imageUrl`) |
