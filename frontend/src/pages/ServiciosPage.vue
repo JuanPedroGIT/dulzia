@@ -47,11 +47,11 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import ServiceCard from '@/components/features/ServiceCard.vue'
 import CtaBanner from '@/components/features/CtaBanner.vue'
 import { useServices } from '@/composables/useServices.js'
-import { useSeo } from '@/composables/useSeo.js'
+import { useSeo, servicesCatalogJsonLd } from '@/composables/useSeo.js'
 
 useSeo({
   title: 'Servicios para eventos en Salamanca',
@@ -61,6 +61,13 @@ useSeo({
 
 const { services, loading, error, fetchAll } = useServices()
 onMounted(fetchAll)
+
+// Datos estructurados del catálogo (ItemList de Service) cuando llegan los servicios
+watch(services, () => {
+  if (services.value.length) {
+    useSeo({ jsonLd: servicesCatalogJsonLd(services.value), jsonLdKey: 'catalog' })
+  }
+})
 
 const activeTab = ref('all')
 

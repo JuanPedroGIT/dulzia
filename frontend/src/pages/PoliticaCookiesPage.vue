@@ -103,7 +103,11 @@
 import BaseButton from '@/components/ui/BaseButton.vue'
 
 import { useSeo } from '@/composables/useSeo.js'
-useSeo({ title: 'Política de Cookies', path: '/politica-cookies' })
+useSeo({
+  title: 'Política de Cookies',
+  description: 'Política de cookies de Dulzia Salamanca Eventos: qué cookies técnicas usamos y cómo gestionarlas en tu navegador.',
+  path: '/politica-cookies',
+})
 
 const lastUpdated = new Date().toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })
 </script>

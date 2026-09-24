@@ -87,10 +87,10 @@
           <div class="lightbox__track-wrap">
             <div
               class="lightbox__track"
-              :class="{ 'lightbox__track--dragging': isDragging }"
+              :class="{ 'lightbox__track--dragging': isDragging, 'lightbox__track--no-transition': disableTransition }"
               :style="trackStyle"
             >
-              <div v-for="(example, i) in service.examples" :key="i" class="lightbox__slide">
+              <div v-for="(example, i) in trackSlides" :key="i" class="lightbox__slide">
                 <img :src="example.image" :alt="example.title" class="lightbox__img" draggable="false" />
               </div>
             </div>
@@ -149,7 +149,7 @@ import BaseButton from '@/components/ui/BaseButton.vue'
 import ServiceCard from '@/components/features/ServiceCard.vue'
 import CtaBanner from '@/components/features/CtaBanner.vue'
 import { useService, useServices } from '@/composables/useServices.js'
-import { useSeo } from '@/composables/useSeo.js'
+import { useSeo, breadcrumbJsonLd, SITE_URL } from '@/composables/useSeo.js'
 
 const route = useRoute()
 
@@ -164,6 +164,14 @@ async function loadService(id) {
       title: service.value.name,
       description: service.value.description,
       path: `/servicios/${service.value.id}`,
+    })
+    useSeo({
+      jsonLd: breadcrumbJsonLd([
+        { name: 'Inicio', url: `${SITE_URL}/` },
+        { name: 'Servicios', url: `${SITE_URL}/servicios` },
+        { name: service.value.name, url: `${SITE_URL}/servicios/${service.value.id}` },
+      ]),
+      jsonLdKey: 'breadcrumb',
     })
     fetchAll()
   }
@@ -192,14 +200,77 @@ const related = computed(() =>
 
 // Lightbox
 const lightboxIndex = ref(null)
+const trackIndex = ref(0)
+const disableTransition = ref(false)
 
-function openLightbox(i) { lightboxIndex.value = i }
+// Carrusel infinito: la pista añade un clon de la última foto al principio y
+// un clon de la primera al final. Al pasar el borde, el clon (idéntico a la
+// foto real) se muestra normalmente y después se salta a la posición real sin
+// transición, de modo que el paso de la última a la primera no se nota.
+const trackSlides = computed(() => {
+  const ex = service.value?.examples ?? []
+  if (!ex.length) return []
+  return [ex[ex.length - 1], ...ex, ex[0]]
+})
+
+function openLightbox(i) {
+  lightboxIndex.value = i
+  trackIndex.value = i + 1
+}
 function closeLightbox() { lightboxIndex.value = null }
+
+// Salto sin transición entre un clon y su foto real (visualmente idénticos).
+function jumpTo(position) {
+  disableTransition.value = true
+  trackIndex.value = position
+  requestAnimationFrame(() => requestAnimationFrame(() => { disableTransition.value = false }))
+}
+
+// Si al acabar la animación la pista quedó sobre un clon, volver a la real.
+function checkCloneJump() {
+  if (isDragging.value) return
+  const total = service.value?.examples.length ?? 0
+  if (trackIndex.value === total + 1) jumpTo(1)
+  else if (trackIndex.value === 0) jumpTo(total)
+}
+
 function nextExample() {
-  lightboxIndex.value = (lightboxIndex.value + 1) % service.value.examples.length
+  const total = service.value?.examples.length ?? 0
+  if (!total) return
+  if (trackIndex.value === total + 1) {
+    // Estamos en el clon de la primera: volver a la posición real (invisible)
+    // y animar desde ahí hasta la siguiente.
+    jumpTo(1)
+    requestAnimationFrame(() => requestAnimationFrame(stepNext))
+    return
+  }
+  stepNext()
+}
+function stepNext() {
+  const total = service.value?.examples.length ?? 0
+  if (!total) return
+  trackIndex.value += 1
+  lightboxIndex.value = (lightboxIndex.value + 1) % total
+  setTimeout(checkCloneJump, 400)
 }
 function prevExample() {
-  lightboxIndex.value = (lightboxIndex.value - 1 + service.value.examples.length) % service.value.examples.length
+  const total = service.value?.examples.length ?? 0
+  if (!total) return
+  if (trackIndex.value === 0) {
+    // Estamos en el clon de la última: volver a la posición real (invisible)
+    // y animar desde ahí hasta la anterior.
+    jumpTo(total)
+    requestAnimationFrame(() => requestAnimationFrame(stepPrev))
+    return
+  }
+  stepPrev()
+}
+function stepPrev() {
+  const total = service.value?.examples.length ?? 0
+  if (!total) return
+  trackIndex.value -= 1
+  lightboxIndex.value = (lightboxIndex.value - 1 + total) % total
+  setTimeout(checkCloneJump, 400)
 }
 
 // Tras un swipe, el navegador puede disparar un click sobre el fondo
@@ -215,7 +286,7 @@ function onLightboxBackdropClick() {
 const dragX = ref(0)
 const isDragging = ref(false)
 const trackStyle = computed(() => ({
-  transform: `translateX(calc(${-100 * lightboxIndex.value}% + ${dragX.value}px))`,
+  transform: `translateX(calc(${-100 * trackIndex.value}% + ${dragX.value}px))`,
 }))
 let touchStartX = null
 let touchStartY = null
@@ -516,7 +587,8 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
     display: flex;
     transition: transform 0.3s ease;
 
-    &--dragging { transition: none; }
+    &--dragging,
+    &--no-transition { transition: none; }
   }
 
   &__slide {

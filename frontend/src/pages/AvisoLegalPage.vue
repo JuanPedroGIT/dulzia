@@ -200,7 +200,11 @@
 import BaseButton from '@/components/ui/BaseButton.vue'
 
 import { useSeo } from '@/composables/useSeo.js'
-useSeo({ title: 'Aviso legal', path: '/aviso-legal' })
+useSeo({
+  title: 'Aviso legal',
+  description: 'Aviso legal de Dulzia Salamanca Eventos: datos fiscales (CIF 70900291P), condiciones de uso del sitio web y titularidad de los contenidos.',
+  path: '/aviso-legal',
+})
 
 const lastUpdated = new Date().toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })
 </script>

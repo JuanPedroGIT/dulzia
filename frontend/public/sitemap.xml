@@ -21,6 +21,11 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://www.dulziasalamancaeventos.com/politica-cookies</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
     <loc>https://www.dulziasalamancaeventos.com/aviso-legal</loc>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>

@@ -9,8 +9,8 @@
       <div class="hero__text animate-fadeInUp">
         <span class="hero__badge">✨ Especialistas en eventos únicos · Salamanca</span>
         <h1 class="hero__title">
-          Hacemos tus <em>celebraciones</em><br>
-          <span class="hero__title-line2">inolvidables</span>
+          Eventos y <em>celebraciones</em> inolvidables<br>
+          <span class="hero__title-line2">en Salamanca</span>
         </h1>
         <p class="hero__subtitle">
           Carrito de Hot Dog, Candy Bar, Fuente de Chocolate, Photocall y mucho más.

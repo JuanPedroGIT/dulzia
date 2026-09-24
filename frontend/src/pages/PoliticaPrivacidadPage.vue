@@ -218,7 +218,11 @@
 import BaseButton from '@/components/ui/BaseButton.vue'
 
 import { useSeo } from '@/composables/useSeo.js'
-useSeo({ title: 'Política de privacidad', path: '/politica-de-privacidad' })
+useSeo({
+  title: 'Política de privacidad',
+  description: 'Política de privacidad de Dulzia Salamanca Eventos: responsable del tratamiento, finalidades, conservación de datos y derechos de los usuarios.',
+  path: '/politica-de-privacidad',
+})
 
 const lastUpdated = new Date().toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })
 </script>
