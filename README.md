@@ -269,10 +269,14 @@ Los tests del frontend cubren el composable `useContactForm` (lógica del formul
 ## SEO
 
 - Meta tags, Open Graph y Twitter Card configurados por página via composable `useSeo`
-- JSON-LD `LocalBusiness` en la página de inicio
+- JSON-LD `LocalBusiness` (con dirección y geo) en la página de inicio, `ItemList`/`Service` del catálogo en home y `/servicios`, y `BreadcrumbList` en las páginas de servicio
+- Imagen Open Graph en `/og-image.jpg` (1200×630, generada a partir de la foto de portada)
 - `sitemap.xml` en `/public/sitemap.xml`
 - `robots.txt` en `/public/robots.txt`
-- Prerendering de las 4 rutas principales en el build de producción (`vite-plugin-prerender`)
+- Redirects 301 de las URLs de la web antigua (WordPress) en `frontend/nginx.conf`
+- Prerendering de las 15 rutas principales en el build de producción (`vite-plugin-prerender`):
+  el catálogo de servicios se inyecta desde `frontend/prerender-data/snapshot.json`, que hay que
+  regenerar cuando cambie el catálogo (ver `docs/plan-seo.md`, etapa 2)
 
 Tras el deploy, registra el sitemap en **Google Search Console**:
 ```

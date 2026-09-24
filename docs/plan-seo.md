@@ -22,14 +22,14 @@ JSON-LD local sin dirección ni catálogo de servicios · H1 de la home sin keyw
 
 | Etapa | Descripción | Estado |
 |---|---|---|
-| 1 | Imagen OG real (arreglar `/og-image.jpg` rota) | ⬜ Pendiente |
-| 2 | Prerender de las 11 páginas de servicio | ⬜ Pendiente |
-| 3 | Redirects 301 de URLs antiguas (WordPress) → nuevas en `nginx.conf` | ⬜ Pendiente |
-| 4 | JSON-LD ampliado: dirección/geo en LocalBusiness + OfferCatalog/Service + BreadcrumbList | ⬜ Pendiente |
-| 5 | H1 de la home con keywords locales | ⬜ Pendiente |
-| 6 | Sitemap: añadir `/politica-cookies` y revisar entradas | ⬜ Pendiente |
-| 7 | Details: description en páginas legales, `width`/`height` en imágenes (CLS) | ⬜ Pendiente |
-| 8 | Tareas fuera del código (Google Business Profile, Search Console, reseñas) | ⬜ Pendiente |
+| 1 | Imagen OG real (arreglar `/og-image.jpg` rota) | ✅ Hecha (og-image.jpg 1200×630 generada + og:image/twitter:image ahora absolutas) |
+| 2 | Prerender de las 11 páginas de servicio | ✅ Hecha (snapshot inyectado, puppeteer actualizado a 24, 15 rutas con contenido verificado) |
+| 3 | Redirects 301 de URLs antiguas (WordPress) → nuevas en `nginx.conf` | ✅ Hecha (20 mapeos añadidos) |
+| 4 | JSON-LD ampliado: dirección/geo en LocalBusiness + OfferCatalog/Service + BreadcrumbList | ✅ Hecha (LocalBusiness con address+geo+areaServed, ItemList/Service en home y /servicios, BreadcrumbList en detalle; aggregateRating descartado: no hay valoraciones numéricas reales) |
+| 5 | H1 de la home con keywords locales | ✅ Hecha («Eventos y celebraciones inolvidables en Salamanca») |
+| 6 | Sitemap: añadir `/politica-cookies` y revisar entradas | ✅ Hecha |
+| 7 | Details: description en páginas legales, `width`/`height` en imágenes (CLS) | ✅ Hecha (descriptions añadidas; CLS ya cubierto con `aspect-ratio` en la galería) |
+| 8 | Tareas fuera del código (Google Business Profile, Search Console, reseñas) | ⬜ Pendiente (manuales — ver detalle) |
 
 ## Detalle por etapa
 
@@ -54,7 +54,24 @@ JSON-LD local sin dirección ni catálogo de servicios · H1 de la home sin keyw
   el prerender sirve `dist/` estático y ese API no existirá ahí → páginas prerenderizadas vacías.
   Soluciones a valorar al ejecutar: proxy del PuppeteerRenderer hacia el backend, snapshot
   estático del JSON en `dist/api/…`, o inyectar los datos en el HTML.
-- Las URLs antiguas de servicio (ver etapa 3) deben redirigir a estas.
+
+**✅ Ejecutado (2026-09-24):** snapshot en `frontend/prerender-data/snapshot.json` (generado desde
+la API local: lista + detalle de los 11 servicios) que se inyecta en cada página renderizada vía
+`inject`/`injectProperty` del PuppeteerRenderer (`window.__DULZIA_PRERENDER__`); `useServices` lo
+usa como fuente en ese contexto. Además se actualizó `puppeteer` a `^24` (override en package.json)
+porque el Chromium de la versión transitiva (1.20/Chrome 78) no entendía el JS moderno del bundle.
+**Regenerar el snapshot cuando cambie el catálogo** (comando documentado abajo).
+
+```bash
+# Regenerar el snapshot (con el backend local corriendo):
+python -c "
+import json, urllib.request
+BASE='http://localhost:8000/api/services'
+services=json.load(urllib.request.urlopen(BASE))
+snap={'list':services,'details':{s['id']:json.load(urllib.request.urlopen(BASE+'/'+s['id'])) for s in services}}
+open('frontend/prerender-data/snapshot.json','w',encoding='utf-8').write(json.dumps(snap,ensure_ascii=False))
+"
+```
 
 ### 3. Redirects 301 (migración desde WordPress)
 
@@ -71,6 +88,8 @@ JSON-LD local sin dirección ni catálogo de servicios · H1 de la home sin keyw
   - `/tienda/` → decidir destino (¿`/servicios/regalos-personalizados`?)
   - `/contacto/`, `/aviso-legal/`, `/politica-de-privacidad/` → mismas rutas sin barra
 - Dejarlos listos (activos o comentados) antes de apuntar el dominio nuevo.
+- **✅ Ejecutado (2026-09-24):** 20 redirects añadidos activos en `nginx.conf` (solo aplican en
+  el despliegue de producción, no en dev). Decisión tomada: `/tienda/` → `/servicios/regalos-personalizados`.
 
 ### 4. JSON-LD ampliado
 
