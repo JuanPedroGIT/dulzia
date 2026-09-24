@@ -4,7 +4,7 @@
       <div class="container">
         <div class="footer__grid">
           <div class="footer__brand">
-            <div class="footer__logo">✨ Dulzia <em>Salamanca</em></div>
+            <div class="footer__logo">✨ Dulzia Salamanca Eventos</div>
             <p class="footer__tagline">Hacemos tus celebraciones únicas e inolvidables.</p>
             <div class="footer__social">
               <a href="https://www.instagram.com/dulziasala" target="_blank" rel="noopener" aria-label="Instagram">
@@ -58,9 +58,11 @@
 
     <div class="footer__bottom">
       <div class="container">
-        <p>© {{ year }} Dulzia Salamanca Eventos. Todos los derechos reservados.</p>
-        <p class="footer__credit">Diseño web: <a href="mailto:juanpedrovm@hotmail.com">JP Studio</a></p>
+        <p>© {{ year }} Dulzia Salamanca Eventos. Todos los derechos reservados.</p>       
         <router-link to="/politica-cookies">Política de cookies</router-link>
+        <router-link to="/aviso-legal">Aviso legal</router-link>
+        <router-link to="/politica-de-privacidad">Política de privacidad</router-link>
+         <p class="footer__credit">Diseño web: <a href="mailto:juanpedrovm@hotmail.com">JP Studio</a></p>
       </div>
     </div>
   </footer>
@@ -89,16 +91,11 @@ const year = new Date().getFullYear()
   }
 
   &__logo {
-    font-family: $font-heading;
-    font-size: $text-2xl;
-    font-weight: 700;
+    font-family: 'Covered By Your Grace', cursive;
+    font-size: $text-3xl;
+    font-weight: 400;
     color: $color-green-dark;
     margin-bottom: $space-3;
-
-    em {
-      font-style: normal;
-      color: $color-pink;
-    }
   }
 
   &__tagline {

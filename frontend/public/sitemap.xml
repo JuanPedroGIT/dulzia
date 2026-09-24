@@ -21,6 +21,16 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://www.dulziasalamancaeventos.com/aviso-legal</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://www.dulziasalamancaeventos.com/politica-de-privacidad</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
     <loc>https://www.dulziasalamancaeventos.com/servicios/carrito-hot-dog</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
