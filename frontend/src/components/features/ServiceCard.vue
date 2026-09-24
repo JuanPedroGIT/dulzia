@@ -1,6 +1,9 @@
 <template>
   <router-link :to="`/servicios/${service.id}`" class="card" :style="{ '--delay': delay }">
-    <div class="card__emoji">{{ service.emoji }}</div>
+    <div class="card__media">
+      <img v-if="service.image" :src="service.image" :alt="service.name" class="card__img" loading="lazy" />
+      <span v-else class="card__emoji">{{ service.emoji }}</span>
+    </div>
     <div class="card__body">
       <span class="card__category">{{ categoryLabel }}</span>
       <h3 class="card__name">{{ service.name }}</h3>
@@ -41,17 +44,37 @@ const categoryLabel = computed(() => categories[props.service.category] ?? '')
   animation: fadeInUp 0.6s ease both;
   animation-delay: var(--delay, 0ms);
 
+  &__media {
+    @include flex-center;
+    background: $color-bg-alt;
+    overflow: hidden;
+    transition: background $transition-base;
+  }
+
+  // Sin foto se muestra el emoji de la sección (o el hueco neutro si tampoco hay).
   &__emoji {
     @include flex-center;
+    width: 100%;
     font-size: 2.5rem;
-    background: $color-bg-alt;
     padding: $space-8;
     min-height: 100px;
     transition: background $transition-base;
   }
 
+  &__img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+    transition: transform $transition-base;
+  }
+
   &:hover &__emoji {
     background: linear-gradient(135deg, rgba($color-pink, 0.1), rgba($color-pink-dark, 0.06));
+  }
+
+  &:hover &__img {
+    transform: scale(1.04);
   }
 
   &__body {

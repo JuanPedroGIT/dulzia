@@ -1,8 +1,8 @@
 <template>
   <main>
-    <HeroSection />
+    <HeroSection :services="services" />
     <StatsBar />
-    <ServicesOverview />
+    <ServicesOverview :services="services" />
     <CtaBanner />
   </main>
 </template>
@@ -23,7 +23,8 @@ useSeo({
   jsonLd: localBusinessJsonLd,
 })
 
-// Catálogo en datos estructurados cuando llegan los servicios
+// El catálogo se carga una sola vez y se reparte a las tarjetas del hero, la
+// parrilla de servicios y los datos estructurados.
 const { services, fetchAll } = useServices()
 onMounted(fetchAll)
 watch(services, () => {

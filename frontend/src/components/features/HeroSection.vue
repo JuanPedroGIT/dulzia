@@ -27,29 +27,20 @@
       </div>
 
       <div class="hero__cards animate-fadeIn">
-        <div class="hero__card hero__card--1">
-          <span class="hero__card-emoji">🌭</span>
-          <span>Hot Dog</span>
-        </div>
-        <div class="hero__card hero__card--2">
-          <span class="hero__card-emoji">✨</span>
-          <span>Glitter Bar</span>
-        </div>
-        <div class="hero__card hero__card--3">
-          <span class="hero__card-emoji">🍫</span>
-          <span>Chocolate</span>
-        </div>
-        <div class="hero__card hero__card--4">
-          <span class="hero__card-emoji">🍬</span>
-          <span>Candy Bar</span>
-        </div>
-        <div class="hero__card hero__card--5">
-          <span class="hero__card-emoji">📸</span>
-          <span>Photocall</span>
-        </div>
-        <div class="hero__card hero__card--6">
-          <span class="hero__card-emoji">🎡</span>
-          <span>Mini Feria</span>
+        <div
+          v-for="(card, i) in cards"
+          :key="card.id"
+          :class="['hero__card', `hero__card--${i + 1}`, { 'hero__card--ready': loaded.includes(card.id) }]"
+        >
+          <img
+            v-if="card.image"
+            :ref="el => checkAlreadyLoaded(el, card.id)"
+            :src="card.image"
+            :alt="card.label"
+            class="hero__card-img"
+            @load="markLoaded(card.id)"
+          />
+          <span class="hero__card-label">{{ card.label }}</span>
         </div>
       </div>
     </div>
@@ -61,7 +52,41 @@
 </template>
 
 <script setup>
+import { computed, ref } from 'vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
+
+const props = defineProps({
+  // Catálogo (lo carga HomePage): las tarjetas muestran la foto de su servicio.
+  services: { type: Array, default: () => [] },
+})
+
+// Accesos rápidos del hero: solo la foto del servicio (redonda) y el texto debajo.
+// El id es el del servicio en el catálogo del que se toma la imagen.
+const CARDS = [
+  { id: 'carrito-hot-dog',  label: 'Hot Dog' },
+  { id: 'glitter-bar',      label: 'Glitter Bar' },
+  { id: 'fuente-chocolate', label: 'Chocolate' },
+  { id: 'candy-bar',        label: 'Candy Bar' },
+  { id: 'photocall',        label: 'Photocall' },
+  { id: 'mini-ferias',      label: 'Mini Feria' },
+]
+
+const cards = computed(() => CARDS.map(card => ({
+  ...card,
+  image: props.services.find(s => s.id === card.id)?.image ?? null,
+})))
+
+// La tarjeta solo se muestra cuando su foto está disponible: hasta entonces el
+// hueco (cuadrado) queda reservado y vacío, sin placeholder.
+const loaded = ref([])
+function markLoaded(id) {
+  if (!loaded.value.includes(id)) loaded.value.push(id)
+}
+// En el HTML prerenderizado la imagen puede estar ya cargada al hidratar, y
+// entonces no vuelve a emitir `load`: se mira el estado real del elemento.
+function checkAlreadyLoaded(el, id) {
+  if (el?.complete && el.naturalWidth > 0) markLoaded(id)
+}
 </script>
 
 <style lang="scss" scoped>
@@ -177,26 +202,19 @@ import BaseButton from '@/components/ui/BaseButton.vue'
   }
 
   &__card {
-    @include flex-center;
-    flex-direction: column;
-    gap: $space-2;
-    padding: $space-5 $space-4;
+    position: relative;
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    // La tarjeta no se pinta hasta que su foto está cargada (`--ready`): el
+    // hueco sigue reservado para que la rejilla no salte, pero no se ve nada.
+    visibility: hidden;
     background: rgba($color-white, 0.78);
     border: 1px solid rgba($color-mint-mid, 0.3);
     border-radius: $radius-xl;
     backdrop-filter: blur(8px);
     transition: all $transition-base;
-    cursor: default;
-
-    span:last-child {
-      font-size: $text-xs;
-      font-weight: 600;
-      color: $color-text-muted;
-      text-align: center;
-    }
 
     &:hover {
-      background: $color-white;
       border-color: rgba($color-pink, 0.45);
       transform: translateY(-4px);
     }
@@ -209,7 +227,28 @@ import BaseButton from '@/components/ui/BaseButton.vue'
     &--6 { animation: fadeInUp 0.6s 600ms both; }
   }
 
-  &__card-emoji { font-size: 2rem; }
+  &__card--ready {
+    visibility: visible;
+  }
+
+  &__card-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  &__card-label {
+    position: absolute;
+    inset: auto 0 0 0;
+    padding: $space-6 $space-2 $space-3;
+    font-size: $text-xs;
+    font-weight: 700;
+    color: $color-white;
+    text-align: center;
+    background: linear-gradient(to top, rgba($color-green-deep, 0.8), rgba($color-green-deep, 0));
+  }
 
   &__scroll {
     position: absolute;

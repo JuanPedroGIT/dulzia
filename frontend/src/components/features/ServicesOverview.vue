@@ -29,16 +29,18 @@
 </template>
 
 <script setup>
-import { computed, onMounted } from 'vue'
+import { computed } from 'vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import ServiceCard from '@/components/features/ServiceCard.vue'
-import { useServices } from '@/composables/useServices.js'
 
-const { services, fetchAll } = useServices()
-onMounted(fetchAll)
+// El catálogo lo carga y lo reparte HomePage: así la portada hace una sola
+// petición a /api/services para el hero, esta parrilla y el JSON-LD.
+const props = defineProps({
+  services: { type: Array, default: () => [] },
+})
 
-const featured = computed(() => services.value.slice(0, 6))
-const total = computed(() => services.value.length)
+const featured = computed(() => props.services.slice(0, 6))
+const total = computed(() => props.services.length)
 </script>
 
 <style lang="scss" scoped>

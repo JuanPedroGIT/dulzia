@@ -8,7 +8,8 @@
           Todos los servicios
         </router-link>
         <div class="hero__content">
-          <span class="hero__emoji">{{ service.emoji }}</span>
+          <img v-if="service.image" :src="service.image" :alt="service.name" class="hero__photo" />
+          <span v-else class="hero__emoji">{{ service.emoji }}</span>
           <div>
             <span class="hero__category">{{ categoryLabel }}</span>
             <h1 class="hero__title">{{ service.name }}</h1>
@@ -363,6 +364,17 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
       align-items: flex-start;
       gap: $space-8;
     }
+  }
+
+  &__photo {
+    width: 128px;
+    height: 128px;
+    object-fit: cover;
+    flex-shrink: 0;
+    background: $color-white;
+    border: 1px solid rgba($color-mint-mid, 0.35);
+    border-radius: $radius-xl;
+    box-shadow: $shadow-sm;
   }
 
   &__emoji {
