@@ -32,7 +32,7 @@ async function handleLogin() {
     <div class="login-card">
       <div class="login-logo">
         <span class="login-logo__icon">✨</span>
-        <h1 class="login-logo__title">Dulzia Salamanca</h1>
+        <h1 class="login-logo__title">Dulzia Salamanca Eventos</h1>
         <p class="login-logo__subtitle">Panel de administración</p>
       </div>
 
@@ -99,8 +99,9 @@ async function handleLogin() {
 }
 
 .login-logo__title {
-  font-size: 1.4rem;
-  font-weight: 700;
+  font-family: 'Covered By Your Grace', cursive;
+  font-size: 1.8rem;
+  font-weight: 400;
   color: #1a1a1a;
   margin: 0.5rem 0 0.25rem;
 }

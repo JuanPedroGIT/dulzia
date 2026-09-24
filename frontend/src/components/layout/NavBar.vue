@@ -3,7 +3,7 @@
     <div class="nav__inner container">
       <router-link to="/" class="nav__logo" @click="menuOpen = false">
         <span class="nav__logo-icon">✨</span>
-        <span class="nav__logo-text">Dulzia <em>Salamanca</em></span>
+        <span class="nav__logo-text">DULZIA SALAMANCA EVENTOS</span>
       </router-link>
 
       <nav class="nav__links" aria-label="Navegación principal">
@@ -84,15 +84,13 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
     &-icon { font-size: $text-xl; }
 
     &-text {
-      font-family: $font-heading;
-      font-size: $text-xl;
-      font-weight: 700;
-      color: $color-green-dark;
+      font-family: 'Covered By Your Grace', cursive;
+      font-size: $text-2xl;
+      font-weight: 400;
+      color: $color-pink;
+      white-space: nowrap;
 
-      em {
-        font-style: normal;
-        color: $color-pink;
-      }
+      @include respond-to(md) { font-size: $text-3xl; }
     }
   }
 
