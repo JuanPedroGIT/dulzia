@@ -33,7 +33,6 @@
             <ul>
               <li><strong>Su denominación social es:</strong> DULZIA SALAMANCA EVENTOS</li>
               <li><strong>Su CIF es:</strong> 70900291P</li>
-              <li><strong>Su domicilio social está en:</strong> MARTIN ALONSO PEDRAZ, 14 37007 SALAMANCA</li>
             </ul>
             <p>
               Para comunicarse con nosotros, ponemos a su disposición diferentes medios de contacto especificados en la

@@ -364,7 +364,6 @@ Inventario de fotos por servicio (pie de foto original → objeto en R2):
 2. Identificación y comunicaciones — DULZIA SALAMANCA EVENTOS, en cumplimiento de la Ley 34/2002, de 11 de julio, de servicios de la sociedad de la información y de comercio electrónico, le informa de que:
 - Denominación social: DULZIA SALAMANCA EVENTOS
 - CIF: 70900291P
-- Domicilio social: MARTIN ALONSO PEDRAZ, 14 37007 SALAMANCA
 Para comunicarse con nosotros, ponemos a su disposición diferentes medios de contacto especificados en la política de privacidad. Todas las notificaciones y comunicaciones que realice con DULZIA SALAMANCA EVENTOS se considerarán eficaces, a todos los efectos, siempre y cuando se realicen por los medios especificados anteriormente.
 
 3. Condiciones de acceso y utilización — El sitio web y sus servicios son de acceso libre, no obstante, DULZIA SALAMANCA EVENTOS condiciona la utilización de algunos de los servicios ofrecidos en su web a la previa cumplimentación del correspondiente formulario. Usted garantiza la autenticidad y actualidad de todos aquellos datos que comunique a DULZIA SALAMANCA EVENTOS y será el único responsable de las manifestaciones falsas o inexactas que realice.
@@ -418,7 +417,6 @@ POLÍTICA DE PRIVACIDAD — El Titular se compromete a cumplir con la normativa 
 
 Responsable del Tratamiento: DULZIA SALAMANCA EVENTOS
 - NIF: 70900291P
-- Domicilio: C/ MARTÍN ALONSO PEDRAZ, 14 37007 SALAMANCA
 - Teléfono: 629991659
 - Email: info@dulziasalamancaeventos.com
 

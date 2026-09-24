@@ -46,7 +46,6 @@
             <p><strong>Responsable del Tratamiento:</strong> DULZIA SALAMANCA EVENTOS</p>
             <ul>
               <li><strong>NIF:</strong> 70900291P</li>
-              <li><strong>Domicilio:</strong> C/ MARTÍN ALONSO PEDRAZ, 14 37007 SALAMANCA</li>
               <li><strong>Teléfono:</strong> <a href="tel:+34629991659">629 991 659</a></li>
               <li>
                 <strong>Email:</strong>
