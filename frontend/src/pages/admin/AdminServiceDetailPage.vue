@@ -83,7 +83,11 @@ function onEditFile(file) { editForm.value.image = file }
     <header class="admin-page-header">
       <div class="admin-header__inner">
         <button class="btn-back" @click="goBack">← Secciones</button>
-        <span v-if="service" class="header-title">{{ service.emoji }} {{ service.name }}</span>
+        <span v-if="service" class="header-title">
+          <img v-if="service.image" :src="service.image" :alt="service.name" class="header-thumb" />
+          <span v-else class="header-emoji">{{ service.emoji }}</span>
+          {{ service.name }}
+        </span>
         <button class="btn-add-photo" v-if="service" @click="openAdd">+ Añadir foto</button>
       </div>
     </header>
@@ -166,6 +170,7 @@ function onEditFile(file) { editForm.value.image = file }
 .btn-back{padding:.45rem .9rem;background:transparent;border:1.5px solid #d0ccc8;border-radius:8px;cursor:pointer;font-size:.85rem;color:#555;transition:border-color .2s;white-space:nowrap}
 .btn-back:hover{border-color:#c8748a;color:#c8748a}
 .header-title{font-size:1.05rem;font-weight:700;color:#1a1a1a;flex:1}
+.header-thumb{width:28px;height:28px;object-fit:cover;border-radius:7px;vertical-align:middle;margin-right:.5rem;background:#f0ece8}
 .btn-add-photo{padding:.55rem 1.1rem;background:#c8748a;color:white;border:none;border-radius:9px;font-size:.875rem;font-weight:700;cursor:pointer;white-space:nowrap;transition:background .2s;margin-left:auto}
 .btn-add-photo:hover{background:#b5637a}
 .admin-main{max-width:1100px;margin:0 auto;padding:2rem 1.5rem}

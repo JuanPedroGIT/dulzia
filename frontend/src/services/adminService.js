@@ -46,19 +46,24 @@ export async function apiGetService(id) {
 }
 
 export async function apiCreateService(data) {
+  const isForm = data instanceof FormData
   const res = await fetch(`${BASE}/admin/services`, {
     method: 'POST',
-    headers: { ...headers(), 'Content-Type': 'application/json' },
-    body: JSON.stringify(data),
+    // Con FormData no se fija Content-Type: lo pone el navegador con el boundary.
+    headers: isForm ? headers() : { ...headers(), 'Content-Type': 'application/json' },
+    body: isForm ? data : JSON.stringify(data),
   })
   return handleResponse(res)
 }
 
 export async function apiUpdateService(id, data) {
+  // La edición con fichero (FormData) va por POST: PHP solo rellena $_POST/$_FILES
+  // en peticiones POST. El JSON mantiene el PUT de siempre.
+  const isForm = data instanceof FormData
   const res = await fetch(`${BASE}/admin/services/${id}`, {
-    method: 'PUT',
-    headers: { ...headers(), 'Content-Type': 'application/json' },
-    body: JSON.stringify(data),
+    method: isForm ? 'POST' : 'PUT',
+    headers: isForm ? headers() : { ...headers(), 'Content-Type': 'application/json' },
+    body: isForm ? data : JSON.stringify(data),
   })
   return handleResponse(res)
 }

@@ -2,7 +2,8 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuth } from '@/composables/useAuth'
-import { apiGetServices, apiGetMessages, apiCreateService, apiUpdateService, apiDeactivateService, apiActivateService } from '@/services/adminService'
+import BaseFileUpload from '@/components/ui/BaseFileUpload.vue'
+import { apiGetServices, apiGetService, apiGetMessages, apiCreateService, apiUpdateService, apiDeactivateService, apiActivateService } from '@/services/adminService'
 
 const router = useRouter()
 const { logout } = useAuth()
@@ -21,8 +22,18 @@ const filteredServices = computed(() => {
   if (filter.value === 'inactive') return services.value.filter(s => !s.is_active)
   return services.value
 })
-const modal = ref({ open: false, mode: 'create', loading: false, error: '' })
-const form  = ref({ id: '', name: '', emoji: '', description: '', features: '', category: 'food' })
+const modal = ref({ open: false, mode: 'create', loading: false, fetching: false, error: '' })
+const form  = ref({ id: '', name: '', description: '', features: '', category: 'food', image: null, currentImageUrl: '', fallbackImage: '', removeImage: false })
+function emptyForm() {
+  return { id: '', name: '', description: '', features: '', category: 'food', image: null, currentImageUrl: '', fallbackImage: '', removeImage: false }
+}
+// Aviso de qué se está viendo cuando la sección no tiene foto propia.
+const coverHint = computed(() => {
+  if (modal.value.mode !== 'edit' || form.value.image || form.value.currentImageUrl) return ''
+  return form.value.fallbackImage
+    ? 'Sin foto propia: se muestra la primera foto de su galería.'
+    : 'Sin foto propia: se muestra el emoji de la sección.'
+})
 function featuresArray(str) { return str.split('\n').map(s => s.trim()).filter(Boolean) }
 async function fetchServices() {
   loading.value = true; pageError.value = ''
@@ -38,19 +49,60 @@ async function fetchUnreadCount() {
 onMounted(() => { fetchServices(); fetchUnreadCount() })
 async function handleLogout() { await logout(); router.push('/dulzia-panel/login') }
 function openCreate() {
-  form.value = { id: '', name: '', emoji: '', description: '', features: '', category: 'food' }
-  modal.value = { open: true, mode: 'create', loading: false, error: '' }
+  form.value = emptyForm()
+  modal.value = { open: true, mode: 'create', loading: false, fetching: false, error: '' }
 }
-function openEdit(s) {
-  form.value = { id: s.id, name: s.name, emoji: s.emoji, description: s.description ?? '', features: (s.features ?? []).join('\n'), category: s.category }
-  modal.value = { open: true, mode: 'edit', loading: false, error: '' }
+// El listado del panel (GET /api/admin/services) solo trae nombre, categoría,
+// imagen y nº de fotos: sin pedir el detalle el modal se abriría en blanco y al
+// guardar se sobrescribirían la descripción y las características con valores vacíos.
+async function openEdit(s) {
+  form.value = { ...emptyForm(), id: s.id, name: s.name, category: s.category }
+  modal.value = { open: true, mode: 'edit', loading: false, fetching: true, error: '' }
+  try {
+    const full = await apiGetService(s.id)
+    form.value = {
+      ...emptyForm(),
+      id: full.id,
+      name: full.name,
+      description: full.description ?? '',
+      features: (full.features ?? []).join('\n'),
+      category: full.category,
+      // imageUrl = foto propia (lo que edita el panel); image = la que se muestra
+      // ahora mismo (la propia o, si no hay, la primera de la galería).
+      currentImageUrl: full.imageUrl ?? '',
+      fallbackImage: full.imageUrl ? '' : (full.image ?? ''),
+    }
+    modal.value.fetching = false
+  } catch (e) {
+    // Sin datos fiables no se abre el formulario: guardarlo borraría el contenido actual.
+    modal.value.open = false
+    if (e.message === '401') { router.push('/dulzia-panel/login'); return }
+    alert('No se pudieron cargar los datos de la sección: ' + e.message)
+  }
+}
+// BaseFileUpload emite el File recortado y null al pulsar la X (quitar la foto).
+function onImageFile(file) {
+  if (file instanceof File) {
+    form.value.image = file
+    form.value.removeImage = false
+  } else {
+    form.value.image = null
+    form.value.currentImageUrl = ''
+    form.value.removeImage = true
+  }
 }
 async function submitForm() {
   modal.value.loading = true; modal.value.error = ''
-  const payload = { name: form.value.name, emoji: form.value.emoji, description: form.value.description, features: featuresArray(form.value.features), category: form.value.category }
+  const fd = new FormData()
+  fd.append('name', form.value.name)
+  fd.append('description', form.value.description)
+  fd.append('category', form.value.category)
+  featuresArray(form.value.features).forEach(f => fd.append('features[]', f))
+  if (form.value.image instanceof File) fd.append('image', form.value.image)
+  if (form.value.removeImage) fd.append('removeImage', '1')
   try {
-    if (modal.value.mode === 'create') await apiCreateService(payload)
-    else await apiUpdateService(form.value.id, payload)
+    if (modal.value.mode === 'create') await apiCreateService(fd)
+    else await apiUpdateService(form.value.id, fd)
     modal.value.open = false; await fetchServices()
   } catch (e) { modal.value.error = e.message }
   finally { modal.value.loading = false }
@@ -106,7 +158,11 @@ function goToPhotos(id) { router.push('/dulzia-panel/servicios/' + id) }
           </thead>
           <tbody>
             <tr v-for="s in filteredServices" :key="s.id" :class="{ 'row--inactive': !s.is_active }">
-              <td><span class="svc-emoji">{{ s.emoji }}</span><span class="svc-name">{{ s.name }}</span></td>
+              <td>
+                <img v-if="s.image" :src="s.image" :alt="s.name" class="svc-thumb" loading="lazy" />
+                <span v-else class="svc-emoji">{{ s.emoji }}</span>
+                <span class="svc-name">{{ s.name }}</span>
+              </td>
               <td><span class="badge">{{ categoryLabel(s.category) }}</span></td>
               <td class="td-center"><span class="photo-count">{{ s.photoCount }}</span></td>
               <td class="td-center">
@@ -133,16 +189,23 @@ function goToPhotos(id) { router.push('/dulzia-panel/servicios/' + id) }
     <div v-if="modal.open" class="modal-overlay" @click.self="modal.open = false">
       <div class="modal">
         <h3>{{ modal.mode === 'create' ? 'Nueva sección' : 'Editar sección' }}</h3>
-        <form class="modal-form" @submit.prevent="submitForm">
-          <div class="form-row">
-            <label class="form-label form-label--grow">Nombre<input v-model="form.name" type="text" required :disabled="modal.loading" /></label>
-            <label class="form-label form-label--emoji">Emoji<input v-model="form.emoji" type="text" maxlength="4" required :disabled="modal.loading" /></label>
-          </div>
+        <p v-if="modal.fetching" class="modal-loading">Cargando datos…</p>
+        <form v-else class="modal-form" @submit.prevent="submitForm">
+          <label class="form-label">Nombre<input v-model="form.name" type="text" required :disabled="modal.loading" /></label>
           <label class="form-label">Categoría
             <select v-model="form.category" :disabled="modal.loading">
               <option v-for="c in CATEGORIES" :key="c.value" :value="c.value">{{ c.label }}</option>
             </select>
           </label>
+          <div class="form-label">
+            Foto de la sección
+            <BaseFileUpload
+              :current-image="form.currentImageUrl"
+              :disabled="modal.loading"
+              @change="onImageFile"
+            />
+            <span v-if="coverHint" class="form-hint">{{ coverHint }}</span>
+          </div>
           <label class="form-label">Descripción<textarea v-model="form.description" rows="3" required :disabled="modal.loading" /></label>
           <label class="form-label">Características (una por línea)<textarea v-model="form.features" rows="4" :disabled="modal.loading" /></label>
           <p v-if="modal.error" class="modal-error">{{ modal.error }}</p>
@@ -184,6 +247,7 @@ function goToPhotos(id) { router.push('/dulzia-panel/servicios/' + id) }
 .services-table tbody tr:last-child td{border-bottom:none}
 .services-table tbody tr:hover{background:#fdfbf9}
 .td-center{text-align:center}.td-right{text-align:right}
+.svc-thumb{width:36px;height:36px;object-fit:cover;border-radius:8px;margin-right:.6rem;vertical-align:middle;background:#f0ece8}
 .svc-emoji{font-size:1.4rem;margin-right:.6rem}.svc-name{font-weight:600;color:#1a1a1a;font-size:.95rem}
 .badge{display:inline-block;padding:.25rem .65rem;background:#f0ece8;border-radius:20px;font-size:.75rem;font-weight:600;color:#666}
 .photo-count{display:inline-block;background:#eef6f4;color:#3a8a7a;font-weight:700;font-size:.85rem;border-radius:20px;padding:.2rem .7rem}
@@ -208,9 +272,9 @@ function goToPhotos(id) { router.push('/dulzia-panel/servicios/' + id) }
 .modal{background:white;border-radius:16px;padding:2rem;width:100%;max-width:520px;max-height:90vh;overflow-y:auto}
 .modal h3{margin:0 0 1.5rem;font-size:1.1rem;font-weight:800}
 .modal-form{display:flex;flex-direction:column;gap:1rem}
-.form-row{display:flex;gap:.75rem}
+.modal-loading{text-align:center;padding:2rem;color:#888;font-size:.9rem;margin:0}
 .form-label{display:flex;flex-direction:column;gap:.35rem;font-size:.825rem;font-weight:700;color:#444}
-.form-label--grow{flex:1}.form-label--emoji{width:80px}
+.form-hint{font-size:.75rem;font-weight:500;color:#999}
 .form-label input,.form-label select,.form-label textarea{padding:.65rem .85rem;border:1.5px solid #e5e1dc;border-radius:8px;font-size:.9rem;font-family:inherit;outline:none;transition:border-color .2s;background:white}
 .form-label input:focus,.form-label select:focus,.form-label textarea:focus{border-color:#c8748a}
 .modal-error{color:#c0392b;font-size:.85rem;margin:0}
