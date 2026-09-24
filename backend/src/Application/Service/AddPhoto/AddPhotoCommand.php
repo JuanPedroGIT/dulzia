@@ -12,5 +12,6 @@ final readonly class AddPhotoCommand
         public string        $description,
         public string        $imageUrl,
         public ?UploadedFile $file,
+        public ?UploadedFile $thumbnail = null,
     ) {}
 }

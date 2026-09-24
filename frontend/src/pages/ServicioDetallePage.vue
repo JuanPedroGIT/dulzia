@@ -1,5 +1,5 @@
 <template>
-  <main v-if="service && !loading">
+  <main v-if="service">
     <!-- Hero -->
     <section class="hero">
       <div class="container hero__inner">
@@ -8,7 +8,7 @@
           Todos los servicios
         </router-link>
         <div class="hero__content">
-          <img v-if="service.image" :src="service.image" :alt="service.name" class="hero__photo" />
+          <img v-if="service.image" :src="service.thumbnail || service.image" :alt="service.name" class="hero__photo" />
           <span v-else class="hero__emoji">{{ service.emoji }}</span>
           <div>
             <span class="hero__category">{{ categoryLabel }}</span>
@@ -50,7 +50,7 @@
           >
             <div class="example-card__img-wrap">
               <img
-                :src="example.image"
+                :src="example.thumbnail || example.image"
                 :alt="example.title"
                 loading="lazy"
                 class="example-card__img"
@@ -91,8 +91,19 @@
               :class="{ 'lightbox__track--dragging': isDragging, 'lightbox__track--no-transition': disableTransition }"
               :style="trackStyle"
             >
-              <div v-for="(example, i) in trackSlides" :key="i" class="lightbox__slide">
-                <img :src="example.image" :alt="example.title" class="lightbox__img" draggable="false" />
+              <div
+                v-for="(example, i) in trackSlides"
+                :key="i"
+                class="lightbox__slide"
+                :style="slideStyle(i, example)"
+              >
+                <img
+                  v-if="isNearCurrentSlide(i)"
+                  :src="example.image"
+                  :alt="example.title"
+                  class="lightbox__img"
+                  draggable="false"
+                />
               </div>
             </div>
           </div>
@@ -149,49 +160,48 @@ import { useRoute } from 'vue-router'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import ServiceCard from '@/components/features/ServiceCard.vue'
 import CtaBanner from '@/components/features/CtaBanner.vue'
-import { useService, useServices } from '@/composables/useServices.js'
+import { useServices } from '@/composables/useServices.js'
+import { useCategories } from '@/composables/useCategories.js'
 import { useSeo, breadcrumbJsonLd, SITE_URL } from '@/composables/useSeo.js'
 
 const route = useRoute()
 
-const { service, loading, fetchOne } = useService(route.params.id)
+// El catálogo ya trae la ficha completa de cada servicio (mismos campos que
+// /api/services/{id}, incluidos los ejemplos), así que la ficha se sirve de la
+// lista ya cargada en lugar de pedir el detalle: una sola petición por sesión,
+// y ninguna al navegar entre servicios.
+const { services: allServices, loaded, fetchAll } = useServices()
 
-const { services: allServices, fetchAll } = useServices()
+const service = computed(() => allServices.value.find(s => s.id === route.params.id) ?? null)
 
-async function loadService(id) {
-  await fetchOne(id)
-  if (service.value) {
-    useSeo({
-      title: service.value.name,
-      description: service.value.description,
-      path: `/servicios/${service.value.id}`,
-    })
-    useSeo({
-      jsonLd: breadcrumbJsonLd([
-        { name: 'Inicio', url: `${SITE_URL}/` },
-        { name: 'Servicios', url: `${SITE_URL}/servicios` },
-        { name: service.value.name, url: `${SITE_URL}/servicios/${service.value.id}` },
-      ]),
-      jsonLdKey: 'breadcrumb',
-    })
-    fetchAll()
-  }
-}
+// Hasta que el catálogo no llegue no se puede saber si el servicio existe: sin
+// esto el primer render enseñaría el 404 durante un instante.
+const loading = computed(() => !loaded.value)
 
-onMounted(() => loadService(route.params.id))
+onMounted(fetchAll)
 
-// Al navegar entre servicios (/servicios/a → /servicios/b) Vue Router reutiliza
-// el componente, así que onMounted no vuelve a ejecutarse: hay que recargar
-// cuando cambia el :id de la ruta.
-watch(
-  () => route.params.id,
-  (newId, oldId) => {
-    if (newId !== oldId) loadService(newId)
-  }
-)
+// El SEO de la ficha se aplica cuando el servicio aparece; al navegar entre
+// servicios el watcher se dispara solo, sin recargar nada.
+watch(service, s => {
+  if (!s) return
 
-const categories = { food: 'Gastronomía', decoration: 'Decoración', experience: 'Experiencias' }
-const categoryLabel = computed(() => categories[service.value?.category] ?? '')
+  useSeo({
+    title: s.name,
+    description: s.description,
+    path: `/servicios/${s.id}`,
+  })
+  useSeo({
+    jsonLd: breadcrumbJsonLd([
+      { name: 'Inicio', url: `${SITE_URL}/` },
+      { name: 'Servicios', url: `${SITE_URL}/servicios` },
+      { name: s.name, url: `${SITE_URL}/servicios/${s.id}` },
+    ]),
+    jsonLdKey: 'breadcrumb',
+  })
+}, { immediate: true })
+
+const { categoryName } = useCategories()
+const categoryLabel = computed(() => categoryName(service.value?.category))
 
 const related = computed(() =>
   allServices.value
@@ -219,6 +229,22 @@ function openLightbox(i) {
   trackIndex.value = i + 1
 }
 function closeLightbox() { lightboxIndex.value = null }
+
+// La pista monta todas las diapositivas (con clones) a la vez: si todas pidieran
+// su foto grande, abrir el carrusel descargaría la galería entera. Solo se pide
+// la diapositiva actual y sus vecinas, que son las que se pueden alcanzar con
+// una pulsación o un deslizamiento.
+function isNearCurrentSlide(i) {
+  return Math.abs(i - trackIndex.value) <= 1
+}
+
+// Mientras llega la foto grande se ve la miniatura de fondo, que el navegador
+// ya tiene en caché de la rejilla: el hueco nunca queda en blanco.
+function slideStyle(i, example) {
+  if (!isNearCurrentSlide(i)) return null
+
+  return { backgroundImage: `url(${example.thumbnail || example.image})` }
+}
 
 // Salto sin transición entre un clon y su foto real (visualmente idénticos).
 function jumpTo(position) {
@@ -607,6 +633,11 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
     flex: 0 0 100%;
     min-width: 0;
     @include flex-center;
+    // La miniatura va de fondo (ver slideStyle): se ve al instante mientras
+    // llega la foto grande, que se pinta encima.
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
   }
 
   &__img {

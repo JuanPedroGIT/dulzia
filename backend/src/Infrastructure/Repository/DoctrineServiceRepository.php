@@ -39,6 +39,15 @@ final class DoctrineServiceRepository implements ServiceRepositoryInterface
         return $this->em->getRepository(Service::class)->find($id);
     }
 
+    public function countByCategory(string $categoryId): int
+    {
+        $count = $this->em->createQuery(
+            'SELECT COUNT(s.id) FROM App\Entity\Service s WHERE s.category = :category'
+        )->setParameter('category', $categoryId)->getSingleScalarResult();
+
+        return (int) $count;
+    }
+
     public function save(Service $service): void
     {
         $this->em->persist($service);

@@ -28,21 +28,26 @@ final class TestFactory
         int $sortOrder = 0,
         bool $isActive = true,
         ?string $imageUrl = null,
+        ?string $thumbnailUrl = null,
+        bool $isFeatured = false,
     ): Service {
         $service = new Service(
-            id:          $id,
-            name:        $name,
-            emoji:       $emoji,
-            description: $description,
-            features:    $features,
-            category:    $category,
-            imageUrl:    $imageUrl,
-            sortOrder:   $sortOrder,
+            id:           $id,
+            name:         $name,
+            emoji:        $emoji,
+            description:  $description,
+            features:     $features,
+            category:     $category,
+            imageUrl:     $imageUrl,
+            thumbnailUrl: $thumbnailUrl,
+            sortOrder:    $sortOrder,
         );
 
         if (!$isActive) {
             $service->deactivate();
         }
+
+        $service->setFeatured($isFeatured);
 
         return $service;
     }
@@ -53,8 +58,16 @@ final class TestFactory
         string $description = 'Descripción de la foto',
         string $imageUrl = 'https://fake-storage.test/services/abc.jpg',
         int $sortOrder = 0,
+        ?string $thumbnailUrl = null,
     ): ServiceExample {
-        return new ServiceExample($service, $title, $description, $imageUrl, $sortOrder);
+        return new ServiceExample(
+            service:      $service,
+            title:        $title,
+            description:  $description,
+            imageUrl:     $imageUrl,
+            thumbnailUrl: $thumbnailUrl,
+            sortOrder:    $sortOrder,
+        );
     }
 
     /**

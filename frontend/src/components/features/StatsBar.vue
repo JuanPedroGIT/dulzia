@@ -14,7 +14,7 @@
 
 <script setup>
 const stats = [
-  { emoji: '🎉', value: '200+', label: 'Eventos realizados' },
+  { emoji: '🎉', value: '500+', label: 'Eventos realizados' },
   { emoji: '✨', value: '11',   label: 'Servicios disponibles' },
   { emoji: '😊', value: '100%', label: 'Clientes satisfechos' },
   { emoji: '📍', value: 'Salamanca', label: 'Y alrededores' },

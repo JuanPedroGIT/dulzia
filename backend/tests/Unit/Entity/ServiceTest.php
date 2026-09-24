@@ -42,6 +42,27 @@ final class ServiceTest extends TestCase
         self::assertTrue($service->isActive());
     }
 
+    public function testFeaturedIsOffByDefaultAndCanBeChanged(): void
+    {
+        // Una sección nueva no sale en la portada salvo que se marque en el panel.
+        $service = TestFactory::service();
+        self::assertFalse($service->isFeatured());
+
+        $service->setFeatured(true);
+        self::assertTrue($service->isFeatured());
+
+        $service->setFeatured(false);
+        self::assertFalse($service->isFeatured());
+    }
+
+    public function testToArrayIncludesFeatured(): void
+    {
+        $service = TestFactory::service(isFeatured: true);
+
+        self::assertTrue($service->toArray()['featured']);
+        self::assertFalse(TestFactory::service()->toArray()['featured']);
+    }
+
     public function testToArrayIncludesExamples(): void
     {
         $service = TestFactory::service();
@@ -91,5 +112,62 @@ final class ServiceTest extends TestCase
     public function testDisplayImageIsNullWithoutOwnImageNorGallery(): void
     {
         self::assertNull(TestFactory::service()->getDisplayImage());
+    }
+
+    public function testThumbnailUrlKeepedAndCleared(): void
+    {
+        $service = TestFactory::service(imageUrl: 'https://x.test/propia.jpg', thumbnailUrl: 'https://x.test/mini.jpg');
+        self::assertSame('https://x.test/mini.jpg', $service->getThumbnailUrl());
+
+        $service->setThumbnailUrl(null);
+        self::assertNull($service->getThumbnailUrl());
+        // Sin miniatura propia, la lista cae a la foto grande.
+        self::assertSame('https://x.test/propia.jpg', $service->getDisplayThumbnail());
+    }
+
+    public function testDisplayThumbnailUsesOwnImageBeforeGallery(): void
+    {
+        $service = TestFactory::service(imageUrl: 'https://x.test/propia.jpg');
+        TestFactory::attachExamples(
+            $service,
+            TestFactory::example(
+                $service,
+                imageUrl: 'https://x.test/galeria.jpg',
+                thumbnailUrl: 'https://x.test/galeria-mini.jpg',
+            ),
+        );
+
+        self::assertSame('https://x.test/propia.jpg', $service->getDisplayThumbnail());
+    }
+
+    public function testDisplayThumbnailFallsBackToGalleryThumbnail(): void
+    {
+        $service = TestFactory::service();
+        TestFactory::attachExamples(
+            $service,
+            TestFactory::example(
+                $service,
+                imageUrl: 'https://x.test/primera.jpg',
+                thumbnailUrl: 'https://x.test/primera-mini.jpg',
+            ),
+        );
+
+        self::assertSame('https://x.test/primera-mini.jpg', $service->getDisplayThumbnail());
+        self::assertSame('https://x.test/primera.jpg', $service->getDisplayImage());
+    }
+
+    public function testDisplayThumbnailIsNullWithoutAnyImage(): void
+    {
+        self::assertNull(TestFactory::service()->getDisplayThumbnail());
+    }
+
+    public function testToArrayIncludesThumbnail(): void
+    {
+        $service = TestFactory::service(imageUrl: 'https://x.test/propia.jpg', thumbnailUrl: 'https://x.test/mini.jpg');
+
+        $data = $service->toArray();
+
+        self::assertSame('https://x.test/propia.jpg', $data['image']);
+        self::assertSame('https://x.test/mini.jpg', $data['thumbnail']);
     }
 }

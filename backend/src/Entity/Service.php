@@ -33,11 +33,22 @@ class Service
     #[ORM\Column(length: 500, nullable: true)]
     private ?string $imageUrl = null;
 
+    /** Miniatura de la foto propia. Null = se sirve imageUrl en las listas. */
+    #[ORM\Column(length: 500, nullable: true)]
+    private ?string $thumbnailUrl = null;
+
     #[ORM\Column(type: 'integer')]
     private int $sortOrder = 0;
 
     #[ORM\Column(type: 'boolean')]
     private bool $isActive = true;
+
+    /**
+     * Destacado en la portada: sale en las tarjetas del hero y en la parrilla de
+     * "Servicios que enamoran". Se marca desde el panel.
+     */
+    #[ORM\Column(type: 'boolean')]
+    private bool $isFeatured = false;
 
     #[ORM\OneToMany(targetEntity: ServiceExample::class, mappedBy: 'service', cascade: ['persist', 'remove'])]
     #[ORM\OrderBy(['sortOrder' => 'ASC', 'id' => 'ASC'])]
@@ -51,6 +62,7 @@ class Service
         array $features,
         string $category,
         ?string $imageUrl = null,
+        ?string $thumbnailUrl = null,
         int $sortOrder = 0,
     ) {
         $this->id = $id;
@@ -60,6 +72,7 @@ class Service
         $this->features = $features;
         $this->category = $category;
         $this->imageUrl = $imageUrl;
+        $this->thumbnailUrl = $thumbnailUrl;
         $this->sortOrder = $sortOrder;
         $this->examples = new ArrayCollection();
     }
@@ -83,9 +96,19 @@ class Service
         $this->isActive = true;
     }
 
+    public function setFeatured(bool $isFeatured): void
+    {
+        $this->isFeatured = $isFeatured;
+    }
+
     public function setImageUrl(?string $imageUrl): void
     {
         $this->imageUrl = $imageUrl;
+    }
+
+    public function setThumbnailUrl(?string $thumbnailUrl): void
+    {
+        $this->thumbnailUrl = $thumbnailUrl;
     }
 
     public function getId(): string { return $this->id; }
@@ -95,8 +118,10 @@ class Service
     public function getFeatures(): array { return $this->features; }
     public function getCategory(): string { return $this->category; }
     public function getImageUrl(): ?string { return $this->imageUrl; }
+    public function getThumbnailUrl(): ?string { return $this->thumbnailUrl; }
     public function getSortOrder(): int { return $this->sortOrder; }
     public function isActive(): bool { return $this->isActive; }
+    public function isFeatured(): bool { return $this->isFeatured; }
 
     /** @return Collection<int, ServiceExample> */
     public function getExamples(): Collection { return $this->examples; }
@@ -113,6 +138,21 @@ class Service
         return $this->imageUrl ?? ($first instanceof ServiceExample ? $first->getImageUrl() : null);
     }
 
+    /**
+     * Misma resolución que getDisplayImage(), pero pasando por la miniatura de
+     * cada candidata: es la que se sirve en las listas.
+     */
+    public function getDisplayThumbnail(): ?string
+    {
+        if ($this->imageUrl !== null) {
+            return $this->thumbnailUrl ?? $this->imageUrl;
+        }
+
+        $first = $this->examples->first();
+
+        return $first instanceof ServiceExample ? $first->getDisplayThumbnail() : null;
+    }
+
     public function toArray(): array
     {
         return [
@@ -120,9 +160,11 @@ class Service
             'name'        => $this->name,
             'emoji'       => $this->emoji,
             'image'       => $this->getDisplayImage(),
+            'thumbnail'   => $this->getDisplayThumbnail(),
             'description' => $this->description,
             'features'    => $this->features,
             'category'    => $this->category,
+            'featured'    => $this->isFeatured,
             'examples'    => $this->examples->map(fn(ServiceExample $e) => $e->toArray())->toArray(),
         ];
     }

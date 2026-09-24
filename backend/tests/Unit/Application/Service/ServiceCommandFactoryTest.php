@@ -144,4 +144,34 @@ final class ServiceCommandFactoryTest extends TestCase
         self::assertFalse($json->removeImage);
         self::assertNull($json->image);
     }
+
+    public function testReadsThumbnailNextToTheImage(): void
+    {
+        $image = TestFactory::uploadedFile();
+        $thumbnail = TestFactory::uploadedFile();
+        $factory = new ServiceCommandFactory();
+
+        $created = $factory->createFromRequest($this->multipartRequest(
+            ['name' => 'Candy Bar', 'description' => 'D'],
+            ['image' => $image, 'thumbnail' => $thumbnail],
+        ));
+        self::assertSame($image, $created->image);
+        self::assertSame($thumbnail, $created->thumbnail);
+
+        $updated = $factory->updateFromRequest('candy-bar', $this->multipartRequest(
+            ['name' => 'Candy Bar', 'description' => 'D'],
+            ['image' => $image, 'thumbnail' => $thumbnail],
+        ));
+        self::assertSame($thumbnail, $updated->thumbnail);
+    }
+
+    public function testThumbnailIsNullWithoutFile(): void
+    {
+        $command = (new ServiceCommandFactory())->createFromRequest($this->multipartRequest([
+            'name' => 'Nueva', 'description' => 'D',
+        ]));
+
+        self::assertNull($command->image);
+        self::assertNull($command->thumbnail);
+    }
 }

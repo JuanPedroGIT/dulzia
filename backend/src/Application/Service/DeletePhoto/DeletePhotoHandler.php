@@ -22,6 +22,13 @@ final class DeletePhotoHandler
         }
 
         $this->storage->delete($example->getImageUrl());
+
+        // La miniatura es un objeto aparte: el borrado del storage no la arrastra.
+        $thumbnailUrl = $example->getThumbnailUrl();
+        if ($thumbnailUrl !== null) {
+            $this->storage->delete($thumbnailUrl);
+        }
+
         $this->examples->delete($example);
     }
 }

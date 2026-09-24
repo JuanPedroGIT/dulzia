@@ -51,6 +51,7 @@ import { ref, computed, onMounted, watch } from 'vue'
 import ServiceCard from '@/components/features/ServiceCard.vue'
 import CtaBanner from '@/components/features/CtaBanner.vue'
 import { useServices } from '@/composables/useServices.js'
+import { useCategories } from '@/composables/useCategories.js'
 import { useSeo, servicesCatalogJsonLd } from '@/composables/useSeo.js'
 
 useSeo({
@@ -71,12 +72,17 @@ watch(services, () => {
 
 const activeTab = ref('all')
 
-const tabs = [
-  { id: 'all',        label: 'Todos' },
-  { id: 'food',       label: '🍴 Gastronomía' },
-  { id: 'decoration', label: '🎨 Decoración' },
-  { id: 'experience', label: '✨ Experiencias' },
-]
+// Las pestañas salen de la tabla de categorías (se gestionan en el panel): la
+// primera es siempre "Todos".
+const { categories } = useCategories()
+
+const tabs = computed(() => [
+  { id: 'all', label: 'Todos' },
+  ...categories.value.map(c => ({
+    id: c.id,
+    label: c.emoji ? `${c.emoji} ${c.name}` : c.name,
+  })),
+])
 
 const filtered = computed(() =>
   activeTab.value === 'all'

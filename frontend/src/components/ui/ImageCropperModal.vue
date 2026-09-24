@@ -42,15 +42,16 @@
 
       <footer class="cropper-modal__footer">
         <button type="button" class="btn-cancel" @click="cancel">Cancelar</button>
-        <button type="button" class="btn-confirm" @click="confirm">
+        <button type="button" class="btn-confirm" :disabled="exporting" @click="confirm">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-          Confirmar recorte
+          {{ exporting ? 'Preparando…' : 'Confirmar recorte' }}
         </button>
       </footer>
     </div>
 
-    <!-- Hidden canvas for export only -->
+    <!-- Hidden canvases for export only -->
     <canvas ref="exportCanvas" style="display:none" />
+    <canvas ref="thumbCanvas" style="display:none" />
   </div>
 </template>
 
@@ -63,12 +64,21 @@ const props = defineProps({
 })
 const emit = defineEmits(['confirm', 'cancel'])
 
+// Anchos que se suben: la grande es la que se abre en el carrusel, la miniatura
+// la que sirven las tarjetas y las listas (mucho más ligera).
+const FULL_WIDTH    = 1600
+const FULL_QUALITY  = 0.85
+const THUMB_WIDTH   = 640
+const THUMB_QUALITY = 0.82
+
 const containerRef  = ref(null)
 const imgRef        = ref(null)
 const exportCanvas  = ref(null)
+const thumbCanvas   = ref(null)
 
 const scale  = ref(1)
 const offset = ref({ x: 0, y: 0 })
+const exporting = ref(false)
 let isDragging    = false
 let lastPos       = { x: 0, y: 0 }
 let lastTouchDist = null
@@ -143,29 +153,52 @@ function getTouchDist(t) {
 // ─── Export ─────────────────────────────────────────────────
 function cancel() { emit('cancel') }
 
-function confirm() {
-  const container = containerRef.value
-  const image     = imgRef.value
-  if (!container || !image) return
+/**
+ * Dibuja el recorte actual en el canvas dado, escalado al ancho pedido.
+ *
+ * El factor se limita a la resolución real del recorte (`cw / scale` píxeles de
+ * la imagen original): una foto pequeña se sube a su tamaño natural como mucho,
+ * nunca ampliada. Se dibuja desde la imagen original en cada pasada, así la
+ * miniatura no es una reducción de la grande.
+ */
+function exportAt(canvas, targetWidth, quality) {
+  const cw = containerRef.value.clientWidth
+  const ch = containerRef.value.clientHeight
+  const factor = Math.min(targetWidth / cw, 1 / scale.value)
 
-  const cw = container.clientWidth
-  const ch = container.clientHeight
+  canvas.width  = Math.round(cw * factor)
+  canvas.height = Math.round(ch * factor)
 
-  // Render the current view to a canvas
-  const canvas = exportCanvas.value
-  canvas.width  = cw
-  canvas.height = ch
   const ctx = canvas.getContext('2d')
 
-  // Calculate image position/size accounting for transform
+  // El canvas arranca transparente y el JPEG no tiene alfa: al alejar el zoom
+  // quedan franjas sin pintar que saldrían negras.
+  ctx.fillStyle = '#fff'
+  ctx.fillRect(0, 0, canvas.width, canvas.height)
+
   const iw = naturalW * scale.value
   const ih = naturalH * scale.value
   const ix = (cw - iw) / 2 + offset.value.x
   const iy = (ch - ih) / 2 + offset.value.y
 
-  ctx.drawImage(image, ix, iy, iw, ih)
+  ctx.drawImage(imgRef.value, ix * factor, iy * factor, iw * factor, ih * factor)
 
-  canvas.toBlob((blob) => { emit('confirm', blob) }, 'image/jpeg', 0.92)
+  return new Promise((resolve) => canvas.toBlob(resolve, 'image/jpeg', quality))
+}
+
+async function confirm() {
+  if (!containerRef.value || !imgRef.value || exporting.value) return
+
+  // Las dos exportaciones son asíncronas: el botón se bloquea mientras tanto.
+  exporting.value = true
+  try {
+    const full      = await exportAt(exportCanvas.value, FULL_WIDTH, FULL_QUALITY)
+    const thumbnail = await exportAt(thumbCanvas.value, THUMB_WIDTH, THUMB_QUALITY)
+
+    emit('confirm', { full, thumbnail })
+  } finally {
+    exporting.value = false
+  }
 }
 </script>
 
@@ -313,6 +346,12 @@ function confirm() {
   box-shadow: 0 4px 12px rgba($color-mint-mid, 0.3);
   transition: all 0.15s;
   &:hover { background: $color-green-dark; transform: translateY(-1px); }
+  &:disabled {
+    opacity: 0.7;
+    cursor: wait;
+    transform: none;
+    background: $color-mint-mid;
+  }
 }
 
 @keyframes scaleIn {

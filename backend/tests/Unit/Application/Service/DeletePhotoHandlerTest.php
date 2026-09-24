@@ -58,4 +58,32 @@ final class DeletePhotoHandlerTest extends TestCase
 
         (new DeletePhotoHandler($examples, $storage))->handle(new DeletePhotoCommand('no-existe'));
     }
+
+    public function testDeletesThumbnailToo(): void
+    {
+        $example = TestFactory::example(
+            TestFactory::service(),
+            imageUrl: 'https://fake-storage.test/services/abc.jpg',
+            thumbnailUrl: 'https://fake-storage.test/services/abc-mini.jpg',
+        );
+
+        $examples = $this->createMock(ServiceExampleRepositoryInterface::class);
+        $examples->method('findById')->willReturn($example);
+
+        $deleted = [];
+        $storage = $this->createMock(FileStorageInterface::class);
+        $storage->expects($this->exactly(2))
+            ->method('delete')
+            ->willReturnCallback(static function (string $url) use (&$deleted): void {
+                $deleted[] = $url;
+            });
+
+        (new DeletePhotoHandler($examples, $storage))->handle(new DeletePhotoCommand('abc'));
+
+        // La miniatura es un objeto aparte en el bucket: si no se borra, queda huérfana.
+        self::assertSame(
+            ['https://fake-storage.test/services/abc.jpg', 'https://fake-storage.test/services/abc-mini.jpg'],
+            $deleted
+        );
+    }
 }

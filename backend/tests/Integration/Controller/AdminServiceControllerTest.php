@@ -216,6 +216,61 @@ final class AdminServiceControllerTest extends IntegrationTestCase
         self::assertSame('', $saved->getEmoji());
     }
 
+    public function testCreatesServiceWithCoverThumbnail(): void
+    {
+        $this->createAdminUser();
+
+        $client = $this->client();
+        $client->request(
+            'POST',
+            '/api/admin/services',
+            ['name' => 'Candy Bar', 'description' => 'Candy bar para eventos'],
+            ['image' => TestFactory::uploadedFile(), 'thumbnail' => TestFactory::uploadedFile()],
+            $this->authHeaders(),
+        );
+
+        self::assertResponseStatusCodeSame(201);
+
+        $this->em()->clear();
+        $saved = $this->em()->getRepository(Service::class)->find('candy-bar');
+        self::assertMatchesRegularExpression(
+            '#^https://fake-storage\.test/services/[0-9a-f]{32}\.png$#',
+            (string) $saved->getThumbnailUrl(),
+        );
+        self::assertNotSame(
+            $saved->getImageUrl(),
+            $saved->getThumbnailUrl(),
+            'La miniatura es un objeto aparte en el bucket',
+        );
+    }
+
+    public function testUpdatesServiceWithCoverThumbnailDeletingBothOldObjects(): void
+    {
+        $this->createAdminUser();
+        $this->persist(TestFactory::service(
+            id: 'candy-bar',
+            imageUrl: 'https://fake-storage.test/services/vieja.jpg',
+            thumbnailUrl: 'https://fake-storage.test/services/vieja-mini.jpg',
+        ));
+
+        $client = $this->client();
+        $client->request(
+            'POST',
+            '/api/admin/services/candy-bar',
+            ['name' => 'Candy Bar', 'description' => 'D'],
+            ['image' => TestFactory::uploadedFile(), 'thumbnail' => TestFactory::uploadedFile()],
+            $this->authHeaders(),
+        );
+
+        self::assertResponseIsSuccessful();
+        self::assertContains('https://fake-storage.test/services/vieja.jpg', $this->fakeStorage()->deletedUrls);
+        self::assertContains('https://fake-storage.test/services/vieja-mini.jpg', $this->fakeStorage()->deletedUrls);
+
+        $this->em()->clear();
+        $saved = $this->em()->getRepository(Service::class)->find('candy-bar');
+        self::assertNotNull($saved->getThumbnailUrl());
+    }
+
     public function testUpdatesServiceWithCoverImageDeletingTheOldOne(): void
     {
         $this->createAdminUser();
@@ -284,6 +339,35 @@ final class AdminServiceControllerTest extends IntegrationTestCase
         self::assertSame('https://fake-storage.test/services/galeria.jpg', $data[1]['image']);
     }
 
+    public function testListExposesThumbnailsWithGalleryFallback(): void
+    {
+        $this->createAdminUser();
+
+        $propia = TestFactory::service(
+            id: 'a',
+            sortOrder: 1,
+            imageUrl: 'https://fake-storage.test/services/propia.jpg',
+            thumbnailUrl: 'https://fake-storage.test/services/propia-mini.jpg',
+        );
+        $sinPropia = TestFactory::service(id: 'b', sortOrder: 2);
+        $this->persist($sinPropia, $propia, TestFactory::example(
+            $sinPropia,
+            imageUrl: 'https://fake-storage.test/services/galeria.jpg',
+            thumbnailUrl: 'https://fake-storage.test/services/galeria-mini.jpg',
+        ));
+
+        $client = $this->client();
+        $client->request('GET', '/api/admin/services', [], [], $this->authHeaders());
+
+        self::assertResponseIsSuccessful();
+        $data = json_decode((string) $client->getResponse()->getContent(), true);
+
+        $porId = array_column($data, null, 'id');
+        self::assertSame('https://fake-storage.test/services/propia-mini.jpg', $porId['a']['thumbnail']);
+        self::assertSame('https://fake-storage.test/services/galeria-mini.jpg', $porId['b']['thumbnail']);
+        self::assertSame('https://fake-storage.test/services/galeria.jpg', $porId['b']['image']);
+    }
+
     public function testDetailExposesOwnImageAndDisplayImage(): void
     {
         $this->createAdminUser();
@@ -298,6 +382,86 @@ final class AdminServiceControllerTest extends IntegrationTestCase
 
         self::assertSame('https://fake-storage.test/services/propia.jpg', $data['imageUrl']);
         self::assertSame('https://fake-storage.test/services/propia.jpg', $data['image']);
+        // Sin miniatura propia (foto antigua): se sirve la grande en su lugar.
+        self::assertNull($data['thumbnailUrl']);
+        self::assertSame('https://fake-storage.test/services/propia.jpg', $data['thumbnail']);
+        self::assertArrayHasKey('thumbnailUrl', $data['photos'][0]);
+    }
+
+    // ── Destacados en la portada ──────────────────────────────────────────
+
+    public function testMarksAndUnmarksServiceAsFeatured(): void
+    {
+        $this->createAdminUser();
+        $this->persist(TestFactory::service(id: 'candy-bar'));
+
+        $client = $this->client();
+        $client->request(
+            'POST',
+            '/api/admin/services/candy-bar/featured',
+            [],
+            [],
+            $this->authHeaders() + ['CONTENT_TYPE' => 'application/json'],
+            json_encode(['featured' => true], JSON_THROW_ON_ERROR),
+        );
+
+        self::assertResponseIsSuccessful();
+        $this->em()->clear();
+        self::assertTrue($this->em()->getRepository(Service::class)->find('candy-bar')->isFeatured());
+
+        // El endpoint es idempotente: manda el estado deseado, no un "alternar".
+        $client->request(
+            'POST',
+            '/api/admin/services/candy-bar/featured',
+            [],
+            [],
+            $this->authHeaders() + ['CONTENT_TYPE' => 'application/json'],
+            json_encode(['featured' => false], JSON_THROW_ON_ERROR),
+        );
+
+        self::assertResponseIsSuccessful();
+        $this->em()->clear();
+        self::assertFalse($this->em()->getRepository(Service::class)->find('candy-bar')->isFeatured());
+    }
+
+    public function testFeaturedServiceIsListedForThePanelAndTheWeb(): void
+    {
+        $this->createAdminUser();
+        $this->persist(
+            TestFactory::service(id: 'destacado', sortOrder: 1, isFeatured: true),
+            TestFactory::service(id: 'normal', sortOrder: 2),
+        );
+
+        $client = $this->client();
+        $client->request('GET', '/api/admin/services', [], [], $this->authHeaders());
+        $panel = json_decode((string) $client->getResponse()->getContent(), true);
+
+        self::assertTrue($panel[0]['featured']);
+        self::assertFalse($panel[1]['featured']);
+
+        $public = $this->client();
+        $public->request('GET', '/api/services');
+        $catalog = json_decode((string) $public->getResponse()->getContent(), true);
+
+        self::assertTrue($catalog[0]['featured']);
+        self::assertFalse($catalog[1]['featured']);
+    }
+
+    public function testFeaturedNotFoundReturns404(): void
+    {
+        $this->createAdminUser();
+
+        $client = $this->client();
+        $client->request(
+            'POST',
+            '/api/admin/services/no-existe/featured',
+            [],
+            [],
+            $this->authHeaders() + ['CONTENT_TYPE' => 'application/json'],
+            json_encode(['featured' => true], JSON_THROW_ON_ERROR),
+        );
+
+        self::assertResponseStatusCodeSame(404);
     }
 
     // ── Fotos ─────────────────────────────────────────────────────────────
@@ -326,6 +490,49 @@ final class AdminServiceControllerTest extends IntegrationTestCase
         $examples = $this->em()->getRepository(ServiceExample::class)->findAll();
         self::assertCount(1, $examples);
         self::assertSame($data['imageUrl'], $examples[0]->getImageUrl());
+    }
+
+    public function testAddPhotoPersistsThumbnailAsASeparateObject(): void
+    {
+        $this->createAdminUser();
+        $this->persist(TestFactory::service(id: 'candy-bar'));
+
+        $client = $this->client();
+        $client->request(
+            'POST',
+            '/api/admin/services/candy-bar/photos',
+            ['title' => 'Foto cabina', 'description' => 'Nuestra cabina'],
+            ['image' => TestFactory::uploadedFile(), 'thumbnail' => TestFactory::uploadedFile()],
+            $this->authHeaders(),
+        );
+
+        self::assertResponseStatusCodeSame(201);
+
+        $examples = $this->em()->getRepository(ServiceExample::class)->findAll();
+        $thumbnailUrl = $examples[0]->getThumbnailUrl();
+
+        self::assertNotNull($thumbnailUrl);
+        self::assertMatchesRegularExpression('#^https://fake-storage\.test/services/[0-9a-f]{32}\.png$#', $thumbnailUrl);
+        self::assertNotSame($examples[0]->getImageUrl(), $thumbnailUrl);
+    }
+
+    public function testRejectsAnInvalidUploadedFile(): void
+    {
+        $this->createAdminUser();
+        $this->persist(TestFactory::service(id: 'candy-bar'));
+
+        $client = $this->client();
+        $client->request(
+            'POST',
+            '/api/admin/services/candy-bar/photos',
+            ['title' => 'Foto', 'description' => 'Desc'],
+            ['image' => TestFactory::invalidUploadedFile()],
+            $this->authHeaders(),
+        );
+
+        // InvalidFileException (400) la mapea ApiExceptionListener.
+        self::assertResponseStatusCodeSame(400);
+        self::assertCount(0, $this->em()->getRepository(ServiceExample::class)->findAll());
     }
 
     public function testAddPhotoWithExternalImageUrl(): void
@@ -396,7 +603,11 @@ final class AdminServiceControllerTest extends IntegrationTestCase
     {
         $this->createAdminUser();
         $service = TestFactory::service(id: 'candy-bar');
-        $example = TestFactory::example($service, imageUrl: 'https://fake-storage.test/services/borrar.jpg');
+        $example = TestFactory::example(
+            $service,
+            imageUrl: 'https://fake-storage.test/services/borrar.jpg',
+            thumbnailUrl: 'https://fake-storage.test/services/borrar-mini.jpg',
+        );
         $this->persist($service, $example);
 
         $client = $this->client();
@@ -407,6 +618,11 @@ final class AdminServiceControllerTest extends IntegrationTestCase
         self::assertContains(
             'https://fake-storage.test/services/borrar.jpg',
             $this->fakeStorage()->deletedUrls,
+        );
+        self::assertContains(
+            'https://fake-storage.test/services/borrar-mini.jpg',
+            $this->fakeStorage()->deletedUrls,
+            'La miniatura quedaría huérfana en el bucket si no se borra',
         );
     }
 

@@ -14,6 +14,9 @@ interface ServiceRepositoryInterface
 
     public function findById(string $id): ?Service;
 
+    /** Cuántos servicios usan una categoría (para bloquear su borrado). */
+    public function countByCategory(string $categoryId): int;
+
     public function save(Service $service): void;
 
     public function nextSortOrder(): int;

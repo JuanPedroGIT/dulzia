@@ -61,6 +61,8 @@ la API local: lista + detalle de los 11 servicios) que se inyecta en cada págin
 usa como fuente en ese contexto. Además se actualizó `puppeteer` a `^24` (override en package.json)
 porque el Chromium de la versión transitiva (1.20/Chrome 78) no entendía el JS moderno del bundle.
 **Regenerar el snapshot cuando cambie el catálogo** (comando documentado abajo).
+Incluye también las categorías: sin ellas la portada estática saldría sin pestañas y
+con los identificadores en vez de los nombres.
 
 ```bash
 # Regenerar el snapshot (con el backend local corriendo):
@@ -68,7 +70,11 @@ python -c "
 import json, urllib.request
 BASE='http://localhost:8000/api/services'
 services=json.load(urllib.request.urlopen(BASE))
-snap={'list':services,'details':{s['id']:json.load(urllib.request.urlopen(BASE+'/'+s['id'])) for s in services}}
+snap={
+  'list':services,
+  'details':{s['id']:json.load(urllib.request.urlopen(BASE+'/'+s['id'])) for s in services},
+  'categories':json.load(urllib.request.urlopen('http://localhost:8000/api/categories')),
+}
 open('frontend/prerender-data/snapshot.json','w',encoding='utf-8').write(json.dumps(snap,ensure_ascii=False))
 "
 ```
@@ -93,8 +99,7 @@ open('frontend/prerender-data/snapshot.json','w',encoding='utf-8').write(json.du
 
 ### 4. JSON-LD ampliado
 
-- `LocalBusiness` (`useSeo.js`): añadir `address` (PostalAddress: C/ Martín Alonso Pedraz, 14,
-  37007 Salamanca, ES), `geo` (coordenadas de la ficha de Google Business — obtenerlas) y
+- `LocalBusiness` (`useSeo.js`): añadir 
   `areaServed` (Salamanca y alrededores).
 - `Service`/`OfferCatalog` en `/servicios` y `/`: catálogo con las 11 URLs de servicio
   (nombres y descripciones reales ya en BD vía API).

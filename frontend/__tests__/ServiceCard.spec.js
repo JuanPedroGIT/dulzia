@@ -45,4 +45,24 @@ describe('ServiceCard — imagen de la sección', () => {
     expect(wrapper.find('.card__emoji').text()).toBe('')
     expect(wrapper.find('.card__name').text()).toBe('Candy Bar')
   })
+
+  it('sirve la miniatura en la tarjeta cuando existe', () => {
+    const wrapper = mountCard({
+      image: 'https://fake-storage.test/services/grande.jpg',
+      thumbnail: 'https://fake-storage.test/services/mini.jpg',
+    })
+
+    expect(wrapper.find('img.card__img').attributes('src'))
+      .toBe('https://fake-storage.test/services/mini.jpg')
+  })
+
+  it('cae a la foto grande en las fotos antiguas, sin miniatura', () => {
+    const wrapper = mountCard({
+      image: 'https://fake-storage.test/services/grande.jpg',
+      thumbnail: null,
+    })
+
+    expect(wrapper.find('img.card__img').attributes('src'))
+      .toBe('https://fake-storage.test/services/grande.jpg')
+  })
 })

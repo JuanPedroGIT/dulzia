@@ -27,6 +27,7 @@ final class ServiceCommandFactory
             features: $data['features'],
             category: $data['category'],
             image: $request->files->get('image'),
+            thumbnail: $request->files->get('thumbnail'),
         );
     }
 
@@ -42,6 +43,7 @@ final class ServiceCommandFactory
             features: $data['features'],
             category: $data['category'],
             image: $request->files->get('image'),
+            thumbnail: $request->files->get('thumbnail'),
             removeImage: $data['removeImage'],
         );
     }

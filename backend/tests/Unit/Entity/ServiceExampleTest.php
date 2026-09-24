@@ -26,11 +26,12 @@ final class ServiceExampleTest extends TestCase
     public function testUpdateChangesFields(): void
     {
         $example = TestFactory::example(TestFactory::service());
-        $example->update('Nuevo título', 'Nueva desc', 'https://x.test/nueva.jpg');
+        $example->update('Nuevo título', 'Nueva desc', 'https://x.test/nueva.jpg', null);
 
         self::assertSame('Nuevo título', $example->getTitle());
         self::assertSame('Nueva desc', $example->getDescription());
         self::assertSame('https://x.test/nueva.jpg', $example->getImageUrl());
+        self::assertNull($example->getThumbnailUrl());
     }
 
     public function testToArrayShape(): void
@@ -43,5 +44,28 @@ final class ServiceExampleTest extends TestCase
         self::assertSame('Foto', $data['title']);
         self::assertSame('Descripción de la foto', $data['description']);
         self::assertSame('https://x.test/f.jpg', $data['image']);
+        // Sin miniatura propia, la lista sirve la foto grande.
+        self::assertSame('https://x.test/f.jpg', $data['thumbnail']);
+    }
+
+    public function testDisplayThumbnailPrefersOwnThumbnail(): void
+    {
+        $example = TestFactory::example(
+            TestFactory::service(),
+            imageUrl: 'https://x.test/grande.jpg',
+            thumbnailUrl: 'https://x.test/mini.jpg',
+        );
+
+        self::assertSame('https://x.test/mini.jpg', $example->getThumbnailUrl());
+        self::assertSame('https://x.test/mini.jpg', $example->getDisplayThumbnail());
+        self::assertSame('https://x.test/mini.jpg', $example->toArray()['thumbnail']);
+    }
+
+    public function testDisplayThumbnailFallsBackToFullImage(): void
+    {
+        $example = TestFactory::example(TestFactory::service(), imageUrl: 'https://x.test/grande.jpg');
+
+        self::assertNull($example->getThumbnailUrl());
+        self::assertSame('https://x.test/grande.jpg', $example->getDisplayThumbnail());
     }
 }

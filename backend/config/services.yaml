@@ -29,6 +29,7 @@ services:
     App\Domain\Admin\AdminTokenStoreInterface: '@App\Infrastructure\Security\DatabaseAdminTokenStore'
     App\Domain\Service\ServiceRepositoryInterface: '@App\Infrastructure\Repository\DoctrineServiceRepository'
     App\Domain\Service\ServiceExampleRepositoryInterface: '@App\Infrastructure\Repository\DoctrineServiceExampleRepository'
+    App\Domain\Category\CategoryRepositoryInterface: '@App\Infrastructure\Repository\DoctrineCategoryRepository'
     App\Domain\Storage\FileStorageInterface: '@App\Infrastructure\Storage\CloudflareR2Storage'
     App\Domain\Settings\SettingsRepositoryInterface: '@App\Infrastructure\Repository\DoctrineSettingsRepository'
 

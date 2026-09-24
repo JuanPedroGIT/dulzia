@@ -2,6 +2,7 @@
 
 namespace App\Application\Service\CreateService;
 
+use App\Application\Shared\Slug;
 use App\Domain\Service\ServiceRepositoryInterface;
 
 /**
@@ -16,8 +17,7 @@ final class ServiceIdGenerator
 
     public function generate(string $name): string
     {
-        $id = preg_replace('/[^a-z0-9]+/', '-', strtolower($name));
-        $id = trim($id, '-');
+        $id = Slug::fromName($name);
 
         if ($this->services->findById($id) !== null) {
             $id .= '-' . substr((string) time(), -4);

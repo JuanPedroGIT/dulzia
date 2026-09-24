@@ -15,6 +15,7 @@ final readonly class UpdateServiceCommand
         public array  $features,
         public string $category,
         public ?UploadedFile $image = null,
+        public ?UploadedFile $thumbnail = null,
         public bool $removeImage = false,
     ) {}
 }

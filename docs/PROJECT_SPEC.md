@@ -180,9 +180,12 @@ HTTP Request
 - La lógica vive en `Application/AdminAuth/Login` y `Logout` (handlers), no en
   el controller.
 
-### IDs de servicio
-`ServiceIdGenerator`: slug del nombre (`preg_replace` + `strtolower` + trim) y
-sufijo numérico (`time()`) si el ID ya existe.
+### IDs de servicio y de categoría
+`ServiceIdGenerator` y `CategoryIdGenerator`: slug del nombre más sufijo numérico
+(`time()`) si el ID ya existe. El slug lo hace `Application\Shared\Slug`, compartido por
+los dos para que un nombre se convierta igual en los dos sitios: pasa los acentos a ASCII
+(`Animación` → `animacion`, no `animaci-n`) y cambia lo que no sea letra o número por un
+guion. El identificador no se edita después: los servicios referencian la categoría por él.
 
 ---
 
@@ -201,6 +204,52 @@ Page Component
 - **Composables**: devuelven `{ state, actions }`. Son la unidad testeble del frontend.
 - **Services**: funciones puras sin estado; solo fetch.
 - **Auth**: `useAuth` + `localStorage('admin_token')`; no hay stores Pinia.
+
+### Catálogo compartido (`useServices`)
+
+El catálogo público es el mismo durante toda la sesión, así que su estado vive a
+nivel de **módulo** (no dentro de cada componente): portada, listado y fichas de
+servicio comparten una única `GET /api/services`.
+
+- `fetchAll()` no repite si ya está cargado (`loaded`), deduplica la petición si
+  dos páginas montan a la vez (`pending`) y acepta `{ force: true }` para forzar.
+- **La ficha de servicio no pide su detalle**: `GET /api/services` devuelve
+  `Service::toArray()`, exactamente lo mismo que `GET /api/services/{id}`, así que
+  la página busca el servicio en la lista ya cargada. Navegar entre servicios no
+  genera ninguna petición.
+- Como contrapartida, una sesión abierta no ve cambios del catálogo hasta que
+  recarga (o hasta un `fetchAll({ force: true })`).
+
+### Qué sale en la portada
+
+Lo decide el check **Portada** de la tabla del panel (`service.is_featured`), que se
+guarda al instante contra `POST /api/admin/services/{id}/featured`. Marcado, el
+servicio aparece en las dos zonas de la portada:
+
+- las tarjetas del **hero** (`HeroSection`, máximo 6, con el nombre del servicio como
+  etiqueta, y cada una enlazando a su ficha `/servicios/{id}`), y
+- la parrilla de **"Servicios que enamoran"** (`ServicesOverview`, todas las marcadas;
+  sin ninguna, la sección no se pinta).
+
+Antes eran dos criterios distintos fijados en el código: una lista de ids escrita a
+mano en el hero y los 6 primeros por `sort_order` en la parrilla.
+
+### Categorías
+
+Son un dato, no una lista en el código: la tabla `category` (nombre, emoji y orden) se
+gestiona en `/dulzia-panel/categorias` y la consumen:
+
+- `AdminDashboardPage` (desplegable del modal de secciones y etiqueta de la tabla),
+- `ServiciosPage` (las pestañas del catálogo),
+- `ServiceCard` y `ServicioDetallePage` (la etiqueta de cada sección),
+
+todas a través de `useCategories` (mismo patrón de caché por sesión que `useServices`,
+y con `snapshot.categories` para el prerender).
+
+- **Borrar una categoría en uso se bloquea** (409 con el número de secciones).
+- **Sin clave foránea**: el esquema se deriva de los mapeos de Doctrine y una FK puesta a
+  mano la borraría la siguiente `migration-diff`. La integridad la garantiza el backend:
+  `CategoryResolver` rechaza (400) una categoría inexistente al crear o editar un servicio.
 
 ### Routing
 - Rutas públicas: `/`, `/servicios`, `/servicios/:id`, `/nosotros`, `/contacto`, `/cookies`.
@@ -300,14 +349,35 @@ solo se tocan en el `.env` raíz; `backend/.env` no se modifica a mano.
 ```
 admin_user         id, username (unique), password_hash
 admin_token        id, token (unique), expires_at
+category           id (string slug, PK), name, emoji (para las pestañas del catálogo,
+                   NULL = sin emoji), sort_order
 service            id (string slug, PK), name, emoji, image_url (foto de la sección en
                    R2, NULL = se usa la 1ª foto de su galería y, si no hay, el emoji),
-                   description, features (json), category, sort_order, is_active
+                   thumbnail_url (miniatura de image_url, NULL = se sirve image_url),
+                   description, features (json), category (id de category, sin FK: lo
+                   valida el backend), sort_order, is_active,
+                   is_featured (destacado en la portada, se marca desde el panel)
 service_example    id (string 32-hex), service_id (FK), title, description,
-                   image_url (URL completa R2 o externa), sort_order
+                   image_url (URL completa R2 o externa),
+                   thumbnail_url (miniatura, NULL = se sirve image_url), sort_order
 contact_submission id (string 32-hex), name, email, phone, event_type, message,
                    ip_address, submitted_at, email_sent, email_sent_at, read_at
 ```
+
+### Imágenes: dos versiones por foto
+
+El recortador del panel (`ImageCropperModal.vue`) exporta **dos JPEG del mismo recorte**
+en la misma petición: `image` (1600 px de ancho, la que se abre en el carrusel) y
+`thumbnail` (640 px, la que sirven tarjetas, rejillas y listas). El backend solo los
+almacena — no manipula imágenes (no hay GD ni Imagick en la imagen Docker).
+
+- Cada versión es **un objeto independiente en R2**: hay que borrar las dos al
+  reemplazar o eliminar una foto.
+- La API emite `thumbnail` **resuelta** (`thumbnail_url ?? image_url`), así el
+  frontend nunca tiene un hueco: las fotos subidas antes de existir las miniaturas
+  siguen sirviéndose a tamaño completo hasta que se resuban.
+- El lightbox pide solo la diapositiva actual y sus vecinas: con las fotos grandes,
+  montar la galería entera serían varios MB de golpe.
 
 ### Convenciones de migración
 - Una migration por cambio de esquema.
@@ -321,18 +391,24 @@ contact_submission id (string 32-hex), name, email, phone, event_type, message,
 | Método | Ruta | Auth | Descripción |
 |---|---|---|---|
 | GET | `/health` | — | Health check |
+| GET | `/api/categories` | — | Categorías para la web (pestañas del catálogo y etiquetas) |
 | GET | `/api/services` | — | Catálogo público (solo activos, con fotos) |
-| GET | `/api/services/{id}` | — | Detalle de servicio (404 si no existe o está inactivo) |
+| GET | `/api/services/{id}` | — | Detalle de servicio (404 si no existe o está inactivo). La web **no lo llama**: el catálogo ya trae la ficha completa y el detalle se resuelve en memoria (ver "Catálogo compartido") |
 | POST | `/api/contact` | — | Formulario de contacto (422 con errores por campo) |
 | POST | `/api/admin/login` | — | Login → `{token}` |
 | POST | `/api/admin/logout` | token | Invalida todos los tokens |
 | GET | `/api/admin/services` | token | Lista completa (incluye inactivos) |
 | GET | `/api/admin/services/{id}` | token | Detalle con fotos y sort_order |
-| POST | `/api/admin/services` | token | Crear servicio (201, id slug). Multipart con `image` (foto de la sección) o JSON |
-| PUT · POST | `/api/admin/services/{id}` | token | Actualizar servicio: PUT con JSON, POST con multipart (`image`, `features[]`, `removeImage`) |
+| POST | `/api/admin/services` | token | Crear servicio (201, id slug). Multipart con `image` (foto de la sección) + `thumbnail`, o JSON |
+| PUT · POST | `/api/admin/services/{id}` | token | Actualizar servicio: PUT con JSON, POST con multipart (`image`, `thumbnail`, `features[]`, `removeImage`) |
 | DELETE | `/api/admin/services/{id}` | token | Desactivar (soft delete) |
 | POST | `/api/admin/services/{id}/activate` | token | Reactivar |
-| POST | `/api/admin/services/{serviceId}/photos` | token | Añadir foto (multipart `image` o `imageUrl`) |
+| POST | `/api/admin/services/{id}/featured` | token | Destacar/quitar de la portada (`{"featured": bool}`, idempotente) |
+| GET | `/api/admin/categories` | token | Lista con `serviceCount` (cuántas secciones usan cada una) |
+| POST | `/api/admin/categories` | token | Crear (201, id slug del nombre) |
+| PUT | `/api/admin/categories/{id}` | token | Editar nombre, emoji y orden (el id no se cambia) |
+| DELETE | `/api/admin/categories/{id}` | token | Borrar (409 si hay secciones usándola) |
+| POST | `/api/admin/services/{serviceId}/photos` | token | Añadir foto (multipart `image` + `thumbnail`, o `imageUrl` externa) |
 | POST | `/api/admin/photos/{photoId}` | token | Actualizar foto |
 | DELETE | `/api/admin/photos/{photoId}` | token | Borrar foto (y su archivo en R2) |
 | GET | `/api/admin/messages` | token | Mensajes paginados: `?page=1` → `{items, page, totalPages, total, unreadCount}` |
@@ -438,6 +514,7 @@ __tests__/useContactForm.spec.js   # Un test por composable
    una nueva (ver ejemplo: recreación de `admin_token`).
 9. **Fotos en Cloudflare R2**: `FileStorageInterface::store()` devuelve la URL
    pública completa (la BD guarda la URL); `delete()` es idempotente y protegido
-   contra URLs externas (picsum) y legacy.
+   contra URLs externas (picsum) y legacy. La foto grande y su miniatura son dos
+   objetos: el navegador genera ambos y el backend los guarda por separado.
 10. **Dobles de test para adaptadores externos**: Brevo y R2 nunca se tocan en los
     tests de integración.

@@ -1,5 +1,5 @@
 <template>
-  <section class="section">
+  <section v-if="featured.length" class="section">
     <div class="container">
       <div class="overview__header">
         <span class="overview__pre">Lo que hacemos</span>
@@ -39,7 +39,11 @@ const props = defineProps({
   services: { type: Array, default: () => [] },
 })
 
-const featured = computed(() => props.services.slice(0, 6))
+// Parrilla de la portada: las secciones marcadas como destacadas en el panel
+// (`is_featured`), en el orden del catálogo. Antes eran los 6 primeros por
+// sort_order, que no era una decisión editorial. Sin ninguna marcada, la sección
+// no se pinta (quedaría el titular con el hueco vacío).
+const featured = computed(() => props.services.filter(s => s.featured))
 const total = computed(() => props.services.length)
 </script>
 

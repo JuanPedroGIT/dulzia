@@ -12,6 +12,8 @@ use App\Application\Service\GetService\GetServiceQuery;
 use App\Application\Service\ListServices\ListServicesHandler;
 use App\Application\Service\ListServices\ListServicesQuery;
 use App\Application\Service\ServiceCommandFactory;
+use App\Application\Service\SetFeatured\SetFeaturedCommand;
+use App\Application\Service\SetFeatured\SetFeaturedHandler;
 use App\Application\Service\UpdateService\UpdateServiceHandler;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -33,6 +35,7 @@ final class AdminServiceController
         private UpdateServiceHandler $updateService,
         private DeleteServiceHandler $deleteService,
         private ActivateServiceHandler $activateService,
+        private SetFeaturedHandler $setFeatured,
         private ServiceCommandFactory $commands,
     ) {}
 
@@ -93,6 +96,24 @@ final class AdminServiceController
     public function activateService(string $id): JsonResponse
     {
         $this->activateService->handle(new ActivateServiceCommand($id));
+
+        return new JsonResponse(['ok' => true]);
+    }
+
+    /**
+     * Destacado en la portada. Un solo endpoint idempotente con el estado
+     * deseado en lugar de dos rutas (feature/unfeature): el panel manda lo que
+     * quiere que valga, y repetirlo no cambia nada.
+     */
+    #[Route('/api/admin/services/{id}/featured', methods: ['POST'])]
+    public function setFeatured(string $id, Request $request): JsonResponse
+    {
+        $body = json_decode($request->getContent(), true) ?? [];
+
+        $this->setFeatured->handle(new SetFeaturedCommand(
+            id: $id,
+            featured: filter_var($body['featured'] ?? false, FILTER_VALIDATE_BOOLEAN),
+        ));
 
         return new JsonResponse(['ok' => true]);
     }

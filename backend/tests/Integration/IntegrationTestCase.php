@@ -29,7 +29,18 @@ use Symfony\Component\HttpKernel\KernelInterface;
  */
 abstract class IntegrationTestCase extends WebTestCase
 {
-    private const TABLES = ['admin_token', 'admin_user', 'contact_submission', 'service_example', 'service', 'settings'];
+    private const TABLES = ['admin_token', 'admin_user', 'contact_submission', 'service_example', 'service', 'category', 'settings'];
+
+    /**
+     * Categorías de partida, en espejo con la semilla de la migración: los
+     * handlers validan que la categoría de un servicio exista, así que sin esto
+     * cualquier alta por HTTP respondería 400.
+     */
+    private const CATEGORIES = [
+        ['food', 'Gastronomía', '🍴'],
+        ['decoration', 'Decoración', '🎨'],
+        ['experience', 'Experiencias', '✨'],
+    ];
 
     private static bool $schemaCreated = false;
     private ?KernelBrowser $client = null;
@@ -103,6 +114,7 @@ abstract class IntegrationTestCase extends WebTestCase
         $schemaTool->createSchema($metadata);
 
         self::$schemaCreated = true;
+        self::seedCategories();
     }
 
     private static function resetDatabase(): void
@@ -116,6 +128,22 @@ abstract class IntegrationTestCase extends WebTestCase
             $connection->executeStatement(
                 sprintf('TRUNCATE "%s" RESTART IDENTITY CASCADE', $table),
             );
+        }
+
+        self::seedCategories();
+    }
+
+    private static function seedCategories(): void
+    {
+        $connection = self::dbal();
+
+        foreach (self::CATEGORIES as $sortOrder => [$id, $name, $emoji]) {
+            $connection->insert('category', [
+                'id' => $id,
+                'name' => $name,
+                'emoji' => $emoji,
+                'sort_order' => $sortOrder,
+            ]);
         }
     }
 

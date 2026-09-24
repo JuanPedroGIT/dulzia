@@ -23,6 +23,21 @@ final class ServiceIdGeneratorTest extends TestCase
         self::assertSame('paella-gigante', $generator->generate('  Paella Gigante!!  '));
     }
 
+    public function testSlugifiesAccentedNames(): void
+    {
+        // Antes los acentos se convertían en guiones: `Animación` daba `animaci-n`.
+        $repo = $this->createMock(ServiceRepositoryInterface::class);
+        $repo->method('findById')->willReturn(null);
+
+        $generator = new ServiceIdGenerator($repo);
+
+        self::assertSame('animacion', $generator->generate('Animación'));
+        self::assertSame('algodon-de-azucar', $generator->generate('Algodón de Azúcar'));
+        self::assertSame('pina-colada', $generator->generate('Piña Colada'));
+        self::assertSame('creme-brulee', $generator->generate('Crème Brûlée'));
+        self::assertSame('animacion', $generator->generate('ANIMACIÓN'));
+    }
+
     public function testAppendsSuffixWhenIdAlreadyExists(): void
     {
         $existing = new Service('candy-bar', 'Otro candy', '🍭', 'd', [], 'food');

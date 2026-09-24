@@ -67,7 +67,7 @@ const props = defineProps({
   error:        { type: String, default: null },
 })
 
-const emit = defineEmits(['update:modelValue', 'change'])
+const emit = defineEmits(['update:modelValue', 'change', 'thumbnail'])
 
 const fileInput = ref(null)
 const isDragging = ref(false)
@@ -112,8 +112,13 @@ function handleFile(file) {
   cropper.value.show = true
 }
 
-function onCropConfirm(blob) {
-  const croppedFile = new File([blob], originalFileName, { type: 'image/jpeg' })
+/**
+ * El recortador devuelve las dos versiones: la grande (la que se ve en el
+ * carrusel) y la miniatura (la que sirven las listas). Se emiten por separado
+ * para no cambiar el contrato de `v-model`, que sigue siendo la grande.
+ */
+function onCropConfirm({ full, thumbnail }) {
+  const croppedFile = new File([full], originalFileName, { type: 'image/jpeg' })
 
   if (previewUrl.value) {
     URL.revokeObjectURL(previewUrl.value)
@@ -122,7 +127,8 @@ function onCropConfirm(blob) {
   previewUrl.value = URL.createObjectURL(croppedFile)
   emit('update:modelValue', croppedFile)
   emit('change', croppedFile)
-  
+  emit('thumbnail', thumbnail ? new File([thumbnail], originalFileName, { type: 'image/jpeg' }) : null)
+
   closeCropper()
 }
 
@@ -142,6 +148,7 @@ function removeFile() {
   fileInput.value.value = ''
   emit('update:modelValue', null)
   emit('change', null)
+  emit('thumbnail', null)
 }
 
 onBeforeUnmount(() => {

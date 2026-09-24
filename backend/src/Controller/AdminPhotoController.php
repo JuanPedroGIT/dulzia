@@ -8,6 +8,8 @@ use App\Application\Service\DeletePhoto\DeletePhotoCommand;
 use App\Application\Service\DeletePhoto\DeletePhotoHandler;
 use App\Application\Service\UpdatePhoto\UpdatePhotoCommand;
 use App\Application\Service\UpdatePhoto\UpdatePhotoHandler;
+use App\Domain\Storage\InvalidFileException;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
@@ -36,17 +38,13 @@ final class AdminPhotoController
             return new JsonResponse(['error' => 'title y description son requeridos'], 400);
         }
 
-        $file = $request->files->get('image');
-        if ($file !== null && !$file->isValid()) {
-            return new JsonResponse(['error' => 'Archivo inválido: ' . $file->getErrorMessage()], 400);
-        }
-
         $result = $this->addPhoto->handle(new AddPhotoCommand(
             serviceId: $serviceId,
             title: $title,
             description: $description,
             imageUrl: $request->request->get('imageUrl', ''),
-            file: $request->files->get('image'),
+            file: $this->uploadedFile($request, 'image'),
+            thumbnail: $this->uploadedFile($request, 'thumbnail'),
         ));
 
         return new JsonResponse($result, 201);
@@ -55,17 +53,13 @@ final class AdminPhotoController
     #[Route('/api/admin/photos/{photoId}', methods: ['POST'])]
     public function updatePhoto(string $photoId, Request $request): JsonResponse
     {
-        $file = $request->files->get('image');
-        if ($file !== null && !$file->isValid()) {
-            return new JsonResponse(['error' => 'Archivo inválido: ' . $file->getErrorMessage()], 400);
-        }
-
         $result = $this->updatePhoto->handle(new UpdatePhotoCommand(
             photoId: $photoId,
             title: $request->request->get('title'),
             description: $request->request->get('description'),
             imageUrl: $request->request->get('imageUrl'),
-            file: $request->files->get('image'),
+            file: $this->uploadedFile($request, 'image'),
+            thumbnail: $this->uploadedFile($request, 'thumbnail'),
         ));
 
         return new JsonResponse($result);
@@ -77,5 +71,20 @@ final class AdminPhotoController
         $this->deletePhoto->handle(new DeletePhotoCommand($photoId));
 
         return new JsonResponse(['ok' => true]);
+    }
+
+    /**
+     * El fichero se valida aquí solo por el error de subida de PHP; el MIME y el
+     * tamaño los valida el storage, que lanza InvalidFileException (400).
+     */
+    private function uploadedFile(Request $request, string $field): ?UploadedFile
+    {
+        $file = $request->files->get($field);
+
+        if ($file !== null && !$file->isValid()) {
+            throw new InvalidFileException('Archivo inválido: ' . $file->getErrorMessage());
+        }
+
+        return $file;
     }
 }

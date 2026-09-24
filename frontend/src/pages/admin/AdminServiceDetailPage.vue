@@ -11,9 +11,9 @@ const loading = ref(true)
 const pageError = ref('')
 
 const addModal  = ref({ open: false, loading: false, error: '' })
-const addForm   = ref({ title: '', description: '', image: null })
+const addForm   = ref({ title: '', description: '', image: null, thumbnail: null })
 const editModal = ref({ open: false, photoId: '', loading: false, error: '' })
-const editForm  = ref({ title: '', description: '', image: null, currentImageUrl: '' })
+const editForm  = ref({ title: '', description: '', image: null, thumbnail: null, currentImageUrl: '' })
 
 async function fetchService(id = route.params.id) {
   loading.value = true; pageError.value = ''
@@ -35,7 +35,7 @@ watch(
 function goBack() { router.push('/dulzia-panel') }
 
 function openAdd() {
-  addForm.value = { title: '', description: '', image: null }
+  addForm.value = { title: '', description: '', image: null, thumbnail: null }
   addModal.value = { open: true, loading: false, error: '' }
 }
 function closeAdd() { addModal.value.open = false }
@@ -45,6 +45,7 @@ async function submitAdd() {
   fd.append('title', addForm.value.title)
   fd.append('description', addForm.value.description)
   if (addForm.value.image instanceof File) fd.append('image', addForm.value.image)
+  if (addForm.value.thumbnail instanceof File) fd.append('thumbnail', addForm.value.thumbnail)
   addModal.value.loading = true; addModal.value.error = ''
   try { await apiAddPhoto(route.params.id, fd); closeAdd(); await fetchService() }
   catch (e) { addModal.value.error = e.message }
@@ -52,7 +53,7 @@ async function submitAdd() {
 }
 
 function openEdit(photo) {
-  editForm.value = { title: photo.title, description: photo.description, image: null, currentImageUrl: photo.imageUrl }
+  editForm.value = { title: photo.title, description: photo.description, image: null, thumbnail: null, currentImageUrl: photo.imageUrl }
   editModal.value = { open: true, photoId: photo.id, loading: false, error: '' }
 }
 function closeEdit() { editModal.value.open = false }
@@ -62,6 +63,7 @@ async function submitEdit() {
   fd.append('title', editForm.value.title)
   fd.append('description', editForm.value.description)
   if (editForm.value.image instanceof File) fd.append('image', editForm.value.image)
+  if (editForm.value.thumbnail instanceof File) fd.append('thumbnail', editForm.value.thumbnail)
   editModal.value.loading = true; editModal.value.error = ''
   try { await apiUpdatePhoto(editModal.value.photoId, fd); closeEdit(); await fetchService() }
   catch (e) { editModal.value.error = e.message }
@@ -76,6 +78,9 @@ async function deletePhoto(photoId) {
 
 function onAddFile(file)  { addForm.value.image  = file }
 function onEditFile(file) { editForm.value.image = file }
+// La miniatura viaja en la misma petición que la foto grande.
+function onAddThumbnail(file)  { addForm.value.thumbnail  = file instanceof File ? file : null }
+function onEditThumbnail(file) { editForm.value.thumbnail = file instanceof File ? file : null }
 </script>
 
 <template>
@@ -84,7 +89,7 @@ function onEditFile(file) { editForm.value.image = file }
       <div class="admin-header__inner">
         <button class="btn-back" @click="goBack">← Secciones</button>
         <span v-if="service" class="header-title">
-          <img v-if="service.image" :src="service.image" :alt="service.name" class="header-thumb" />
+          <img v-if="service.image" :src="service.thumbnail || service.image" :alt="service.name" class="header-thumb" />
           <span v-else class="header-emoji">{{ service.emoji }}</span>
           {{ service.name }}
         </span>
@@ -104,7 +109,7 @@ function onEditFile(file) { editForm.value.image = file }
 
         <div v-else class="photos-grid">
           <div v-for="photo in service.photos" :key="photo.id" class="photo-card">
-            <img :src="photo.imageUrl" :alt="photo.title" class="photo-card__img" />
+            <img :src="photo.thumbnailUrl || photo.imageUrl" :alt="photo.title" class="photo-card__img" loading="lazy" />
             <div class="photo-card__info">
               <p class="photo-card__title">{{ photo.title }}</p>
               <p class="photo-card__desc">{{ photo.description }}</p>
@@ -125,10 +130,11 @@ function onEditFile(file) { editForm.value.image = file }
         <form class="modal-form" @submit.prevent="submitAdd">
           <label class="form-label">Título<input v-model="addForm.title" type="text" required :disabled="addModal.loading" /></label>
           <label class="form-label">Descripción<textarea v-model="addForm.description" rows="3" required :disabled="addModal.loading" /></label>
-          <BaseFileUpload 
-            label="Imagen" 
-            @change="onAddFile" 
-            :disabled="addModal.loading" 
+          <BaseFileUpload
+            label="Imagen"
+            @change="onAddFile"
+            @thumbnail="onAddThumbnail"
+            :disabled="addModal.loading"
           />
           <p v-if="addModal.error" class="modal-error">{{ addModal.error }}</p>
           <div class="modal-actions">
@@ -146,11 +152,12 @@ function onEditFile(file) { editForm.value.image = file }
         <form class="modal-form" @submit.prevent="submitEdit">
           <label class="form-label">Título<input v-model="editForm.title" type="text" required :disabled="editModal.loading" /></label>
           <label class="form-label">Descripción<textarea v-model="editForm.description" rows="3" required :disabled="editModal.loading" /></label>
-          <BaseFileUpload 
-            label="Nueva imagen (opcional)" 
-            @change="onEditFile" 
+          <BaseFileUpload
+            label="Nueva imagen (opcional)"
+            @change="onEditFile"
+            @thumbnail="onEditThumbnail"
             :current-image="editForm.currentImageUrl"
-            :disabled="editModal.loading" 
+            :disabled="editModal.loading"
           />
           <p v-if="editModal.error" class="modal-error">{{ editModal.error }}</p>
           <div class="modal-actions">

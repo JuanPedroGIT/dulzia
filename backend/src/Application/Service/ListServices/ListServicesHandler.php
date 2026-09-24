@@ -20,7 +20,9 @@ final class ListServicesHandler
                 'category'   => $service->getCategory(),
                 'sort_order' => $service->getSortOrder(),
                 'is_active'  => $service->isActive(),
+                'featured'   => $service->isFeatured(),
                 'image'      => $service->getDisplayImage(),
+                'thumbnail'  => $service->getDisplayThumbnail(),
                 'photoCount' => count($service->getExamples()),
             ],
             $this->services->findAll()

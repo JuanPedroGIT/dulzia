@@ -28,12 +28,18 @@ final class AddPhotoHandler
             ? $this->storage->store($command->file)
             : $command->imageUrl;
 
+        // Solo hay miniatura cuando hay fichero: una URL externa viene sin ella.
+        $thumbnailUrl = $command->file !== null && $command->thumbnail !== null
+            ? $this->storage->store($command->thumbnail)
+            : null;
+
         $example = new ServiceExample(
-            service:     $service,
-            title:       $command->title,
-            description: $command->description,
-            imageUrl:    $imageUrl,
-            sortOrder:   $this->examples->nextSortOrderForService($command->serviceId),
+            service:      $service,
+            title:        $command->title,
+            description:  $command->description,
+            imageUrl:     $imageUrl,
+            thumbnailUrl: $thumbnailUrl,
+            sortOrder:    $this->examples->nextSortOrderForService($command->serviceId),
         );
 
         $this->examples->save($example);

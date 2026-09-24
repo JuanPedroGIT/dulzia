@@ -27,21 +27,22 @@
       </div>
 
       <div class="hero__cards animate-fadeIn">
-        <div
+        <router-link
           v-for="(card, i) in cards"
           :key="card.id"
+          :to="`/servicios/${card.id}`"
           :class="['hero__card', `hero__card--${i + 1}`, { 'hero__card--ready': loaded.includes(card.id) }]"
         >
           <img
             v-if="card.image"
             :ref="el => checkAlreadyLoaded(el, card.id)"
-            :src="card.image"
+            :src="card.thumbnail"
             :alt="card.label"
             class="hero__card-img"
             @load="markLoaded(card.id)"
           />
           <span class="hero__card-label">{{ card.label }}</span>
-        </div>
+        </router-link>
       </div>
     </div>
 
@@ -60,21 +61,21 @@ const props = defineProps({
   services: { type: Array, default: () => [] },
 })
 
-// Accesos rápidos del hero: solo la foto del servicio (redonda) y el texto debajo.
-// El id es el del servicio en el catálogo del que se toma la imagen.
-const CARDS = [
-  { id: 'carrito-hot-dog',  label: 'Hot Dog' },
-  { id: 'glitter-bar',      label: 'Glitter Bar' },
-  { id: 'fuente-chocolate', label: 'Chocolate' },
-  { id: 'candy-bar',        label: 'Candy Bar' },
-  { id: 'photocall',        label: 'Photocall' },
-  { id: 'mini-ferias',      label: 'Mini Feria' },
-]
+// Accesos rápidos del hero: las secciones marcadas como destacadas en el panel
+// (`is_featured`), en el orden del catálogo. La rejilla es de 3 columnas y se
+// adapta a cualquier número; se cortan en 6 para no alargar el hero.
+const MAX_CARDS = 6
 
-const cards = computed(() => CARDS.map(card => ({
-  ...card,
-  image: props.services.find(s => s.id === card.id)?.image ?? null,
-})))
+const cards = computed(() => props.services
+  .filter(s => s.featured)
+  .slice(0, MAX_CARDS)
+  .map(s => ({
+    id: s.id,
+    label: s.name,
+    image: s.image ?? null,
+    // Las tarjetas son pequeñas (~200 px): se sirve la miniatura, no la grande.
+    thumbnail: s.thumbnail || s.image || null,
+  })))
 
 // La tarjeta solo se muestra cuando su foto está disponible: hasta entonces el
 // hueco (cuadrado) queda reservado y vacío, sin placeholder.
@@ -214,7 +215,10 @@ function checkAlreadyLoaded(el, id) {
     backdrop-filter: blur(8px);
     transition: all $transition-base;
 
-    &:hover {
+    // Cada tarjeta es un enlace a su servicio: el realce del hover se replica
+    // en el foco de teclado para que se vea por dónde se va.
+    &:hover,
+    &:focus-visible {
       border-color: rgba($color-pink, 0.45);
       transform: translateY(-4px);
     }

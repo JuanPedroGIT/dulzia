@@ -25,6 +25,13 @@ class ServiceExample
     #[ORM\Column(length: 500)]
     private string $imageUrl;
 
+    /**
+     * Miniatura de image_url, la sube el navegador junto a la foto. Null = no hay
+     * miniatura (fotos subidas antes de existir, o URL externa): se usa la grande.
+     */
+    #[ORM\Column(length: 500, nullable: true)]
+    private ?string $thumbnailUrl = null;
+
     #[ORM\Column(type: 'integer')]
     private int $sortOrder = 0;
 
@@ -33,6 +40,7 @@ class ServiceExample
         string $title,
         string $description,
         string $imageUrl,
+        ?string $thumbnailUrl = null,
         int $sortOrder = 0,
     ) {
         $this->id = bin2hex(random_bytes(16));
@@ -40,14 +48,16 @@ class ServiceExample
         $this->title = $title;
         $this->description = $description;
         $this->imageUrl = $imageUrl;
+        $this->thumbnailUrl = $thumbnailUrl;
         $this->sortOrder = $sortOrder;
     }
 
-    public function update(string $title, string $description, string $imageUrl): void
+    public function update(string $title, string $description, string $imageUrl, ?string $thumbnailUrl): void
     {
         $this->title = $title;
         $this->description = $description;
         $this->imageUrl = $imageUrl;
+        $this->thumbnailUrl = $thumbnailUrl;
     }
 
     public function getId(): string { return $this->id; }
@@ -55,7 +65,17 @@ class ServiceExample
     public function getTitle(): string { return $this->title; }
     public function getDescription(): string { return $this->description; }
     public function getImageUrl(): string { return $this->imageUrl; }
+    public function getThumbnailUrl(): ?string { return $this->thumbnailUrl; }
     public function getSortOrder(): int { return $this->sortOrder; }
+
+    /**
+     * Miniatura que se sirve en las listas: la suya y, si no hay, la foto grande.
+     * Nunca es null mientras haya imagen, así el frontend no tiene que decidir.
+     */
+    public function getDisplayThumbnail(): string
+    {
+        return $this->thumbnailUrl ?? $this->imageUrl;
+    }
 
     public function toArray(): array
     {
@@ -64,6 +84,7 @@ class ServiceExample
             'title'       => $this->title,
             'description' => $this->description,
             'image'       => $this->imageUrl,
+            'thumbnail'   => $this->getDisplayThumbnail(),
         ];
     }
 }

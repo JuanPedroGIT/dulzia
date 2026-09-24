@@ -21,19 +21,36 @@ final class UpdatePhotoHandler
             throw new NotFoundException('Foto no encontrada');
         }
 
-        $imageUrl = $example->getImageUrl();
+        $oldImageUrl = $example->getImageUrl();
+        $oldThumbnailUrl = $example->getThumbnailUrl();
+        $imageUrl = $oldImageUrl;
+        $thumbnailUrl = $oldThumbnailUrl;
 
         if ($command->file !== null) {
-            $this->storage->delete($imageUrl);
+            $this->storage->delete($oldImageUrl);
+            if ($oldThumbnailUrl !== null) {
+                $this->storage->delete($oldThumbnailUrl);
+            }
+
             $imageUrl = $this->storage->store($command->file);
+            $thumbnailUrl = $command->thumbnail !== null
+                ? $this->storage->store($command->thumbnail)
+                : null;
         } elseif ($command->imageUrl !== null) {
+            // La miniatura que hubiera era del fichero que se descarta aquí.
+            if ($oldThumbnailUrl !== null) {
+                $this->storage->delete($oldThumbnailUrl);
+            }
+
             $imageUrl = $command->imageUrl;
+            $thumbnailUrl = null;
         }
 
         $example->update(
-            title:       $command->title ?? $example->getTitle(),
-            description: $command->description ?? $example->getDescription(),
-            imageUrl:    $imageUrl,
+            title:        $command->title ?? $example->getTitle(),
+            description:  $command->description ?? $example->getDescription(),
+            imageUrl:     $imageUrl,
+            thumbnailUrl: $thumbnailUrl,
         );
 
         $this->examples->save($example);

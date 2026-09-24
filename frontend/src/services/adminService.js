@@ -84,6 +84,49 @@ export async function apiActivateService(id) {
   return handleResponse(res)
 }
 
+// Destacado en la portada (hero + parrilla de "Servicios que enamoran").
+export async function apiSetServiceFeatured(id, featured) {
+  const res = await fetch(`${BASE}/admin/services/${id}/featured`, {
+    method: 'POST',
+    headers: { ...headers(), 'Content-Type': 'application/json' },
+    body: JSON.stringify({ featured }),
+  })
+  return handleResponse(res)
+}
+
+// ── Categorías ────────────────────────────────────────────────────────────
+
+export async function apiGetCategories() {
+  const res = await fetch(`${BASE}/admin/categories`, { headers: headers() })
+  return handleResponse(res)
+}
+
+export async function apiCreateCategory(data) {
+  const res = await fetch(`${BASE}/admin/categories`, {
+    method: 'POST',
+    headers: { ...headers(), 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  })
+  return handleResponse(res)
+}
+
+export async function apiUpdateCategory(id, data) {
+  const res = await fetch(`${BASE}/admin/categories/${id}`, {
+    method: 'PUT',
+    headers: { ...headers(), 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  })
+  return handleResponse(res)
+}
+
+export async function apiDeleteCategory(id) {
+  const res = await fetch(`${BASE}/admin/categories/${id}`, {
+    method: 'DELETE',
+    headers: headers(),
+  })
+  return handleResponse(res)
+}
+
 // ── Mensajes ──────────────────────────────────────────────────────────────
 
 export async function apiGetMessages(page = 1) {

@@ -11,6 +11,7 @@ use App\Domain\Storage\FileStorageInterface;
 use App\Domain\Shared\NotFoundException;
 use App\Tests\Support\TestFactory;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 final class UpdatePhotoHandlerTest extends TestCase
 {
@@ -109,5 +110,75 @@ final class UpdatePhotoHandlerTest extends TestCase
             imageUrl: null,
             file: null,
         ));
+    }
+
+    public function testReplacesThumbnailAlongWithThePhoto(): void
+    {
+        $example = TestFactory::example(
+            TestFactory::service(),
+            imageUrl: self::OLD_URL,
+            thumbnailUrl: 'https://fake-storage.test/services/vieja-mini.jpg',
+        );
+        $examples = $this->createMock(ServiceExampleRepositoryInterface::class);
+        $examples->method('findById')->willReturn($example);
+
+        $image = TestFactory::uploadedFile();
+        $thumbnail = TestFactory::uploadedFile();
+        $storage = $this->createMock(FileStorageInterface::class);
+        $storage->expects($this->exactly(2))
+            ->method('store')
+            ->willReturnCallback(static fn(UploadedFile $file): string => $file === $thumbnail
+                ? 'https://fake-storage.test/services/nueva-mini.jpg'
+                : 'https://fake-storage.test/services/nueva.jpg');
+
+        $deleted = [];
+        $storage->expects($this->exactly(2))
+            ->method('delete')
+            ->willReturnCallback(static function (string $url) use (&$deleted): void {
+                $deleted[] = $url;
+            });
+
+        (new UpdatePhotoHandler($examples, $storage))->handle(new UpdatePhotoCommand(
+            photoId: 'abc',
+            title: null,
+            description: null,
+            imageUrl: null,
+            file: $image,
+            thumbnail: $thumbnail,
+        ));
+
+        self::assertSame('https://fake-storage.test/services/nueva.jpg', $example->getImageUrl());
+        self::assertSame('https://fake-storage.test/services/nueva-mini.jpg', $example->getThumbnailUrl());
+        self::assertSame([self::OLD_URL, 'https://fake-storage.test/services/vieja-mini.jpg'], $deleted);
+    }
+
+    public function testDropsThumbnailWhenReplacingWithExternalUrl(): void
+    {
+        $example = TestFactory::example(
+            TestFactory::service(),
+            imageUrl: self::OLD_URL,
+            thumbnailUrl: 'https://fake-storage.test/services/vieja-mini.jpg',
+        );
+        $examples = $this->createMock(ServiceExampleRepositoryInterface::class);
+        $examples->method('findById')->willReturn($example);
+
+        $storage = $this->createMock(FileStorageInterface::class);
+        $storage->expects($this->never())->method('store');
+        // La miniatura era del fichero que se descarta: se borra.
+        $storage->expects($this->once())
+            ->method('delete')
+            ->with('https://fake-storage.test/services/vieja-mini.jpg');
+
+        (new UpdatePhotoHandler($examples, $storage))->handle(new UpdatePhotoCommand(
+            photoId: 'abc',
+            title: null,
+            description: null,
+            imageUrl: 'https://picsum.photos/300',
+            file: null,
+        ));
+
+        self::assertSame('https://picsum.photos/300', $example->getImageUrl());
+        self::assertNull($example->getThumbnailUrl());
+        self::assertSame('https://picsum.photos/300', $example->getDisplayThumbnail());
     }
 }

@@ -8,19 +8,28 @@ vi.mock('@/services/adminService', () => ({
   apiGetServices: vi.fn(),
   apiGetService: vi.fn(),
   apiGetMessages: vi.fn(),
+  apiGetCategories: vi.fn(),
   apiCreateService: vi.fn(),
   apiUpdateService: vi.fn(),
   apiDeactivateService: vi.fn(),
   apiActivateService: vi.fn(),
+  apiSetServiceFeatured: vi.fn(),
 }))
 
 import AdminDashboardPage from '@/pages/admin/AdminDashboardPage.vue'
 import BaseFileUpload from '@/components/ui/BaseFileUpload.vue'
-import { apiGetServices, apiGetService, apiGetMessages, apiCreateService, apiUpdateService } from '@/services/adminService'
+import { apiGetServices, apiGetService, apiGetMessages, apiGetCategories, apiCreateService, apiUpdateService, apiSetServiceFeatured } from '@/services/adminService'
 
 // El listado del panel no incluye description ni features (ver ListServicesHandler);
 // el detalle sí. El modal debe leer del detalle.
-const LIST_ITEM = { id: 'candy-bar', name: 'Candy Bar', emoji: '🍬', category: 'food', is_active: true, photoCount: 12 }
+const LIST_ITEM = { id: 'candy-bar', name: 'Candy Bar', emoji: '🍬', category: 'food', is_active: true, featured: false, photoCount: 12 }
+
+// Las categorías ya no están en el código: salen de la tabla (se gestionan en
+// /dulzia-panel/categorias).
+const CATEGORIES = [
+  { id: 'food', name: 'Gastronomía', emoji: '🍴', sort_order: 0, serviceCount: 1 },
+  { id: 'animacion', name: 'Animación', emoji: '🎪', sort_order: 1, serviceCount: 0 },
+]
 const DETAIL = {
   id: 'candy-bar',
   name: 'Candy Bar',
@@ -34,9 +43,12 @@ const DETAIL = {
 }
 
 async function mountPanel(detail = DETAIL) {
-  apiGetServices.mockResolvedValue([LIST_ITEM])
+  // Copia nueva en cada montaje: el panel muta la fila al cambiar el check de
+  // portada, y compartir el literal entre tests los contaminaría.
+  apiGetServices.mockResolvedValue([{ ...LIST_ITEM }])
   apiGetMessages.mockResolvedValue({ unreadCount: 0 })
   apiGetService.mockResolvedValue(detail)
+  apiGetCategories.mockResolvedValue(CATEGORIES)
   const wrapper = mount(AdminDashboardPage, { global: { stubs: { RouterLink: true } } })
   await flushPromises()
   return wrapper
@@ -124,6 +136,43 @@ describe('AdminDashboardPage — modal de edición de sección', () => {
     expect(payload.get('image')).toBe(file)
   })
 
+  it('manda la miniatura en la misma petición que la foto', async () => {
+    apiCreateService.mockResolvedValue({ id: 'nueva', name: 'Nueva' })
+    const wrapper = await mountPanel()
+    await wrapper.find('.btn-primary').trigger('click')
+    await flushPromises()
+
+    const file = new File(['x'], 'foto.jpg', { type: 'image/jpeg' })
+    const thumbnail = new File(['y'], 'foto.jpg', { type: 'image/jpeg' })
+    const upload = wrapper.findComponent(BaseFileUpload)
+    upload.vm.$emit('change', file)
+    upload.vm.$emit('thumbnail', thumbnail)
+    await wrapper.find('input[type="text"]').setValue('Nueva sección')
+    await wrapper.findAll('textarea')[0].setValue('Descripción')
+    await wrapper.find('form').trigger('submit')
+    await flushPromises()
+
+    const [payload] = apiCreateService.mock.calls[0]
+    expect(payload.get('image')).toBe(file)
+    expect(payload.get('thumbnail')).toBe(thumbnail)
+  })
+
+  it('la X descarta también la miniatura', async () => {
+    apiUpdateService.mockResolvedValue({ ok: true })
+    const wrapper = await mountPanel()
+    await openEditModal(wrapper)
+
+    const upload = wrapper.findComponent(BaseFileUpload)
+    upload.vm.$emit('thumbnail', new File(['y'], 'foto.jpg', { type: 'image/jpeg' }))
+    upload.vm.$emit('change', null)
+    await wrapper.find('form').trigger('submit')
+    await flushPromises()
+
+    const [, payload] = apiUpdateService.mock.calls[0]
+    expect(payload.get('thumbnail')).toBeNull()
+    expect(payload.get('removeImage')).toBe('1')
+  })
+
   it('no abre el formulario si el detalle no se puede cargar', async () => {
     const wrapper = await mountPanel()
     apiGetService.mockRejectedValueOnce(new Error('Error 500'))
@@ -131,5 +180,54 @@ describe('AdminDashboardPage — modal de edición de sección', () => {
     await openEditModal(wrapper)
 
     expect(wrapper.find('form').exists()).toBe(false)
+  })
+
+  it('el desplegable de categorías sale de la tabla, no del código', async () => {
+    const wrapper = await mountPanel()
+    await openEditModal(wrapper)
+
+    const options = wrapper.findAll('select option').map(o => o.text())
+    expect(options).toEqual(['Gastronomía', 'Animación'])
+  })
+})
+
+describe('AdminDashboardPage — destacados en la portada', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    vi.stubGlobal('alert', vi.fn())
+  })
+
+  it('el check de la fila marca la sección para la portada', async () => {
+    apiSetServiceFeatured.mockResolvedValue({ ok: true })
+    const wrapper = await mountPanel()
+
+    await wrapper.find('.featured-check').setValue(true)
+
+    expect(apiSetServiceFeatured).toHaveBeenCalledWith('candy-bar', true)
+  })
+
+  it('desmarcar la quita de la portada', async () => {
+    apiGetServices.mockResolvedValue([{ ...LIST_ITEM, featured: true }])
+    apiGetMessages.mockResolvedValue({ unreadCount: 0 })
+    apiSetServiceFeatured.mockResolvedValue({ ok: true })
+
+    const wrapper = mount(AdminDashboardPage, { global: { stubs: { RouterLink: true } } })
+    await flushPromises()
+
+    await wrapper.find('.featured-check').setValue(false)
+
+    expect(apiSetServiceFeatured).toHaveBeenCalledWith('candy-bar', false)
+  })
+
+  it('si la petición falla, el check vuelve a su sitio', async () => {
+    apiSetServiceFeatured.mockRejectedValue(new Error('Error 500'))
+    const wrapper = await mountPanel()
+    const check = wrapper.find('.featured-check')
+
+    await check.setValue(true)
+    await flushPromises()
+
+    expect(check.element.checked).toBe(false)
+    expect(window.alert).toHaveBeenCalled()
   })
 })

@@ -1,7 +1,7 @@
 <template>
   <router-link :to="`/servicios/${service.id}`" class="card" :style="{ '--delay': delay }">
     <div class="card__media">
-      <img v-if="service.image" :src="service.image" :alt="service.name" class="card__img" loading="lazy" />
+      <img v-if="service.image" :src="service.thumbnail || service.image" :alt="service.name" class="card__img" loading="lazy" />
       <span v-else class="card__emoji">{{ service.emoji }}</span>
     </div>
     <div class="card__body">
@@ -23,8 +23,7 @@
 
 <script setup>
 import { computed } from 'vue'
-
-const categories = { food: 'Gastronomía', decoration: 'Decoración', experience: 'Experiencias' }
+import { useCategories } from '@/composables/useCategories.js'
 
 const props = defineProps({
   service:      { type: Object, required: true },
@@ -33,7 +32,9 @@ const props = defineProps({
   showCta:      { type: Boolean, default: false },
 })
 
-const categoryLabel = computed(() => categories[props.service.category] ?? '')
+const { categoryName } = useCategories()
+
+const categoryLabel = computed(() => categoryName(props.service.category))
 </script>
 
 <style lang="scss" scoped>

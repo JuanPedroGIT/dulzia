@@ -13,5 +13,6 @@ final readonly class CreateServiceCommand
         public array  $features,
         public string $category,
         public ?UploadedFile $image = null,
+        public ?UploadedFile $thumbnail = null,
     ) {}
 }

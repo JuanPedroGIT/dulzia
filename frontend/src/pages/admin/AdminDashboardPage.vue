@@ -3,7 +3,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuth } from '@/composables/useAuth'
 import BaseFileUpload from '@/components/ui/BaseFileUpload.vue'
-import { apiGetServices, apiGetService, apiGetMessages, apiCreateService, apiUpdateService, apiDeactivateService, apiActivateService } from '@/services/adminService'
+import { apiGetServices, apiGetService, apiGetMessages, apiGetCategories, apiCreateService, apiUpdateService, apiDeactivateService, apiActivateService, apiSetServiceFeatured } from '@/services/adminService'
 
 const router = useRouter()
 const { logout } = useAuth()
@@ -11,21 +11,19 @@ const services  = ref([])
 const loading   = ref(true)
 const pageError = ref('')
 const filter    = ref('all') // 'all' | 'active' | 'inactive'
-const CATEGORIES = [
-  { value: 'food', label: 'Gastronomía' },
-  { value: 'decoration', label: 'Decoración' },
-  { value: 'experience', label: 'Experiencias' },
-]
-function categoryLabel(cat) { return CATEGORIES.find(c => c.value === cat)?.label ?? cat }
+// Las categorías se gestionan en su propia sección del panel: aquí solo se leen
+// para el desplegable del modal y la etiqueta de la tabla.
+const categories = ref([])
+function categoryLabel(cat) { return categories.value.find(c => c.id === cat)?.name ?? cat }
 const filteredServices = computed(() => {
   if (filter.value === 'active')   return services.value.filter(s => s.is_active)
   if (filter.value === 'inactive') return services.value.filter(s => !s.is_active)
   return services.value
 })
 const modal = ref({ open: false, mode: 'create', loading: false, fetching: false, error: '' })
-const form  = ref({ id: '', name: '', description: '', features: '', category: 'food', image: null, currentImageUrl: '', fallbackImage: '', removeImage: false })
+const form  = ref({ id: '', name: '', description: '', features: '', category: 'food', image: null, thumbnail: null, currentImageUrl: '', fallbackImage: '', removeImage: false })
 function emptyForm() {
-  return { id: '', name: '', description: '', features: '', category: 'food', image: null, currentImageUrl: '', fallbackImage: '', removeImage: false }
+  return { id: '', name: '', description: '', features: '', category: 'food', image: null, thumbnail: null, currentImageUrl: '', fallbackImage: '', removeImage: false }
 }
 // Aviso de qué se está viendo cuando la sección no tiene foto propia.
 const coverHint = computed(() => {
@@ -46,7 +44,11 @@ async function fetchUnreadCount() {
   try { unreadMessages.value = (await apiGetMessages(1)).unreadCount }
   catch { /* el badge se queda a 0 si la petición falla */ }
 }
-onMounted(() => { fetchServices(); fetchUnreadCount() })
+async function fetchCategories() {
+  try { categories.value = await apiGetCategories() }
+  catch { /* el desplegable se queda vacío si la petición falla */ }
+}
+onMounted(() => { fetchServices(); fetchUnreadCount(); fetchCategories() })
 async function handleLogout() { await logout(); router.push('/dulzia-panel/login') }
 function openCreate() {
   form.value = emptyForm()
@@ -87,10 +89,13 @@ function onImageFile(file) {
     form.value.removeImage = false
   } else {
     form.value.image = null
+    form.value.thumbnail = null
     form.value.currentImageUrl = ''
     form.value.removeImage = true
   }
 }
+// La miniatura viaja en la misma petición que la foto grande.
+function onImageThumbnail(file) { form.value.thumbnail = file instanceof File ? file : null }
 async function submitForm() {
   modal.value.loading = true; modal.value.error = ''
   const fd = new FormData()
@@ -99,6 +104,7 @@ async function submitForm() {
   fd.append('category', form.value.category)
   featuresArray(form.value.features).forEach(f => fd.append('features[]', f))
   if (form.value.image instanceof File) fd.append('image', form.value.image)
+  if (form.value.thumbnail instanceof File) fd.append('thumbnail', form.value.thumbnail)
   if (form.value.removeImage) fd.append('removeImage', '1')
   try {
     if (modal.value.mode === 'create') await apiCreateService(fd)
@@ -115,6 +121,20 @@ async function deactivateService(s) {
 async function activateService(s) {
   try { await apiActivateService(s.id); await fetchServices() }
   catch (e) { alert('Error al activar: ' + e.message) }
+}
+// El check se guarda al instante. La fila se actualiza en memoria en vez de
+// recargar la tabla entera; si la petición falla se revierte y se avisa.
+async function toggleFeatured(s) {
+  const featured = !s.featured
+  s.featured = featured
+  try {
+    await apiSetServiceFeatured(s.id, featured)
+  } catch (e) {
+    // El await de la petición deja pintado el valor optimista, así que al
+    // revertir el estado Vue reescribe el input por sí solo.
+    s.featured = !featured
+    alert('Error al guardar la portada: ' + e.message)
+  }
 }
 function goToPhotos(id) { router.push('/dulzia-panel/servicios/' + id) }
 </script>
@@ -139,6 +159,7 @@ function goToPhotos(id) { router.push('/dulzia-panel/servicios/' + id) }
             <span v-if="unreadMessages > 0" class="msg-badge">{{ unreadMessages }}</span>
           </router-link>
           <router-link to="/dulzia-panel/ajustes-email" class="btn-messages">⚙️ Ajustes de email</router-link>
+          <router-link to="/dulzia-panel/categorias" class="btn-messages">🏷️ Categorías</router-link>
           <button class="btn-primary" @click="openCreate">+ Nueva sección</button>
         </div>
       </div>
@@ -153,18 +174,27 @@ function goToPhotos(id) { router.push('/dulzia-panel/servicios/' + id) }
         <table class="services-table">
           <thead>
             <tr>
-              <th>Sección</th><th>Categoría</th><th class="th-center">Fotos</th><th class="th-center">Estado</th><th class="th-right">Acciones</th>
+              <th>Sección</th><th>Categoría</th><th class="th-center">Fotos</th><th class="th-center" title="Sale en las tarjetas del inicio y en la parrilla de la portada">Portada</th><th class="th-center">Estado</th><th class="th-right">Acciones</th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="s in filteredServices" :key="s.id" :class="{ 'row--inactive': !s.is_active }">
               <td>
-                <img v-if="s.image" :src="s.image" :alt="s.name" class="svc-thumb" loading="lazy" />
+                <img v-if="s.image" :src="s.thumbnail || s.image" :alt="s.name" class="svc-thumb" loading="lazy" />
                 <span v-else class="svc-emoji">{{ s.emoji }}</span>
                 <span class="svc-name">{{ s.name }}</span>
               </td>
               <td><span class="badge">{{ categoryLabel(s.category) }}</span></td>
               <td class="td-center"><span class="photo-count">{{ s.photoCount }}</span></td>
+              <td class="td-center">
+                <input
+                  type="checkbox"
+                  class="featured-check"
+                  :checked="s.featured"
+                  :aria-label="`Mostrar ${s.name} en la portada`"
+                  @change="toggleFeatured(s)"
+                />
+              </td>
               <td class="td-center">
                 <span :class="['status-badge', s.is_active ? 'status-badge--active' : 'status-badge--inactive']">
                   {{ s.is_active ? 'Activo' : 'Inactivo' }}
@@ -180,7 +210,7 @@ function goToPhotos(id) { router.push('/dulzia-panel/servicios/' + id) }
               </td>
             </tr>
             <tr v-if="filteredServices.length === 0">
-              <td colspan="5" class="state-msg">No hay servicios en esta categoría.</td>
+              <td colspan="6" class="state-msg">No hay servicios en esta categoría.</td>
             </tr>
           </tbody>
         </table>
@@ -194,7 +224,7 @@ function goToPhotos(id) { router.push('/dulzia-panel/servicios/' + id) }
           <label class="form-label">Nombre<input v-model="form.name" type="text" required :disabled="modal.loading" /></label>
           <label class="form-label">Categoría
             <select v-model="form.category" :disabled="modal.loading">
-              <option v-for="c in CATEGORIES" :key="c.value" :value="c.value">{{ c.label }}</option>
+              <option v-for="c in categories" :key="c.id" :value="c.id">{{ c.name }}</option>
             </select>
           </label>
           <div class="form-label">
@@ -203,6 +233,7 @@ function goToPhotos(id) { router.push('/dulzia-panel/servicios/' + id) }
               :current-image="form.currentImageUrl"
               :disabled="modal.loading"
               @change="onImageFile"
+              @thumbnail="onImageThumbnail"
             />
             <span v-if="coverHint" class="form-hint">{{ coverHint }}</span>
           </div>
@@ -251,6 +282,7 @@ function goToPhotos(id) { router.push('/dulzia-panel/servicios/' + id) }
 .svc-emoji{font-size:1.4rem;margin-right:.6rem}.svc-name{font-weight:600;color:#1a1a1a;font-size:.95rem}
 .badge{display:inline-block;padding:.25rem .65rem;background:#f0ece8;border-radius:20px;font-size:.75rem;font-weight:600;color:#666}
 .photo-count{display:inline-block;background:#eef6f4;color:#3a8a7a;font-weight:700;font-size:.85rem;border-radius:20px;padding:.2rem .7rem}
+.featured-check{width:18px;height:18px;accent-color:#c8748a;cursor:pointer}
 .actions{display:flex;gap:.5rem;justify-content:flex-end}
 .btn-action{padding:.4rem .85rem;border:none;border-radius:7px;font-size:.8rem;font-weight:600;cursor:pointer;transition:opacity .15s;white-space:nowrap}
 .btn-action:hover{opacity:.8}

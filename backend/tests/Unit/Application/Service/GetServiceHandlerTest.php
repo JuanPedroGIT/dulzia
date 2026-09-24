@@ -76,4 +76,48 @@ final class GetServiceHandlerTest extends TestCase
         self::assertSame('https://fake-storage.test/services/propia.jpg', $result['imageUrl']);
         self::assertSame('https://fake-storage.test/services/propia.jpg', $result['image']);
     }
+
+    public function testExposesOwnThumbnailAndDisplayThumbnail(): void
+    {
+        $service = TestFactory::service(
+            id: 'candy-bar',
+            imageUrl: 'https://fake-storage.test/services/propia.jpg',
+            thumbnailUrl: 'https://fake-storage.test/services/propia-mini.jpg',
+        );
+        TestFactory::attachExamples($service);
+
+        $repo = $this->createMock(ServiceRepositoryInterface::class);
+        $repo->method('findById')->willReturn($service);
+
+        $result = (new GetServiceHandler($repo))->handle(new GetServiceQuery('candy-bar'));
+
+        // thumbnailUrl = la propia (la que edita el modal); thumbnail = la que se ve.
+        self::assertSame('https://fake-storage.test/services/propia-mini.jpg', $result['thumbnailUrl']);
+        self::assertSame('https://fake-storage.test/services/propia-mini.jpg', $result['thumbnail']);
+        self::assertSame('https://fake-storage.test/services/propia.jpg', $result['image']);
+    }
+
+    public function testPhotoThumbnailFallsBackToTheFullImage(): void
+    {
+        $service = TestFactory::service(id: 'candy-bar');
+        TestFactory::attachExamples(
+            $service,
+            TestFactory::example(
+                $service,
+                imageUrl: 'https://fake-storage.test/services/galeria.jpg',
+                thumbnailUrl: 'https://fake-storage.test/services/galeria-mini.jpg',
+            ),
+            TestFactory::example($service, imageUrl: 'https://fake-storage.test/services/sin-mini.jpg'),
+        );
+
+        $repo = $this->createMock(ServiceRepositoryInterface::class);
+        $repo->method('findById')->willReturn($service);
+
+        $result = (new GetServiceHandler($repo))->handle(new GetServiceQuery('candy-bar'));
+
+        self::assertSame('https://fake-storage.test/services/galeria-mini.jpg', $result['photos'][0]['thumbnailUrl']);
+        self::assertNull($result['photos'][1]['thumbnailUrl']);
+        // Sin miniatura propia se sirve la grande, no un hueco.
+        self::assertSame('https://fake-storage.test/services/galeria-mini.jpg', $result['thumbnail']);
+    }
 }
