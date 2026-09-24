@@ -3,10 +3,10 @@
     <section class="hero-small">
       <div class="container">
         <span class="hero-small__pre">Quiénes somos</span>
-        <h1 class="hero-small__title">Nuestra historia</h1>
+        <h1 class="hero-small__title">!Bienvenidos a nuestro mundo de Eventos!</h1>
         <p class="hero-small__sub">
-          Somos un equipo apasionado por crear experiencias únicas
-          y celebraciones que perduran en la memoria.
+          Somos Yoana y Sergio, dos apasionados de la decoración y la
+          organización de momentos únicos.
         </p>
       </div>
     </section>
@@ -16,26 +16,36 @@
       <div class="container">
         <div class="story">
           <div class="story__visual">
-            <div class="story__blob">
-              <span class="story__big-emoji">✨</span>
-            </div>
+            <img
+              class="story__photo"
+              src="https://pub-a68ea1de71d047948bcd76b9a0440e45.r2.dev/site/hero.jpg"
+              alt="Dulzia Salamanca Eventos"
+              loading="lazy"
+            />
           </div>
           <div class="story__text animate-fadeInUp">
             <span class="story__pre">Nuestra historia</span>
-            <h2 class="story__title">Nacimos de la pasión por los eventos</h2>
+            <h2 class="story__title">Somos Yoana y Sergio</h2>
             <p>
-              Dulzia Salamanca Eventos nació de una idea simple: que cada celebración merezca ser especial.
-              Fundada por <strong>Sergio García Ramos</strong>, la empresa empezó con el deseo de ofrecer
-              experiencias gastronómicas y de entretenimiento únicas para eventos en Salamanca y sus alrededores.
+              Nos dedicamos a transformar cada celebración en algo especial, cuidando cada detalle
+              para que tú solo tengas que disfrutar.
             </p>
             <p>
-              Hoy contamos con más de <strong>200 eventos realizados</strong> y un catálogo de 11 servicios
-              que cubren desde la gastronomía más divertida hasta los detalles decorativos más especiales.
+              Decoramos todo tipo de eventos: Bodas, Comuniones, cumpleaños, fiestas privadas,
+              corporativas... Además, contamos con nuestro divertido carrito de Perritos Calientes,
+              crepes..., para darle un toque original y delicioso a tu celebración.
             </p>
             <p>
-              Cada evento es único para nosotros. Nos implicamos desde el primer contacto hasta el último
-              momento de tu celebración, asegurándonos de que todo salga perfecto.
+              Nos encanta nuestro trabajo y ponemos el corazón en cada proyecto, porque creemos
+              que cada evento es una oportunidad para crear recuerdos inolvidables.
             </p>
+            <p>
+              Si buscas cercanía, creatividad y pasión, ¡Has llegado al lugar indicado!
+            </p>
+            <p>
+              Cuéntanos tu próximo evento, y hagamos de ese día algo mágico.
+            </p>
+            <p class="story__closing">¿TE ATREVES?</p>
           </div>
         </div>
       </div>
@@ -103,34 +113,24 @@ useSeo({
 
 const values = [
   {
+    emoji: '❤️',
+    title: 'Pasión',
+    text: 'Nos encanta nuestro trabajo y ponemos el corazón en cada proyecto.',
+  },
+  {
     emoji: '🎯',
-    title: 'Atención personalizada',
-    text: 'Cada evento es diferente. Escuchamos tus necesidades y adaptamos nuestros servicios para que todo sea exactamente como lo imaginas.',
+    title: 'Dedicación',
+    text: 'Transformamos cada celebración en algo especial, cuidando cada detalle.',
   },
   {
-    emoji: '⭐',
-    title: 'Calidad garantizada',
-    text: 'Trabajamos solo con materiales y productos de primera calidad. Porque los detalles marcan la diferencia en cada celebración.',
+    emoji: '🎀',
+    title: 'Detalle',
+    text: 'Algo original, bonito y personalizado que no pasará desapercibido.',
   },
   {
-    emoji: '⏰',
-    title: 'Puntualidad y profesionalidad',
-    text: 'Llegamos siempre antes de tiempo, montamos con cuidado y dejamos todo impecable. Tu tranquilidad es nuestra prioridad.',
-  },
-  {
-    emoji: '💡',
-    title: 'Creatividad sin límites',
-    text: 'Nos encanta innovar y sorprender. Combinamos tendencias actuales con ideas propias para crear experiencias únicas.',
-  },
-  {
-    emoji: '🤝',
-    title: 'Compromiso real',
-    text: 'Nos implicamos de verdad en tu evento. No somos solo proveedores, somos parte de tu celebración.',
-  },
-  {
-    emoji: '💰',
-    title: 'Precio justo',
-    text: 'Ofrecemos presupuestos transparentes y adaptados. Sin sorpresas ni costes ocultos, siempre lo que acordamos.',
+    emoji: '💫',
+    title: 'Ilusión',
+    text: 'Creemos que cada evento es una oportunidad para crear recuerdos inolvidables.',
   },
 ]
 </script>
@@ -179,16 +179,13 @@ const values = [
     @include flex-center;
   }
 
-  &__blob {
-    @include flex-center;
-    width: 300px;
-    height: 300px;
-    border-radius: 60% 40% 70% 30% / 50% 60% 40% 50%;
-    background: linear-gradient(135deg, rgba($color-mint, 0.55), rgba($color-pink, 0.12));
-    border: 2px solid rgba($color-mint-mid, 0.45);
+  &__photo {
+    width: 100%;
+    max-width: 380px;
+    border-radius: $radius-2xl;
+    box-shadow: $shadow-lg;
+    object-fit: cover;
   }
-
-  &__big-emoji { font-size: 5rem; }
 
   &__pre {
     display: block;
@@ -216,6 +213,14 @@ const values = [
     margin-bottom: $space-4;
 
     strong { color: $color-green-dark; }
+  }
+
+  &__closing {
+    font-family: $font-heading;
+    font-size: $text-2xl;
+    font-weight: 900;
+    color: $color-pink;
+    margin-top: $space-6;
   }
 }
 
