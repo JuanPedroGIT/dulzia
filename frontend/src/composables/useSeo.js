@@ -92,9 +92,10 @@ export const localBusinessJsonLd = {
     },
   ],
   sameAs: [
-    'https://www.instagram.com/dulziasala',
     'https://www.tiktok.com/@dulziasalamancaeventos',
     'https://www.facebook.com/profile.php?id=61569180747614',
+    'https://www.instagram.com/dulziasala',
+    'https://wa.me/34629991659',
   ],
   priceRange: '€€',
   image: `${SITE_URL}/og-image.jpg`,
