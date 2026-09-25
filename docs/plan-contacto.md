@@ -125,6 +125,10 @@ se quedan como los puso su página.
 - Vitest: `useContact` (una petición por sesión, valores por defecto, `tel:`/`wa.me` derivados),
   `useContactDetails` (leer y guardar) y el panel (los dos bloques).
 
+> Nota (25/09/2026): la página con los dos bloques se partió en dos al reorganizar el panel
+> como índice de zonas de edición — ver `plan-panel.md`. Los avisos viven ahora en
+> `/dulzia-panel/ajustes-email` y los datos publicados en `/dulzia-panel/ajustes-contacto`.
+
 ## Verificación
 
 1. `make test-unit`, `make test-integration` y `npm --prefix frontend run test` en verde.

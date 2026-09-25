@@ -1,10 +1,24 @@
 <script setup>
-import { onMounted } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useMessages, formatDateTime } from '@/composables/useMessages.js'
 
-const { messages, loading, error, page, totalPages, total, unreadCount, fetchPage, markRead, remove } = useMessages()
+const { messages, loading, error, page, totalPages, total, filter, counts, fetchPage, setFilter, markRead, remove } = useMessages()
 
 onMounted(() => fetchPage())
+
+// Con un filtro puesto, el resumen habla de lo que se está viendo (el total ya
+// es el del filtro); sin él, de todo el buzón.
+const summary = computed(() => {
+  if (filter.value === 'unread') return `${total.value} sin leer`
+  if (filter.value === 'read') return `${total.value} leídos`
+
+  return `${total.value} mensajes · ${counts.value.unread} sin leer`
+})
+
+const emptyMessage = computed(() => ({
+  unread: 'No hay mensajes sin leer.',
+  read: 'No hay mensajes leídos.',
+}[filter.value] ?? 'No hay mensajes todavía.'))
 
 function onToggleRead(m) {
   markRead(m.id, !m.is_read).catch(e => alert('Error: ' + e.message))
@@ -22,8 +36,8 @@ function onDelete(m) {
       <div class="admin-header__inner">
         <router-link to="/dulzia-panel" class="btn-back">← Panel</router-link>
         <span class="header-title">📩 Mensajes</span>
-        <span v-if="unreadCount > 0" class="header-badge">{{ unreadCount }} sin leer</span>
-        <router-link to="/dulzia-panel/ajustes-contacto" class="btn-config">⚙️ Ajustes de contacto</router-link>
+        <span v-if="counts.unread > 0" class="header-badge">{{ counts.unread }} sin leer</span>
+        <router-link to="/dulzia-panel/ajustes-email" class="btn-config">📩 Avisos por email</router-link>
       </div>
     </header>
 
@@ -32,7 +46,13 @@ function onDelete(m) {
       <div v-else-if="error" class="state-msg state-msg--error">{{ error }}</div>
 
       <template v-else>
-        <p class="summary">{{ total }} mensajes · {{ unreadCount }} sin leer</p>
+        <div class="filter-bar">
+          <button :class="['filter-btn', { active: filter === 'all' }]"    @click="setFilter('all')">Todos <span class="filter-count">{{ counts.all }}</span></button>
+          <button :class="['filter-btn', { active: filter === 'unread' }]" @click="setFilter('unread')">Sin leer <span class="filter-count">{{ counts.unread }}</span></button>
+          <button :class="['filter-btn', { active: filter === 'read' }]"   @click="setFilter('read')">Leídos <span class="filter-count">{{ counts.read }}</span></button>
+        </div>
+
+        <p class="summary">{{ summary }}</p>
 
         <div class="table-wrap">
           <table class="messages-table">
@@ -65,7 +85,7 @@ function onDelete(m) {
                 </td>
               </tr>
               <tr v-if="messages.length === 0">
-                <td colspan="7" class="state-msg">No hay mensajes todavía.</td>
+                <td colspan="7" class="state-msg">{{ emptyMessage }}</td>
               </tr>
             </tbody>
           </table>
@@ -92,6 +112,12 @@ function onDelete(m) {
 .btn-config{padding:.45rem .9rem;background:transparent;border:1.5px solid #d0ccc8;border-radius:8px;cursor:pointer;font-size:.85rem;color:#555;text-decoration:none;transition:border-color .2s,color .2s;white-space:nowrap}
 .btn-config:hover{border-color:#c8748a;color:#c8748a}
 .admin-main{max-width:1100px;margin:0 auto;padding:2rem 1.5rem}
+.filter-bar{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1rem}
+.filter-btn{padding:.4rem .9rem;border:1.5px solid #e5e1dc;border-radius:20px;background:white;cursor:pointer;font-size:.8rem;font-weight:600;color:#666;transition:border-color .2s,color .2s,background .2s;display:flex;align-items:center;gap:.4rem}
+.filter-btn:hover{border-color:#c8748a;color:#c8748a}
+.filter-btn.active{background:#c8748a;border-color:#c8748a;color:white}
+.filter-count{display:inline-block;background:rgba(0,0,0,.1);border-radius:20px;padding:.05rem .45rem;font-size:.72rem}
+.filter-btn.active .filter-count{background:rgba(255,255,255,.25)}
 .summary{font-size:.875rem;color:#888;margin:0 0 1rem}
 .state-msg{text-align:center;padding:3rem;color:#888;font-size:.95rem}
 .state-msg--error{color:#c0392b}

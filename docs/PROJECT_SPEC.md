@@ -112,14 +112,15 @@ dulziasalamanca/
 └── frontend/                   # Vue 3
     ├── src/
     │   ├── pages/              # Home, Servicios, ServicioDetalle, Nosotros, Contacto,
-    │   │                       # PoliticaCookies + admin/ (Login, Dashboard, ServiceDetail,
-    │   │                       # AdminMessages, AdminMessageDetail)
+    │   │                       # PoliticaCookies + admin/ (Login, Dashboard, Services,
+    │   │                       # ServiceDetail, Categories, EmailSettings,
+    │   │                       # ContactSettings, Messages, MessageDetail)
     │   ├── components/
     │   │   ├── ui/             # BaseButton, BaseInput, BaseTextarea, BaseSpinner,
     │   │   │                   # BaseFileUpload, ImageCropperModal
     │   │   ├── layout/         # NavBar, AppFooter
     │   │   └── features/       # HeroSection, StatsBar, ServicesOverview, ServiceCard,
-    │   │                       # ContactForm, CtaBanner, CookieBanner
+    │   │                       # ReviewsSection, ContactForm, CtaBanner, CookieBanner
     │   ├── composables/        # useAuth, useContactForm, useMessages, useSeo, useServices
     │   ├── services/           # api.js (cliente base) + contactService.js + adminService.js
     │   ├── router/             # index.js con guards de navegación
@@ -255,7 +256,7 @@ emite datos estructurados, por lo mismo que el plan de SEO descartó `aggregateR
 Son un dato, no una lista en el código: la tabla `category` (nombre, emoji y orden) se
 gestiona en `/dulzia-panel/categorias` y la consumen:
 
-- `AdminDashboardPage` (desplegable del modal de secciones y etiqueta de la tabla),
+- `AdminServicesPage` (desplegable del modal de secciones y etiqueta de la tabla),
 - `ServiciosPage` (las pestañas del catálogo),
 - `ServiceCard` y `ServicioDetallePage` (la etiqueta de cada sección),
 
@@ -290,10 +291,18 @@ y `contact_phone` de la tabla `setting`).
 
 ### Routing
 - Rutas públicas: `/`, `/servicios`, `/servicios/:id`, `/nosotros`, `/contacto`, `/cookies`.
-- Rutas admin protegidas (`meta.requiresAuth`): `/dulzia-panel`, `/dulzia-panel/login`,
-  `/dulzia-panel/servicios/:id`, `/dulzia-panel/mensajes`, `/dulzia-panel/mensajes/:id`,
-  `/dulzia-panel/categorias`, `/dulzia-panel/ajustes-contacto` (con alias de la antigua
-  `/dulzia-panel/ajustes-email`).
+- Rutas admin protegidas (`meta.requiresAuth`): `/dulzia-panel` (índice: la tarjeta del
+  buzón de mensajes arriba con su contador y, debajo, las cuatro zonas de edición),
+  `/dulzia-panel/login`, `/dulzia-panel/servicios`,
+  `/dulzia-panel/servicios/:id` (fotos), `/dulzia-panel/categorias`,
+  `/dulzia-panel/ajustes-email` (a dónde llegan los avisos),
+  `/dulzia-panel/ajustes-contacto` (lo que se publica), `/dulzia-panel/mensajes` y
+  `/dulzia-panel/mensajes/:id`. Cada página tiene su enlace de vuelta: "← Panel" en las
+  zonas, y las jerarquías internas se conservan (fotos → "Secciones", detalle del mensaje
+  → "Mensajes").
+- La lista de mensajes tiene **filtro de leídos / sin leer** en pestañas con sus
+  contadores. Filtra el servidor (`?filter=`), no el cliente: la lista está paginada y
+  filtrar la página visible daría totales falsos.
 - Guard: si no hay token en localStorage → redirect al login.
 
 ### Comunicación con el backend
@@ -457,7 +466,7 @@ almacena — no manipula imágenes (no hay GD ni Imagick en la imagen Docker).
 | POST | `/api/admin/services/{serviceId}/photos` | token | Añadir foto (multipart `image` + `thumbnail`, o `imageUrl` externa) |
 | POST | `/api/admin/photos/{photoId}` | token | Actualizar foto |
 | DELETE | `/api/admin/photos/{photoId}` | token | Borrar foto (y su archivo en R2) |
-| GET | `/api/admin/messages` | token | Mensajes paginados: `?page=1` → `{items, page, totalPages, total, unreadCount}` |
+| GET | `/api/admin/messages` | token | Mensajes paginados: `?page=1&filter=all\|unread\|read` → `{items, page, totalPages, total, filter, counts:{all,unread,read}}`. `total` es el del filtro (lo que pagina la tabla); `counts` son los globales de las pestañas |
 | GET | `/api/admin/messages/{id}` | token | Detalle de mensaje (404 si no existe) |
 | POST | `/api/admin/messages/{id}/read` | token | Marcar leído |
 | POST | `/api/admin/messages/{id}/unread` | token | Marcar no leído |

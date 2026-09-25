@@ -21,7 +21,7 @@ const CATEGORIES = [
 
 async function mountPage() {
   apiGetCategories.mockResolvedValue(CATEGORIES.map(c => ({ ...c })))
-  const wrapper = mount(AdminCategoriesPage)
+  const wrapper = mount(AdminCategoriesPage, { global: { stubs: { RouterLink: true } } })
   await flushPromises()
   return wrapper
 }

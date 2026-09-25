@@ -18,16 +18,20 @@ final class DoctrineContactRepository implements ContactRepositoryInterface
         $this->em->flush();
     }
 
-    public function findPage(int $offset, int $limit): array
+    public function findPage(int $offset, int $limit, ?bool $isRead = null): array
     {
-        return $this->em->createQueryBuilder()
+        $qb = $this->em->createQueryBuilder()
             ->select('c')
             ->from(ContactSubmission::class, 'c')
             ->orderBy('c.submittedAt', 'DESC')
             ->setFirstResult($offset)
-            ->setMaxResults($limit)
-            ->getQuery()
-            ->getResult();
+            ->setMaxResults($limit);
+
+        if ($isRead !== null) {
+            $qb->andWhere($isRead ? 'c.readAt IS NOT NULL' : 'c.readAt IS NULL');
+        }
+
+        return $qb->getQuery()->getResult();
     }
 
     public function find(string $id): ?ContactSubmission

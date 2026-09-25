@@ -22,8 +22,6 @@ async function fetchCategories() {
 }
 onMounted(fetchCategories)
 
-function goBack() { router.push('/dulzia-panel') }
-
 function slugify(name) {
   return name
     .toLowerCase()
@@ -76,8 +74,8 @@ async function removeCategory(category) {
   <div class="admin-categories">
     <header class="admin-page-header">
       <div class="admin-header__inner">
-        <button class="btn-back" @click="goBack">← Secciones</button>
-        <h1 class="header-title">Categorías</h1>
+        <router-link to="/dulzia-panel" class="btn-back">← Panel</router-link>
+        <h1 class="header-title">🏷️ Categorías</h1>
         <button class="btn-add" @click="openCreate">+ Nueva categoría</button>
       </div>
     </header>
@@ -171,8 +169,8 @@ async function removeCategory(category) {
 .hint{font-size:.85rem;color:#6b7280;margin:0 0 1.2rem;line-height:1.6}
 .state-msg{padding:2rem;text-align:center;color:#6b7280}
 .state-msg--error{color:#c0392b}
-.table-wrap{background:white;border-radius:12px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.06)}
-.categories-table{width:100%;border-collapse:collapse;font-size:.9rem}
+.table-wrap{background:white;border-radius:12px;overflow-x:auto;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.categories-table{width:100%;min-width:560px;border-collapse:collapse;font-size:.9rem}
 .categories-table th{text-align:left;padding:.75rem 1rem;background:#faf8f6;color:#6b7280;font-size:.75rem;text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid #ebe8e4}
 .categories-table td{padding:.8rem 1rem;border-bottom:1px solid #f3f0ed;vertical-align:middle}
 .th-center{text-align:center}

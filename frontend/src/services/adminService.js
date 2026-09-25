@@ -129,8 +129,9 @@ export async function apiDeleteCategory(id) {
 
 // ── Mensajes ──────────────────────────────────────────────────────────────
 
-export async function apiGetMessages(page = 1) {
-  const res = await fetch(`${BASE}/admin/messages?page=${page}`, { headers: headers() })
+export async function apiGetMessages(page = 1, filter = 'all') {
+  const params = new URLSearchParams({ page: String(page), filter })
+  const res = await fetch(`${BASE}/admin/messages?${params}`, { headers: headers() })
   return handleResponse(res)
 }
 

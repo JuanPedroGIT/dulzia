@@ -1,16 +1,15 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { useContactDetails } from '@/composables/useContactDetails.js'
-import { CONTACT_DEFAULTS } from '@/composables/useContact.js'
+import { useEmailSettings } from '@/composables/useEmailSettings.js'
 
 const router = useRouter()
-const { email, phone, emailSource, phoneSource, loading, saving, error, fetchDetails, save } = useContactDetails()
+const { email, name, emailSource, nameSource, loading, saving, error, fetchSettings, save } = useEmailSettings()
 
 const saveError = ref('')
 const saved     = ref(false)
 
-onMounted(() => fetchDetails())
+onMounted(() => fetchSettings())
 
 function onSave() {
   saveError.value = ''
@@ -18,9 +17,9 @@ function onSave() {
   save()
     .then(() => {
       saved.value = true
-      // Al vaciar un campo la web vuelve a su valor de siempre: hay que releer
-      // para que los inputs muestren lo que se va a publicar.
-      return fetchDetails()
+      // Al vaciar un campo reaparece el valor del servidor: hay que releer
+      // para que los inputs muestren lo que de verdad se va a usar.
+      return fetchSettings()
     })
     .catch(e => {
       if (e.message === '401') { router.push('/dulzia-panel/login'); return }
@@ -30,7 +29,7 @@ function onSave() {
 
 function onReset() {
   email.value = ''
-  phone.value = ''
+  name.value = ''
   onSave()
 }
 </script>
@@ -40,7 +39,7 @@ function onReset() {
     <header class="admin-page-header">
       <div class="admin-header__inner">
         <router-link to="/dulzia-panel" class="btn-back">← Panel</router-link>
-        <span class="header-title">📞 Datos de contacto</span>
+        <span class="header-title">📩 Avisos por email</span>
       </div>
     </header>
 
@@ -50,30 +49,30 @@ function onReset() {
 
       <template v-else>
         <p class="intro">
-          Estos dos datos salen publicados en la web: en el pie, en la página de contacto, en
-          las políticas legales y en los datos estructurados de Google. El botón de WhatsApp
-          usa el mismo teléfono. Si dejas un campo vacío, la web muestra el suyo.
+          A esta dirección llegan los mensajes que envía el formulario de contacto. Es un dato
+          interno: no se publica en la web. Si dejas un campo vacío, se usa el valor por
+          defecto del servidor.
         </p>
 
         <form class="settings-card" @submit.prevent="onSave">
           <label class="form-label">
-            Email de contacto
-            <input v-model="email" type="email" :disabled="saving" :placeholder="CONTACT_DEFAULTS.email" />
+            Email de destino
+            <input v-model="email" type="email" :disabled="saving" placeholder="nombre@dominio.com" />
           </label>
           <p class="field-source">
-            {{ emailSource === 'db' ? 'Configurado en el panel' : `Sin configurar: la web muestra ${CONTACT_DEFAULTS.email}` }}
+            {{ emailSource === 'db' ? 'Configurado en el panel' : 'Valor por defecto del servidor' }}
           </p>
 
           <label class="form-label">
-            Teléfono de contacto
-            <input v-model="phone" type="tel" maxlength="30" :disabled="saving" :placeholder="CONTACT_DEFAULTS.phone" />
+            Nombre del destinatario
+            <input v-model="name" type="text" maxlength="150" :disabled="saving" placeholder="Dulzia Salamanca Eventos" />
           </label>
           <p class="field-source">
-            {{ phoneSource === 'db' ? 'Configurado en el panel' : `Sin configurar: la web muestra ${CONTACT_DEFAULTS.phone}` }}
+            {{ nameSource === 'db' ? 'Configurado en el panel' : 'Valor por defecto del servidor' }}
           </p>
 
           <p v-if="saveError" class="form-error">{{ saveError }}</p>
-          <p v-else-if="saved" class="form-ok">Guardado. La web ya muestra estos datos.</p>
+          <p v-else-if="saved" class="form-ok">Guardado. Los próximos mensajes llegarán a esta dirección.</p>
 
           <div class="form-actions">
             <button type="button" class="btn-secondary" :disabled="saving" @click="onReset">Restablecer</button>

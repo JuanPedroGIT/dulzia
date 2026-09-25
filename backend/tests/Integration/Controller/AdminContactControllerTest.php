@@ -22,7 +22,7 @@ final class AdminContactControllerTest extends IntegrationTestCase
 
     // ── Listado ───────────────────────────────────────────────────────────
 
-    public function testListsMessagesWithUnreadCount(): void
+    public function testListsMessagesWithCounts(): void
     {
         $this->createAdminUser();
         $read = TestFactory::contactSubmission(name: 'Leído');
@@ -41,9 +41,51 @@ final class AdminContactControllerTest extends IntegrationTestCase
 
         self::assertCount(3, $data['items']);
         self::assertSame(3, $data['total']);
-        self::assertSame(2, $data['unreadCount']);
+        self::assertSame(['all' => 3, 'unread' => 2, 'read' => 1], $data['counts']);
+        self::assertSame('all', $data['filter']);
         self::assertSame(1, $data['totalPages']);
         self::assertSame(1, $data['page']);
+    }
+
+    public function testFiltersByUnreadAndByRead(): void
+    {
+        $this->createAdminUser();
+        $read = TestFactory::contactSubmission(name: 'Leído');
+        $read->markRead();
+        $this->persist(
+            TestFactory::contactSubmission(name: 'María'),
+            $read,
+        );
+
+        $client = $this->client();
+        $headers = $this->authHeaders();
+
+        $client->request('GET', '/api/admin/messages?filter=unread', [], [], $headers);
+        $unread = json_decode((string) $client->getResponse()->getContent(), true);
+
+        self::assertCount(1, $unread['items']);
+        self::assertSame('María', $unread['items'][0]['name']);
+        // El total pagina el filtro; los contadores siguen siendo los globales.
+        self::assertSame(1, $unread['total']);
+        self::assertSame(['all' => 2, 'unread' => 1, 'read' => 1], $unread['counts']);
+
+        $client->request('GET', '/api/admin/messages?filter=read', [], [], $headers);
+        $readOnly = json_decode((string) $client->getResponse()->getContent(), true);
+
+        self::assertCount(1, $readOnly['items']);
+        self::assertSame('Leído', $readOnly['items'][0]['name']);
+        self::assertTrue($readOnly['items'][0]['is_read']);
+        self::assertSame(1, $readOnly['total']);
+    }
+
+    public function testAnInventedFilterReturns422(): void
+    {
+        $this->createAdminUser();
+
+        $client = $this->client();
+        $client->request('GET', '/api/admin/messages?filter=inventado', [], [], $this->authHeaders());
+
+        self::assertResponseStatusCodeSame(422);
     }
 
     public function testPaginatesServerSide(): void

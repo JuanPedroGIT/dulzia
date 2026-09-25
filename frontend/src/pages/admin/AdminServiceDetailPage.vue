@@ -32,7 +32,7 @@ watch(
   }
 )
 
-function goBack() { router.push('/dulzia-panel') }
+function goBack() { router.push('/dulzia-panel/servicios') }
 
 function openAdd() {
   addForm.value = { title: '', description: '', image: null, thumbnail: null }

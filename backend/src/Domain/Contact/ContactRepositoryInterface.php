@@ -8,8 +8,14 @@ interface ContactRepositoryInterface
 {
     public function save(ContactSubmission $submission): void;
 
-    /** @return ContactSubmission[] */
-    public function findPage(int $offset, int $limit): array;
+    /**
+     * Página de mensajes, del más reciente al más antiguo.
+     *
+     * @param bool|null $isRead true = solo leídos, false = solo sin leer, null = todos
+     *
+     * @return ContactSubmission[]
+     */
+    public function findPage(int $offset, int $limit, ?bool $isRead = null): array;
 
     public function find(string $id): ?ContactSubmission;
 

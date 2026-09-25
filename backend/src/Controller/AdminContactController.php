@@ -36,7 +36,10 @@ final class AdminContactController
     #[Route('/api/admin/messages', methods: ['GET'])]
     public function listMessages(Request $request): JsonResponse
     {
-        $query = new ListMessagesQuery(page: $request->query->getInt('page', 1));
+        $query = new ListMessagesQuery(
+            page: $request->query->getInt('page', 1),
+            filter: $request->query->getString('filter', ListMessagesQuery::ALL),
+        );
 
         $violations = $this->validator->validate($query);
         if ($violations->count() > 0) {
