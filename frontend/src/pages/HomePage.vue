@@ -3,6 +3,7 @@
     <HeroSection :services="services" />
     <StatsBar :service-count="services.length" />
     <ServicesOverview :services="services" />
+    <ReviewsSection />
     <CtaBanner />
   </main>
 </template>
@@ -12,6 +13,7 @@ import { onMounted, watch } from 'vue'
 import HeroSection from '@/components/features/HeroSection.vue'
 import StatsBar from '@/components/features/StatsBar.vue'
 import ServicesOverview from '@/components/features/ServicesOverview.vue'
+import ReviewsSection from '@/components/features/ReviewsSection.vue'
 import CtaBanner from '@/components/features/CtaBanner.vue'
 import { useServices } from '@/composables/useServices.js'
 import { useContact } from '@/composables/useContact.js'

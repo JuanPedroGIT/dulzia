@@ -240,6 +240,16 @@ que llega el catálogo se deja el hueco en vez de un "0". Las demás cifras (eve
 satisfacción) y la cobertura ("Salamanca y alrededores", "nos movemos por toda la
 península") son texto fijo.
 
+La sección de **reseñas** (`ReviewsSection`, entre "Servicios que enamoran" y el banner de
+presupuesto) es la prueba social de la portada: tarjetas con la inicial del autor, la
+antigüedad, las estrellas y el texto, y un enlace al perfil de Google. Las reseñas son
+reales (una constante en el componente, de momento) y sus textos van literales. La
+antigüedad no está escrita: cada reseña guarda su fecha y `ago()` la convierte en
+"hace 3 meses" / "hace 1 año" al pintar, así que envejece sola. La fila de la nota media
+está **oculta hasta tener el dato real** (`rating = null`): es un dato público y
+comprobable, no se inventa. No emite datos estructurados, por lo mismo que el plan de SEO
+descartó `aggregateRating`. Ver `plan-resenas.md`.
+
 ### Categorías
 
 Son un dato, no una lista en el código: la tabla `category` (nombre, emoji y orden) se
