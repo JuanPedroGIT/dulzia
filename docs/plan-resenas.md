@@ -1,7 +1,7 @@
 # Plan: sección de reseñas en la portada
 
 > Plan de implementación — Fecha: 2026-09-25 · Proyecto: dulziasalamanca
-> Estado: **en curso** (reseñas reales puestas; falta la nota media)
+> Estado: **ejecutado**
 
 ## Contexto
 
@@ -35,33 +35,28 @@ banner de presupuesto.
 | 1 | Sección maquetada con los estilos de la web (portada) | ✅ Hecha |
 | 2 | Tests y build con el HTML prerenderizado | ✅ Hechos (97 en verde) |
 | 3 | Sustituir los datos de ejemplo por las reseñas reales | ✅ Hecha (5 reseñas de Google) |
-| 4 | **Poner la nota media real** (la fila está oculta hasta entonces) | ⬜ Pendiente |
+| 4 | Poner la nota media real (la fila está oculta hasta entonces) | ✅ Hecha (4,9 · 146 reseñas) |
 | 5 | (Opcional) Gestionarlas desde el panel o leerlas con la API de Places | ⬜ Pendiente |
 
-## Lo que falta (etapa 4)
+## La nota media
 
-La fila de la nota media —el "4,9 ★★★★★ (127 reseñas)" de la maqueta— **no se pinta**:
-`rating` está en `null` y el dato real no lo tenemos. Es un dato público y comprobable
-(está en el perfil de Google del negocio), así que no se inventa. En cuanto se sepa:
-
-```js
-const rating = { score: '4,9', count: 127 }   // y la fila aparece sola
-```
-
-Ojo con el `count`: es el número total de reseñas del perfil, no las que se enseñan aquí
-(que son 5).
+`rating = { score: '4,9', count: 146 }`, del perfil de Google a 25/09/2026. El `count` es
+el **total de reseñas del perfil**, no las que se enseñan en la sección. Si se deja en
+`null`, la fila no se pinta: es un dato público y comprobable, así que no se inventa.
 
 ## Notas sobre los datos
 
+- **Se enseñan tres reseñas.** Las de Mayte y Raquel están en la misma constante pero
+  comentadas; para volver a ponerlas se descomentan y el test se ajusta cambiando su lista.
 - **Las fechas son aproximadas al mes.** Google solo publica "hace 3 meses", así que cada
   reseña guarda un día dentro de ese mes. Si algún cliente dice la fecha exacta, se cambia
   en su reseña y la etiqueta se recalcula sola.
 - **La reseña de Teresa viene cortada** por Google (su "… Más"): termina en "…" para que no
   parezca que el texto acaba ahí. Con el final completo, se completa la constante.
-- **Las respuestas del propietario no están.** Tres de las cinco reseñas las tienen, pero
-  venían recortadas con "…" en el copiado. Si se quieren enseñar (dan buena imagen: se
-  responde a todo el mundo), hay que pegarlas enteras.
-- **Las estrellas**: las cinco van a 5 sobre 5, que es lo que refleja el copiado. Si alguna
+- **Las respuestas del propietario no están.** Tres de las reseñas las tienen, pero venían
+  recortadas con "…" en el copiado. Si se quieren enseñar (dan buena imagen: se responde a
+  todo el mundo), hay que pegarlas enteras.
+- **Las estrellas**: las tres van a 5 sobre 5, que es lo que refleja el copiado. Si alguna
   es de 4, se cambia su `rating` y la tarjeta pinta 4.
 
 ## Detalle por etapa

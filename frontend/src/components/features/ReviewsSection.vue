@@ -92,11 +92,12 @@ const reviews = [
 ]
 
 /**
- * Nota media del perfil de Google. Mientras esté en `null`, la fila de la nota
- * no se pinta: es un dato público y comprobable, no se puede inventar.
- * Cuando se sepa, se pone aquí y aparece sola: `{ score: '4,9', count: 127 }`.
+ * Nota media del perfil de Google (25/09/2026). El `count` es el total de reseñas
+ * del perfil, no las que se enseñan aquí, que son unas pocas.
+ * Si algún día no hubiera dato, basta con dejarlo en `null`: la fila no se pinta
+ * (es un dato público y comprobable, no se inventa).
  */
-const rating = null
+const rating = { score: '4,9', count: 146 }
 
 const GOOGLE_REVIEWS_URL = 'https://maps.app.goo.gl/MYuXG2xSAJKYDhzM8'
 

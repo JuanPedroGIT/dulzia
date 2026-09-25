@@ -60,10 +60,11 @@ describe('ReviewsSection — reseñas de la portada', () => {
     expect(dates(mountAt('2026-08-01'))[0]).toBe('hace 7 días')
   })
 
-  it('no inventa la nota media: sin dato real, la fila no se pinta', () => {
+  it('enseña la nota media y cuántas reseñas tiene el perfil', () => {
     const wrapper = mountAt('2026-09-25')
 
-    expect(wrapper.find('.reviews__score').exists()).toBe(false)
+    expect(wrapper.find('.reviews__score-num').text()).toBe('4,9')
+    expect(wrapper.find('.reviews__score-count').text()).toBe('(146 reseñas)')
   })
 
   it('el enlace lleva al perfil de Google y abre fuera de la web', () => {
