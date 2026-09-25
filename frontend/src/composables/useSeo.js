@@ -1,3 +1,5 @@
+import { CONTACT_DEFAULTS, phoneDigits } from '@/composables/useContact.js'
+
 const SITE_NAME = 'Dulzia Salamanca Eventos'
 export const SITE_URL = 'https://www.dulziasalamancaeventos.com'
 const DEFAULT_IMAGE = `${SITE_URL}/og-image.jpg`
@@ -35,6 +37,15 @@ function setJsonLd(data, key = 'main') {
 }
 
 export function useSeo({ title, description, path, jsonLd, jsonLdKey } = {}) {
+  // Llamada parcial: solo datos estructurados. Los JSON-LD que dependen de la
+  // API llegan cuando la página ya ha fijado su título y su descripción, y no
+  // deben pisarlos con los genéricos (era lo que pasaba: la portada acababa con
+  // el título "Dulzia Salamanca Eventos" a secas).
+  if (title === undefined && description === undefined && path === undefined) {
+    if (jsonLd) setJsonLd(jsonLd, jsonLdKey ?? 'main')
+    return
+  }
+
   const fullTitle = title ? `${title} | ${SITE_NAME}` : SITE_NAME
   const desc = description ?? DEFAULT_DESC
 
@@ -57,35 +68,42 @@ export function useSeo({ title, description, path, jsonLd, jsonLdKey } = {}) {
   if (jsonLd) setJsonLd(jsonLd, jsonLdKey ?? 'main')
 }
 
-// JSON-LD reutilizable para el negocio
-export const localBusinessJsonLd = {
-  '@context': 'https://schema.org',
-  '@type': 'LocalBusiness',
-  name: SITE_NAME,
-  description: DEFAULT_DESC,
-  url: SITE_URL,
-  telephone: '+34629991659',
-  email: 'info@dulziasalamancaeventos.com', 
-  areaServed: {
-    '@type': 'City',
-    name: 'Salamanca',
-  },
-  openingHoursSpecification: [
-    {
-      '@type': 'OpeningHoursSpecification',
-      dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
-      opens: '07:00',
-      closes: '18:00',
+// JSON-LD reutilizable para el negocio. El teléfono y el email salen de los
+// datos de contacto configurados en el panel (useContact), no de literales: si
+// el negocio cambia de número, el dato estructurado cambia con él.
+export function localBusinessJsonLd(contact = CONTACT_DEFAULTS) {
+  const email = contact.email || CONTACT_DEFAULTS.email
+  const digits = phoneDigits(contact.phone || CONTACT_DEFAULTS.phone)
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'LocalBusiness',
+    name: SITE_NAME,
+    description: DEFAULT_DESC,
+    url: SITE_URL,
+    telephone: `+${digits}`,
+    email,
+    areaServed: {
+      '@type': 'City',
+      name: 'Salamanca',
     },
-  ],
-  sameAs: [
-    'https://www.tiktok.com/@dulziasalamancaeventos',
-    'https://www.facebook.com/profile.php?id=61569180747614',
-    'https://www.instagram.com/dulziasala',
-    'https://wa.me/34629991659',
-  ],
-  priceRange: '€€',
-  image: `${SITE_URL}/og-image.jpg`,
+    openingHoursSpecification: [
+      {
+        '@type': 'OpeningHoursSpecification',
+        dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+        opens: '07:00',
+        closes: '18:00',
+      },
+    ],
+    sameAs: [
+      'https://www.tiktok.com/@dulziasalamancaeventos',
+      'https://www.facebook.com/profile.php?id=61569180747614',
+      'https://www.instagram.com/dulziasala',
+      `https://wa.me/${digits}`,
+    ],
+    priceRange: '€€',
+    image: `${SITE_URL}/og-image.jpg`,
+  }
 }
 
 // Catálogo de servicios como ItemList de Service (para /servicios y la home)

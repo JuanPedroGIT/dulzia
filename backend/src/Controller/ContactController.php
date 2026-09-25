@@ -4,6 +4,8 @@ namespace App\Controller;
 
 use App\Application\Contact\SubmitContact\SubmitContactCommand;
 use App\Application\Contact\SubmitContact\SubmitContactHandler;
+use App\Application\Settings\GetContactDetails\GetContactDetailsHandler;
+use App\Application\Settings\GetContactDetails\GetContactDetailsQuery;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
@@ -14,8 +16,27 @@ final class ContactController
 {
     public function __construct(
         private SubmitContactHandler $handler,
+        private GetContactDetailsHandler $getContactDetails,
         private ValidatorInterface $validator,
     ) {}
+
+    /**
+     * Datos de contacto que la web publica (pie, página de contacto, legales y
+     * JSON-LD). Público y sin token: es lo mismo que ya se ve en el HTML.
+     *
+     * Un `null` significa "sin configurar en el panel": la web enseña entonces
+     * su valor por defecto, que es asunto suyo y no del servidor.
+     */
+    #[Route('/api/contact', methods: ['GET'])]
+    public function contactDetails(): JsonResponse
+    {
+        $details = $this->getContactDetails->handle(new GetContactDetailsQuery());
+
+        return new JsonResponse([
+            'email' => $details['email'],
+            'phone' => $details['phone'],
+        ]);
+    }
 
     #[Route('/api/contact', methods: ['POST'])]
     public function submit(Request $request): JsonResponse

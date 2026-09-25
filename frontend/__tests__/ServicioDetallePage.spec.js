@@ -56,11 +56,12 @@ describe('ServicioDetallePage — la ficha se sirve del catálogo', () => {
     const wrapper = await mountDetail('candy-bar')
 
     expect(wrapper.text()).toContain('Candy Bar')
-    // Catálogo + categorías (las necesitan las etiquetas de las tarjetas), y
-    // ninguna llamada al detalle del servicio.
+    // Catálogo + categorías (las necesitan las etiquetas de las tarjetas) +
+    // datos de contacto (los lleva el banner de CTA del final), y ninguna
+    // llamada al detalle del servicio.
     const urls = fetchMock.mock.calls.map(([url]) => url)
     expect(urls).toContain('/api/services')
-    expect(urls.every(url => url === '/api/services' || url === '/api/categories')).toBe(true)
+    expect(urls.every(url => ['/api/services', '/api/categories', '/api/contact'].includes(url))).toBe(true)
   })
 
   it('navegar a otro servicio no vuelve a pedir nada', async () => {

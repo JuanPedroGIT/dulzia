@@ -158,7 +158,7 @@ function goToPhotos(id) { router.push('/dulzia-panel/servicios/' + id) }
             📩 Mensajes
             <span v-if="unreadMessages > 0" class="msg-badge">{{ unreadMessages }}</span>
           </router-link>
-          <router-link to="/dulzia-panel/ajustes-email" class="btn-messages">⚙️ Ajustes de email</router-link>
+          <router-link to="/dulzia-panel/ajustes-contacto" class="btn-messages">⚙️ Ajustes de contacto</router-link>
           <router-link to="/dulzia-panel/categorias" class="btn-messages">🏷️ Categorías</router-link>
           <button class="btn-primary" @click="openCreate">+ Nueva sección</button>
         </div>

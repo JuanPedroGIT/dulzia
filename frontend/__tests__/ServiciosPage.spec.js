@@ -41,3 +41,22 @@ describe('ServiciosPage — pestañas', () => {
     expect(tabs).toEqual(['Todos', '🍴 Gastronomía', 'Animación'])
   })
 })
+
+describe('ServiciosPage — entradilla', () => {
+  it('cuenta los servicios del catálogo, no un número escrito a mano', async () => {
+    vi.stubGlobal('fetch', vi.fn(async (url) => ({
+      ok: true,
+      status: 200,
+      json: async () => (url === '/api/categories' ? CATEGORIES : [{ id: 'a' }, { id: 'b' }, { id: 'c' }]),
+    })))
+    // El catálogo vive a nivel de módulo y el test anterior lo dejó vacío: se
+    // fuerza la carga para que el resultado no dependa del orden.
+    await useServices().fetchAll({ force: true })
+
+    const wrapper = mount(ServiciosPage, {
+      global: { stubs: { RouterLink: { template: '<a><slot /></a>' } } },
+    })
+
+    expect(wrapper.find('.hero-small__sub').text()).toContain('3 servicios únicos')
+  })
+})

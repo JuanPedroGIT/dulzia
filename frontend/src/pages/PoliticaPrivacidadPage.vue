@@ -46,10 +46,10 @@
             <p><strong>Responsable del Tratamiento:</strong> DULZIA SALAMANCA EVENTOS</p>
             <ul>
               <li><strong>NIF:</strong> 70900291P</li>
-              <li><strong>Teléfono:</strong> <a href="tel:+34629991659">629 991 659</a></li>
+              <li><strong>Teléfono:</strong> <a :href="telHref">{{ phone }}</a></li>
               <li>
                 <strong>Email:</strong>
-                <a href="mailto:info@dulziasalamancaeventos.com">info@dulziasalamancaeventos.com</a>
+                <a :href="`mailto:${email}`">{{ email }}</a>
               </li>
             </ul>
           </div>
@@ -216,7 +216,14 @@
 <script setup>
 import BaseButton from '@/components/ui/BaseButton.vue'
 
+import { useContact } from '@/composables/useContact.js'
 import { useSeo } from '@/composables/useSeo.js'
+
+// Los datos del responsable que se publican aquí son los configurados en el
+// panel: una política con un teléfono que ya no es el del titular es una
+// cláusula incorrecta, no un detalle estético.
+const { email, phone, telHref } = useContact()
+
 useSeo({
   title: 'Política de privacidad',
   description: 'Política de privacidad de Dulzia Salamanca Eventos: responsable del tratamiento, finalidades, conservación de datos y derechos de los usuarios.',

@@ -23,7 +23,7 @@ function onDelete(m) {
         <router-link to="/dulzia-panel" class="btn-back">← Panel</router-link>
         <span class="header-title">📩 Mensajes</span>
         <span v-if="unreadCount > 0" class="header-badge">{{ unreadCount }} sin leer</span>
-        <router-link to="/dulzia-panel/ajustes-email" class="btn-config">⚙️ Ajustes de email</router-link>
+        <router-link to="/dulzia-panel/ajustes-contacto" class="btn-config">⚙️ Ajustes de contacto</router-link>
       </div>
     </header>
 

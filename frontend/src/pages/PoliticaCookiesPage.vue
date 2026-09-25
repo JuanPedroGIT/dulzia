@@ -75,8 +75,8 @@
             <h2>4. Responsable del tratamiento</h2>
             <p>
               <strong>Dulzia Salamanca Eventos</strong><br>
-              Email: <a href="mailto:info@dulziasalamancaeventos.com">info@dulziasalamancaeventos.com</a><br>
-              Teléfono: <a href="tel:+34629991659">+34 629 991 659</a>
+              Email: <a :href="`mailto:${email}`">{{ email }}</a><br>
+              Teléfono: <a :href="telHref">{{ phone }}</a>
             </p>
           </div>
 
@@ -102,7 +102,13 @@
 <script setup>
 import BaseButton from '@/components/ui/BaseButton.vue'
 
+import { useContact } from '@/composables/useContact.js'
 import { useSeo } from '@/composables/useSeo.js'
+
+// Datos del responsable: los mismos que en el pie y en la política de
+// privacidad, configurados desde el panel.
+const { email, phone, telHref } = useContact()
+
 useSeo({
   title: 'Política de Cookies',
   description: 'Política de cookies de Dulzia Salamanca Eventos: qué cookies técnicas usamos y cómo gestionarlas en tu navegador.',

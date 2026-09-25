@@ -12,6 +12,10 @@ final class AdminSettingsControllerTest extends IntegrationTestCase
 {
     private const ROUTE = '/api/admin/settings/contact-recipient';
 
+    // Datos que se publican en la web: otro recurso, con sus propias reglas
+    // (aquí el teléfono y el email de contacto, sin nombre de destinatario).
+    private const DETAILS_ROUTE = '/api/admin/settings/contact-details';
+
     // ── Auth ──────────────────────────────────────────────────────────────
 
     public function testRejectsRequestsWithoutToken(): void
@@ -142,6 +146,111 @@ final class AdminSettingsControllerTest extends IntegrationTestCase
 
         $client = $this->client();
         $client->request('PUT', self::ROUTE, [], [], $this->jsonHeaders($this->authHeaders()), '{}');
+
+        self::assertResponseIsSuccessful();
+        self::assertSame([], $this->storedSettings(), 'Un PUT sin campos debe limpiar el ajuste');
+    }
+
+    // ── Datos de contacto publicados en la web ────────────────────────────
+
+    public function testContactDetailsRejectRequestsWithoutToken(): void
+    {
+        $this->client()->request('GET', self::DETAILS_ROUTE);
+
+        self::assertResponseStatusCodeSame(401);
+    }
+
+    public function testContactDetailsStartUnconfigured(): void
+    {
+        // Sin nada en el panel no se inventa un valor: la web enseña el suyo.
+        $this->createAdminUser();
+
+        $client = $this->client();
+        $client->request('GET', self::DETAILS_ROUTE, [], [], $this->authHeaders());
+        $data = json_decode((string) $client->getResponse()->getContent(), true);
+
+        self::assertResponseIsSuccessful();
+        self::assertNull($data['email']);
+        self::assertNull($data['phone']);
+        self::assertSame('default', $data['email_source']);
+        self::assertSame('default', $data['phone_source']);
+    }
+
+    public function testContactDetailsStoreTrimmedValues(): void
+    {
+        $this->createAdminUser();
+
+        $client = $this->client();
+        $headers = $this->authHeaders();
+
+        $client->request('PUT', self::DETAILS_ROUTE, [], [], $this->jsonHeaders($headers), json_encode([
+            'email' => '  hola@example.com  ',
+            'phone' => '  +34 629 991 659  ',
+        ], JSON_THROW_ON_ERROR));
+        self::assertResponseIsSuccessful();
+
+        $stored = $this->storedSettings();
+        self::assertCount(2, $stored);
+        self::assertSame('hola@example.com', $stored[SettingKey::CONTACT_EMAIL] ?? null);
+        self::assertSame('+34 629 991 659', $stored[SettingKey::CONTACT_PHONE] ?? null);
+
+        $client->request('GET', self::DETAILS_ROUTE, [], [], $headers);
+        $data = json_decode((string) $client->getResponse()->getContent(), true);
+
+        self::assertSame('hola@example.com', $data['email']);
+        self::assertSame('+34 629 991 659', $data['phone']);
+        self::assertSame('db', $data['email_source']);
+        self::assertSame('db', $data['phone_source']);
+    }
+
+    public function testContactDetailsGoBackToTheWebDefaultWhenEmptied(): void
+    {
+        $this->createAdminUser();
+        $this->persist(
+            new Setting(SettingKey::CONTACT_EMAIL, 'hola@example.com'),
+            new Setting(SettingKey::CONTACT_PHONE, '+34 629 991 659'),
+        );
+
+        $client = $this->client();
+        $headers = $this->authHeaders();
+
+        $client->request('PUT', self::DETAILS_ROUTE, [], [], $this->jsonHeaders($headers), json_encode([
+            'email' => '',
+            'phone' => '',
+        ], JSON_THROW_ON_ERROR));
+        self::assertResponseIsSuccessful();
+
+        self::assertSame([], $this->storedSettings());
+
+        $client->request('GET', self::DETAILS_ROUTE, [], [], $headers);
+        $data = json_decode((string) $client->getResponse()->getContent(), true);
+
+        self::assertNull($data['email']);
+        self::assertNull($data['phone']);
+        self::assertSame('default', $data['phone_source']);
+    }
+
+    public function testInvalidPhoneReturns422AndWritesNothing(): void
+    {
+        $this->createAdminUser();
+
+        $client = $this->client();
+        $client->request('PUT', self::DETAILS_ROUTE, [], [], $this->jsonHeaders($this->authHeaders()), json_encode([
+            'email' => 'hola@example.com',
+            'phone' => 'llámame',
+        ], JSON_THROW_ON_ERROR));
+
+        self::assertResponseStatusCodeSame(422);
+        self::assertSame([], $this->storedSettings());
+    }
+
+    public function testContactDetailsMissingFieldsAreTreatedAsEmpty(): void
+    {
+        $this->createAdminUser();
+        $this->persist(new Setting(SettingKey::CONTACT_PHONE, '+34 629 991 659'));
+
+        $client = $this->client();
+        $client->request('PUT', self::DETAILS_ROUTE, [], [], $this->jsonHeaders($this->authHeaders()), '{}');
 
         self::assertResponseIsSuccessful();
         self::assertSame([], $this->storedSettings(), 'Un PUT sin campos debe limpiar el ajuste');

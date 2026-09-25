@@ -83,14 +83,14 @@
             <span class="info-band__emoji">📞</span>
             <div>
               <strong>Teléfono</strong>
-              <p><a href="tel:+34629991659">+34 629 991 659</a></p>
+              <p><a :href="telHref">{{ phone }}</a></p>
             </div>
           </div>
           <div class="info-band__item">
             <span class="info-band__emoji">✉️</span>
             <div>
               <strong>Email</strong>
-              <p><a href="mailto:info@dulziasalamancaeventos.com">info@dulziasalamancaeventos.com</a></p>
+              <p><a :href="`mailto:${email}`">{{ email }}</a></p>
             </div>
           </div>
         </div>
@@ -104,7 +104,13 @@
 <script setup>
 import CtaBanner from '@/components/features/CtaBanner.vue'
 
+import { useContact } from '@/composables/useContact.js'
 import { useSeo } from '@/composables/useSeo.js'
+
+// Teléfono y email salen de lo configurado en el panel (con los de siempre
+// como respaldo), igual que en el pie y en la página de contacto.
+const { email, phone, telHref } = useContact()
+
 useSeo({
   title: 'Quiénes somos',
   description: 'Conoce a Dulzia Salamanca Eventos, empresa especializada en hacer tus celebraciones únicas e inolvidables en Salamanca y alrededores.',

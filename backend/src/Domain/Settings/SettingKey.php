@@ -13,5 +13,12 @@ final class SettingKey
     public const CONTACT_RECIPIENT_EMAIL = 'contact_recipient_email';
     public const CONTACT_RECIPIENT_NAME = 'contact_recipient_name';
 
+    // Datos que se PUBLICAN en la web (pie, contacto, legales, JSON-LD). Son
+    // claves distintas de las del destinatario a propósito: el destinatario es
+    // interno (a dónde llegan los avisos) y publicarlo sería filtrar una
+    // dirección que no tiene por qué ser la de cara al público.
+    public const CONTACT_EMAIL = 'contact_email';
+    public const CONTACT_PHONE = 'contact_phone';
+
     private function __construct() {}
 }

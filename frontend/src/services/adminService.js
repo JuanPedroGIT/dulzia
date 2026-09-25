@@ -173,6 +173,24 @@ export async function apiUpdateContactRecipient(data) {
   return handleResponse(res)
 }
 
+// ── Datos de contacto publicados en la web ────────────────────────────────
+
+export async function apiGetContactDetails() {
+  const res = await fetch(`${BASE}/admin/settings/contact-details`, {
+    headers: headers(),
+  })
+  return handleResponse(res)
+}
+
+export async function apiUpdateContactDetails(data) {
+  const res = await fetch(`${BASE}/admin/settings/contact-details`, {
+    method: 'PUT',
+    headers: { ...headers(), 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  })
+  return handleResponse(res)
+}
+
 // ── Fotos ─────────────────────────────────────────────────────────────────
 
 export async function apiAddPhoto(serviceId, formData) {

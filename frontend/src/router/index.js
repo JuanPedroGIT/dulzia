@@ -14,7 +14,9 @@ const routes = [
   { path: '/dulzia-panel/servicios/:id', component: () => import('@/pages/admin/AdminServiceDetailPage.vue'), meta: { requiresAuth: true } },
   { path: '/dulzia-panel/mensajes', component: () => import('@/pages/admin/AdminMessagesPage.vue'), meta: { requiresAuth: true } },
   { path: '/dulzia-panel/mensajes/:id', component: () => import('@/pages/admin/AdminMessageDetailPage.vue'), meta: { requiresAuth: true } },
-  { path: '/dulzia-panel/ajustes-email', component: () => import('@/pages/admin/AdminEmailSettingsPage.vue'), meta: { requiresAuth: true } },
+  // El alias mantiene viva la URL antigua por si está guardada: la página pasó a
+  // llamarse "Ajustes de contacto" al añadirle el teléfono público.
+  { path: '/dulzia-panel/ajustes-contacto', alias: '/dulzia-panel/ajustes-email', component: () => import('@/pages/admin/AdminContactSettingsPage.vue'), meta: { requiresAuth: true } },
   { path: '/dulzia-panel/categorias', component: () => import('@/pages/admin/AdminCategoriesPage.vue'), meta: { requiresAuth: true } },
   { path: '/:pathMatch(.*)*', redirect: '/' },
 ]

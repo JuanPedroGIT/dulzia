@@ -4,11 +4,57 @@ declare(strict_types=1);
 
 namespace App\Tests\Integration\Controller;
 
+use App\Domain\Settings\SettingKey;
 use App\Entity\ContactSubmission;
+use App\Entity\Setting;
 use App\Tests\Integration\IntegrationTestCase;
 
 final class ContactControllerTest extends IntegrationTestCase
 {
+    // ── Datos de contacto publicados (GET /api/contact) ───────────────────
+
+    public function testContactDetailsArePublicAndStartUnconfigured(): void
+    {
+        $client = $this->client();
+        $client->request('GET', '/api/contact');
+
+        self::assertResponseIsSuccessful();
+        $data = json_decode((string) $client->getResponse()->getContent(), true);
+
+        // Sin configurar: null, y ya decide la web qué enseña.
+        self::assertNull($data['email']);
+        self::assertNull($data['phone']);
+    }
+
+    public function testContactDetailsReturnTheConfiguredValues(): void
+    {
+        $this->persist(
+            new Setting(SettingKey::CONTACT_EMAIL, 'hola@example.com'),
+            new Setting(SettingKey::CONTACT_PHONE, '+34 629 991 659'),
+        );
+
+        $client = $this->client();
+        $client->request('GET', '/api/contact');
+        $data = json_decode((string) $client->getResponse()->getContent(), true);
+
+        self::assertSame('hola@example.com', $data['email']);
+        self::assertSame('+34 629 991 659', $data['phone']);
+    }
+
+    public function testContactDetailsDoNotLeakInternalSettings(): void
+    {
+        // El nombre del destinatario de los avisos es interno: publicarlo sería
+        // contar a quién le llegan los mensajes.
+        $this->persist(new Setting(SettingKey::CONTACT_RECIPIENT_NAME, 'Nombre interno'));
+
+        $client = $this->client();
+        $client->request('GET', '/api/contact');
+        $data = json_decode((string) $client->getResponse()->getContent(), true);
+
+        self::assertSame(['email', 'phone'], array_keys($data));
+        self::assertStringNotContainsString('Nombre interno', (string) $client->getResponse()->getContent());
+    }
+
     public function testSubmitsValidContact(): void
     {
         $client = $this->client();

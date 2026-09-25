@@ -234,6 +234,12 @@ servicio aparece en las dos zonas de la portada:
 Antes eran dos criterios distintos fijados en el código: una lista de ids escrita a
 mano en el hero y los 6 primeros por `sort_order` en la parrilla.
 
+La **barra de cifras** (`StatsBar`, debajo del hero) cuenta los servicios del catálogo
+que ya carga la portada: el número sale de `services.length`, no de un literal, y hasta
+que llega el catálogo se deja el hueco en vez de un "0". Las demás cifras (eventos,
+satisfacción) y la cobertura ("Salamanca y alrededores", "nos movemos por toda la
+península") son texto fijo.
+
 ### Categorías
 
 Son un dato, no una lista en el código: la tabla `category` (nombre, emoji y orden) se
@@ -251,10 +257,33 @@ y con `snapshot.categories` para el prerender).
   mano la borraría la siguiente `migration-diff`. La integridad la garantiza el backend:
   `CategoryResolver` rechaza (400) una categoría inexistente al crear o editar un servicio.
 
+### Datos de contacto publicados (`useContact`)
+
+El teléfono y el email que salen en la web —pie, `/contacto`, `/nosotros`, las tres páginas
+legales y el JSON-LD del negocio— los sirve `GET /api/contact` y los comparte `useContact`
+(mismo patrón de caché por sesión que el catálogo, y con `snapshot.contact` para el
+prerender). Se editan en el panel, en `/dulzia-panel/ajustes-contacto` (claves `contact_email`
+y `contact_phone` de la tabla `setting`).
+
+- **No son el destinatario de los avisos del formulario**: aquel es un ajuste interno
+  (`contact_recipient_email`, con el valor del `.env` como respaldo) y publicarlo sería
+  filtrar a qué dirección llegan los mensajes. Por eso son dos bloques distintos del panel y
+  dos recursos de la API.
+- **Sin valor por defecto en el servidor**: si el panel no tiene nada, la API devuelve `null`
+  y la web usa `CONTACT_DEFAULTS` (`useContact.js`). El respaldo de lo que se publica vive
+  donde se pinta; el del mailer sí está en el `.env`, porque un envío sin destinatario no se
+  puede hacer y un teléfono que solo se pinta, sí.
+- **`tel:` y `wa.me` se derivan del mismo número** (en solo dígitos), así que cambiar el
+  teléfono en el panel mueve también el enlace de WhatsApp.
+- El JSON-LD del negocio (`localBusinessJsonLd`) es una función de estos datos, no un objeto
+  con literales: se reescribe cuando llegan.
+
 ### Routing
 - Rutas públicas: `/`, `/servicios`, `/servicios/:id`, `/nosotros`, `/contacto`, `/cookies`.
 - Rutas admin protegidas (`meta.requiresAuth`): `/dulzia-panel`, `/dulzia-panel/login`,
-  `/dulzia-panel/servicios/:id`, `/dulzia-panel/mensajes`, `/dulzia-panel/mensajes/:id`.
+  `/dulzia-panel/servicios/:id`, `/dulzia-panel/mensajes`, `/dulzia-panel/mensajes/:id`,
+  `/dulzia-panel/categorias`, `/dulzia-panel/ajustes-contacto` (con alias de la antigua
+  `/dulzia-panel/ajustes-email`).
 - Guard: si no hay token en localStorage → redirect al login.
 
 ### Comunicación con el backend
@@ -362,6 +391,8 @@ service_example    id (string 32-hex), service_id (FK), title, description,
                    thumbnail_url (miniatura, NULL = se sirve image_url), sort_order
 contact_submission id (string 32-hex), name, email, phone, event_type, message,
                    ip_address, submitted_at, email_sent, email_sent_at, read_at
+setting            key (PK), value, updated_at — ajustes del panel sin esquema propio,
+                   para no añadir columnas por cada cosa configurable
 ```
 
 ### Imágenes: dos versiones por foto
@@ -395,6 +426,11 @@ almacena — no manipula imágenes (no hay GD ni Imagick en la imagen Docker).
 | GET | `/api/services` | — | Catálogo público (solo activos, con fotos) |
 | GET | `/api/services/{id}` | — | Detalle de servicio (404 si no existe o está inactivo). La web **no lo llama**: el catálogo ya trae la ficha completa y el detalle se resuelve en memoria (ver "Catálogo compartido") |
 | POST | `/api/contact` | — | Formulario de contacto (422 con errores por campo) |
+| GET | `/api/contact` | — | Datos de contacto publicados: `{email, phone}`, `null` = sin configurar |
+| GET | `/api/admin/settings/contact-recipient` | token | Destinatario de los avisos + de dónde sale cada campo |
+| PUT | `/api/admin/settings/contact-recipient` | token | Guardar destinatario (vaciar = valor por defecto del `.env`) |
+| GET | `/api/admin/settings/contact-details` | token | Email y teléfono publicados + de dónde sale cada campo |
+| PUT | `/api/admin/settings/contact-details` | token | Guardar los datos publicados (vaciar = valor por defecto de la web) |
 | POST | `/api/admin/login` | — | Login → `{token}` |
 | POST | `/api/admin/logout` | token | Invalida todos los tokens |
 | GET | `/api/admin/services` | token | Lista completa (incluye inactivos) |

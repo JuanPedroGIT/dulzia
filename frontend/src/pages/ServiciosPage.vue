@@ -5,8 +5,7 @@
         <span class="hero-small__pre">Todo lo que necesitas</span>
         <h1 class="hero-small__title">Nuestros Servicios</h1>
         <p class="hero-small__sub">
-          11 servicios únicos para que cada celebración sea perfecta,
-          desde la gastronomía hasta la decoración y las experiencias.
+          {{ subtitle }}
         </p>
       </div>
     </section>
@@ -68,6 +67,14 @@ watch(services, () => {
   if (services.value.length) {
     useSeo({ jsonLd: servicesCatalogJsonLd(services.value), jsonLdKey: 'catalog' })
   }
+})
+
+// La cifra sale del catálogo: antes estaba escrita a mano y se desfasaba en cuanto
+// se añadía una sección desde el panel. Hasta que llega, la frase va sin número.
+const subtitle = computed(() => {
+  const count = services.value.length
+  const head = count ? `${count} servicios únicos` : 'Servicios únicos'
+  return `${head} para que cada celebración sea perfecta, desde la gastronomía hasta la decoración y las experiencias.`
 })
 
 const activeTab = ref('all')

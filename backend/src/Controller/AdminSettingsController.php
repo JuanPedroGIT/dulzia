@@ -2,8 +2,12 @@
 
 namespace App\Controller;
 
+use App\Application\Settings\GetContactDetails\GetContactDetailsHandler;
+use App\Application\Settings\GetContactDetails\GetContactDetailsQuery;
 use App\Application\Settings\GetContactRecipient\GetContactRecipientHandler;
 use App\Application\Settings\GetContactRecipient\GetContactRecipientQuery;
+use App\Application\Settings\UpdateContactDetails\UpdateContactDetailsCommand;
+use App\Application\Settings\UpdateContactDetails\UpdateContactDetailsHandler;
 use App\Application\Settings\UpdateContactRecipient\UpdateContactRecipientCommand;
 use App\Application\Settings\UpdateContactRecipient\UpdateContactRecipientHandler;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -24,6 +28,8 @@ final class AdminSettingsController
     public function __construct(
         private GetContactRecipientHandler $getContactRecipient,
         private UpdateContactRecipientHandler $updateContactRecipient,
+        private GetContactDetailsHandler $getContactDetails,
+        private UpdateContactDetailsHandler $updateContactDetails,
         private ValidatorInterface $validator,
     ) {}
 
@@ -52,6 +58,35 @@ final class AdminSettingsController
         }
 
         $this->updateContactRecipient->handle($command);
+
+        return new JsonResponse(['ok' => true]);
+    }
+
+    #[Route('/api/admin/settings/contact-details', methods: ['GET'])]
+    public function getContactDetails(): JsonResponse
+    {
+        return new JsonResponse($this->getContactDetails->handle(new GetContactDetailsQuery()));
+    }
+
+    #[Route('/api/admin/settings/contact-details', methods: ['PUT'])]
+    public function updateContactDetails(Request $request): JsonResponse
+    {
+        $body = json_decode($request->getContent(), true);
+        $body = is_array($body) ? $body : [];
+
+        $command = new UpdateContactDetailsCommand(
+            // Un PUT reemplaza el recurso entero: lo que no llega cuenta como
+            // vacío, que es la forma de volver al valor por defecto de la web.
+            email: is_string($body['email'] ?? null) ? $body['email'] : '',
+            phone: is_string($body['phone'] ?? null) ? $body['phone'] : '',
+        );
+
+        $violations = $this->validator->validate($command);
+        if ($violations->count() > 0) {
+            throw new ValidationFailedException($command, $violations);
+        }
+
+        $this->updateContactDetails->handle($command);
 
         return new JsonResponse(['ok' => true]);
     }

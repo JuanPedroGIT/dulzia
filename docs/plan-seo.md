@@ -61,8 +61,9 @@ la API local: lista + detalle de los 11 servicios) que se inyecta en cada págin
 usa como fuente en ese contexto. Además se actualizó `puppeteer` a `^24` (override en package.json)
 porque el Chromium de la versión transitiva (1.20/Chrome 78) no entendía el JS moderno del bundle.
 **Regenerar el snapshot cuando cambie el catálogo** (comando documentado abajo).
-Incluye también las categorías: sin ellas la portada estática saldría sin pestañas y
-con los identificadores en vez de los nombres.
+Incluye también las categorías (sin ellas la portada estática saldría sin pestañas y
+con los identificadores en vez de los nombres) y los datos de contacto (el teléfono y
+el email que van en el pie, en las legales y en el JSON-LD del negocio).
 
 ```bash
 # Regenerar el snapshot (con el backend local corriendo):
@@ -74,6 +75,7 @@ snap={
   'list':services,
   'details':{s['id']:json.load(urllib.request.urlopen(BASE+'/'+s['id'])) for s in services},
   'categories':json.load(urllib.request.urlopen('http://localhost:8000/api/categories')),
+  'contact':json.load(urllib.request.urlopen('http://localhost:8000/api/contact')),
 }
 open('frontend/prerender-data/snapshot.json','w',encoding='utf-8').write(json.dumps(snap,ensure_ascii=False))
 "
