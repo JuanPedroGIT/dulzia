@@ -61,7 +61,10 @@ describe('ServicioDetallePage — la ficha se sirve del catálogo', () => {
     // llamada al detalle del servicio.
     const urls = fetchMock.mock.calls.map(([url]) => url)
     expect(urls).toContain('/api/services')
-    expect(urls.every(url => ['/api/services', '/api/categories', '/api/contact'].includes(url))).toBe(true)
+    // Solo esas tres. Se filtra en vez de comprobar `every`, para que si algún
+    // día entra otra petición el test diga cuál en lugar de un "false to be true".
+    const unexpected = urls.filter(url => !['/api/services', '/api/categories', '/api/contact'].includes(url))
+    expect(unexpected).toEqual([])
   })
 
   it('navegar a otro servicio no vuelve a pedir nada', async () => {

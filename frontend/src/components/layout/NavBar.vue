@@ -80,16 +80,24 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
     align-items: center;
     gap: $space-2;
     text-decoration: none;
+    // El logo es quien cede cuando no cabe: sin esto no encoge por debajo de su
+    // ancho mínimo y empujaba la hamburguesa fuera de la pantalla.
+    min-width: 0;
 
     &-icon { font-size: $text-xl; }
 
     &-text {
       font-family: 'Covered By Your Grace', cursive;
-      font-size: $text-2xl;
+      font-size: $text-xl;
       font-weight: 400;
       color: $color-pink;
       white-space: nowrap;
+      // Último recurso: antes de salirse, se corta con puntos suspensivos.
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
 
+      @include respond-to(sm) { font-size: $text-2xl; }
       @include respond-to(md) { font-size: $text-3xl; }
     }
   }
@@ -123,6 +131,8 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
     flex-direction: column;
     gap: 5px;
     padding: $space-2;
+    // El botón del menú no encoge nunca: tiene que quedar siempre a la vista.
+    flex-shrink: 0;
 
     @include respond-to(lg) { display: none; }
 
