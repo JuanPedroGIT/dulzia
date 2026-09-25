@@ -35,7 +35,7 @@
       </div>
 
       <div class="reviews__cta">
-        <BaseButton :href="GOOGLE_REVIEWS_URL" target="_blank" rel="noopener" variant="outline" size="lg">
+        <BaseButton :href="GOOGLE_REVIEWS_URL" target="_blank" rel="noopener" variant="outline" size="md">
           Ver todas las reseñas en Google
         </BaseButton>
       </div>
@@ -266,6 +266,14 @@ function ago(isoDate, today = new Date()) {
   &__cta {
     text-align: center;
     margin-top: $space-12;
+
+    // El texto de este botón es largo y BaseButton no parte la línea: en un móvil
+    // estrecho se salía por el lateral. Aquí se le deja saltar de línea y se le
+    // limita al ancho del contenedor (el `box-sizing` global incluye el relleno).
+    :deep(.btn) {
+      max-width: 100%;
+      white-space: normal;
+    }
   }
 }
 </style>

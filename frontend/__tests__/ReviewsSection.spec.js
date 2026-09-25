@@ -74,5 +74,7 @@ describe('ReviewsSection — reseñas de la portada', () => {
     expect(link.attributes('href')).toBe('https://maps.app.goo.gl/MYuXG2xSAJKYDhzM8')
     expect(link.attributes('target')).toBe('_blank')
     expect(link.attributes('rel')).toContain('noopener')
+    // Tamaño medio: con el `lg` el texto no cabía en un móvil y se salía.
+    expect(link.classes()).toContain('btn--md')
   })
 })
