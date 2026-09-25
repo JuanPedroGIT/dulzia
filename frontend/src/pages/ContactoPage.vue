@@ -160,6 +160,13 @@ watch(phone, applySeo)
 
     &:hover { opacity: 0.8; }
 
+    // El email es una palabra de 233px que no parte: con el icono y el relleno
+    // del panel daba un ancho mínimo de 353px, que en un móvil de 360 no cabe,
+    // estiraba la columna del grid (los campos del formulario incluidos) y
+    // sacaba la página 9px de la pantalla. Con `anywhere` el texto puede partirse
+    // y el panel encoge hasta el ancho real de la pantalla.
+    strong, span { overflow-wrap: anywhere; }
+
     strong {
       display: block;
       font-size: $text-xs;
