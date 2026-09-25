@@ -109,7 +109,7 @@ const year = new Date().getFullYear()
 
   &__tagline {
     font-size: $text-sm;
-    color: rgba($color-green-dark, 0.7);
+    color: rgba($color-text, 0.85);
     line-height: 1.6;
     margin-bottom: $space-6;
   }
@@ -124,11 +124,11 @@ const year = new Date().getFullYear()
       height: 40px;
       border-radius: $radius-full;
       background: rgba($color-white, 0.55);
-      color: $color-green-dark;
+      color: $color-text;
       transition: all $transition-base;
 
       &:hover {
-        background: $color-pink;
+        background: $color-fucsia-dark;
         color: $color-white;
         transform: translateY(-2px);
       }
@@ -150,13 +150,15 @@ const year = new Date().getFullYear()
     flex-direction: column;
     gap: $space-3;
 
+    // Al 85% del neutro: sobre el pistacho queda en 4,96:1 (AA). Con el 0,75 que
+    // había antes se quedaba en 4,0:1.
     li a {
       font-size: $text-sm;
-      color: rgba($color-green-dark, 0.75);
+      color: rgba($color-text, 0.85);
       text-decoration: none;
       transition: color $transition-fast;
 
-      &:hover { color: $color-pink; }
+      &:hover { color: $color-fucsia-dark; }
     }
   }
 
@@ -169,17 +171,17 @@ const year = new Date().getFullYear()
       display: flex;
       gap: $space-3;
       font-size: $text-sm;
-      color: rgba($color-green-dark, 0.75);
+      color: rgba($color-text, 0.85);
       align-items: flex-start;
 
-      svg { flex-shrink: 0; margin-top: 2px; color: $color-green-dark; }
+      svg { flex-shrink: 0; margin-top: 2px; color: $color-text; }
 
       a {
-        color: rgba($color-green-dark, 0.75);
+        color: rgba($color-text, 0.85);
         text-decoration: none;
         transition: color $transition-fast;
 
-        &:hover { color: $color-pink; }
+        &:hover { color: $color-fucsia-dark; }
       }
     }
   }
@@ -193,20 +195,35 @@ const year = new Date().getFullYear()
       flex-wrap: wrap;
       gap: $space-2;
 
+      // Al 62% del blanco sobre el verde oscuro queda en 5,5:1 (AA).
       p {
         font-size: $text-xs;
-        color: rgba($color-white, 0.4);
+        color: rgba($color-white, 0.62);
+      }
+
+      // Los enlaces legales son hijos directos del contenedor y no llevan clase:
+      // heredaban el color del body (#2b2b2b) y sobre el verde oscuro no se leían.
+      // Al 85% del blanco dan 8,2:1; el hover en fucsia claro, 8,8:1.
+      > a {
+        font-size: $text-xs;
+        color: rgba($color-white, 0.85);
+        text-decoration: none;
+        transition: color $transition-fast;
+
+        &:hover { color: $color-fucsia-light; }
       }
     }
   }
 
   &__credit {
     a {
-      color: rgba($color-white, 0.7);
+      color: rgba($color-white, 0.62);
       text-decoration: none;
       transition: color $transition-fast;
 
-      &:hover { color: $color-pink; }
+      // El fucsia puro sobre el verde oscuro se queda en 3,3:1 y no pasa AA en
+      // un texto tan pequeño: el claro da 8,8:1.
+      &:hover { color: $color-fucsia-light; }
     }
   }
 }

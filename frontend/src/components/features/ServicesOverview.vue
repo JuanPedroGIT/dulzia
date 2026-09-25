@@ -3,7 +3,7 @@
     <div class="container">
       <div class="overview__header">
         <span class="overview__pre">Lo que hacemos</span>
-        <h2 class="overview__title">Servicios que enamoran</h2>
+        <h2 class="overview__title">Servicios que <em>enamoran</em></h2>
         <p class="overview__sub">
           Desde el aperitivo hasta el último detalle, tenemos todo lo que necesitas
           para que tu celebración sea perfecta.
@@ -48,6 +48,10 @@ const total = computed(() => props.services.length)
 </script>
 
 <style lang="scss" scoped>
+// Fondo blanco: alterna con el pistacho del hero y las cifras y con el pistacho
+// claro de las reseñas, para que la paleta se reparta por todo el scroll.
+.section { background: $color-white; }
+
 .overview {
   &__header {
     text-align: center;
@@ -60,15 +64,24 @@ const total = computed(() => props.services.length)
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    color: $color-pink;
+    // Fucsia de texto y no el de marca: a 14 px sobre blanco, #ff00c1 se queda
+    // en 3,49:1 y este llega a 7,15:1.
+    color: $color-fucsia-text;
     margin-bottom: $space-3;
   }
 
+  // En pistacho oscuro sobre el blanco: 3,81:1, que pasa AA para titular grande
+  // (y para el cuerpo de texto de al lado se sigue usando el neutro, 14,2:1).
   &__title {
     font-size: $text-4xl;
     font-weight: 900;
-    color: $color-green-dark;
+    color: $color-pistacho-dark;
     margin-bottom: $space-4;
+
+    em {
+      font-style: normal;
+      color: $color-fucsia;
+    }
   }
 
   &__sub {

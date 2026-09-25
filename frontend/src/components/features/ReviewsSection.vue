@@ -143,9 +143,12 @@ function ago(isoDate, today = new Date()) {
 
 <style lang="scss" scoped>
 .reviews {
-  @include gradient-mint;
+  // Pistacho vivo (a petición de Juan Pedro, 26/09): la sección recupera el verde
+  // saturado de la marca. Las tarjetas blancas de las reseñas destacan igual sobre
+  // él, y alterna con la franja blanca de servicios de arriba.
+  background: $color-pistacho;
   @include section-padding;
-  color: $color-green-dark;
+  color: $color-text;
 
   &__header {
     text-align: center;
@@ -158,20 +161,25 @@ function ago(isoDate, today = new Date()) {
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    color: $color-green-deep;
+    // Fucsia de texto: sobre el pistacho saturado se queda en ~3,4:1 (por debajo
+    // de AA), pero es el acento de marca. Si al revisarlo se ve flojo, la salida
+    // es el neutro oscuro o una pastilla blanca detrás.
+    color: $color-fucsia-text;
     margin-bottom: $space-3;
   }
 
   &__title {
     font-size: $text-4xl;
     font-weight: 900;
-    color: $color-green-dark;
+    color: $color-text;
     margin-bottom: $space-4;
   }
 
   &__sub {
     font-size: $text-lg;
-    color: rgba($color-green-dark, 0.8);
+    // Al 85% del neutro sobre el pistacho saturado da 4,97:1 (AA); al 80% se
+    // quedaba en 4,44.
+    color: rgba($color-text, 0.85);
     max-width: 560px;
     margin-inline: auto;
     line-height: 1.7;
@@ -190,19 +198,22 @@ function ago(isoDate, today = new Date()) {
     font-family: $font-heading;
     font-size: $text-4xl;
     font-weight: 900;
-    color: $color-green-deep;
+    color: $color-text;
     line-height: 1;
   }
 
+  // Fucsia de texto: sobre el pistacho saturado se queda en ~3,4:1 (decorativas,
+  // el número de al lado ya lleva el dato en texto legible).
   &__stars {
-    color: $color-pink;
+    color: $color-fucsia-text;
     font-size: $text-xl;
     letter-spacing: 2px;
   }
 
   &__score-count {
     font-size: $text-sm;
-    color: rgba($color-green-dark, 0.75);
+    // Al 85% del neutro sobre pistacho da 4,97:1; al 75% se quedaba en 4,02.
+    color: rgba($color-text, 0.85);
   }
 
   &__grid {
@@ -252,7 +263,7 @@ function ago(isoDate, today = new Date()) {
   }
 
   &__card-stars {
-    color: $color-pink;
+    color: $color-fucsia-text;
     font-size: $text-base;
     letter-spacing: 2px;
   }

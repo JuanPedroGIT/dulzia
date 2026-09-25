@@ -91,7 +91,8 @@ const categoryLabel = computed(() => categoryName(props.service.category))
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    color: $color-pink;
+    // Fucsia de texto: el de marca a 12 px sobre blanco no pasa AA (3,49:1).
+    color: $color-fucsia-text;
   }
 
   &__name {
@@ -132,7 +133,9 @@ const categoryLabel = computed(() => categoryName(props.service.category))
   &__link {
     font-size: $text-sm;
     font-weight: 700;
-    color: $color-mint-mid;
+    // El "Ver ejemplos →" es el otro punto donde asoma la marca dentro del cuerpo
+    // de la página, no solo en el header y el hero.
+    color: $color-fucsia-dark;
     transition: gap $transition-fast;
   }
 }

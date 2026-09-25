@@ -10,7 +10,7 @@
           </p>
         </div>
         <div class="cta__actions">
-          <BaseButton to="/contacto" variant="primary" size="lg">
+          <BaseButton to="/contacto" variant="light" size="lg">
             Pide presupuesto gratis
           </BaseButton>
           <a :href="telHref" class="cta__phone">
@@ -32,11 +32,16 @@ const { phone, telHref } = useContact()
 
 <style lang="scss" scoped>
 .cta {
-  background: $color-bg-alt;
+  // Crema y no pistacho claro: la sección de reseñas ya es pistacho claro y sin
+  // este escalón las dos se fundirían en una sola franja.
+  background: $color-cream;
   padding-block: $space-16;
 
   &__inner {
-    @include gradient-mint;
+    // Fucsia sólido en vez del degradado verde: es el cierre de la página y el
+    // único bloque de marca a sangre. Fucsia oscuro y no puro porque el texto
+    // blanco encima necesita 4,5:1 y con #ff00c1 se queda en 3,5:1.
+    background: $color-fucsia-dark;
     border-radius: $radius-2xl;
     padding: $space-12 $space-8;
     display: flex;
@@ -61,7 +66,7 @@ const { phone, telHref } = useContact()
       width: 300px;
       height: 300px;
       border-radius: 50%;
-      background: rgba($color-white, 0.35);
+      background: rgba($color-white, 0.12);
       pointer-events: none;
     }
   }
@@ -71,20 +76,24 @@ const { phone, telHref } = useContact()
   &__title {
     font-size: $text-3xl;
     font-weight: 900;
-    color: $color-green-dark;
+    color: $color-white;
     margin-bottom: $space-3;
 
     @include respond-to(md) { font-size: $text-4xl; }
 
+    // El pistacho entra aquí dentro: el bloque de cierre es lo último que se ve
+    // y así los dos colores de marca quedan en el mismo encuadre.
     em {
       font-style: normal;
-      color: $color-pink;
+      color: $color-pistacho-light;
     }
   }
 
+  // Blanco puro, sin rebajar la opacidad: sobre el fucsia oscuro el blanco da
+  // 4,50:1 y cualquier transparencia lo baja por debajo de AA.
   &__sub {
     font-size: $text-base;
-    color: rgba($color-green-dark, 0.75);
+    color: $color-white;
     max-width: 460px;
     line-height: 1.7;
   }
@@ -105,11 +114,13 @@ const { phone, telHref } = useContact()
     gap: $space-2;
     font-size: $text-base;
     font-weight: 600;
-    color: $color-green-dark;
+    color: $color-white;
     text-decoration: none;
-    transition: color $transition-fast;
+    transition: opacity $transition-fast;
 
-    &:hover { color: $color-pink; }
+    // Se subraya en vez de cambiar de color: sobre el fucsia, cualquier tono
+    // distinto del blanco puro se queda por debajo de 4,5:1.
+    &:hover { text-decoration: underline; }
   }
 }
 </style>

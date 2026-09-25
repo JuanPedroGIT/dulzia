@@ -186,12 +186,13 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
     &--cta {
       margin: $space-4 $space-6 $space-2;
       text-align: center;
-      background: $color-green-dark;
+      background: $color-fucsia-dark;
       color: $color-white !important;
       border-radius: $radius-full;
       padding: $space-3 $space-6;
+      cursor: pointer;
 
-      &:hover { background: $color-green-deep; }
+      &:hover { background: $color-fucsia; }
     }
   }
 

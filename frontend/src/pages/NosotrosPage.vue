@@ -135,6 +135,11 @@ const values = [
 </script>
 
 <style lang="scss" scoped>
+// La sección de valores va sobre el pistacho vivo, igual que las reseñas de la
+// portada (petición de Juan Pedro, 26/09): el utilitario `section--alt` trae el
+// pistacho claro, así que se pisa aquí solo para esta página.
+.section--alt { background-color: $color-pistacho; }
+
 .hero-small {
   background: linear-gradient(160deg, $color-mint-light 0%, $color-mint 60%, $color-mint-mid 140%);
   padding-block: $space-16;
@@ -235,7 +240,9 @@ const values = [
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    color: $color-pink;
+    // Fucsia de texto: el de marca sobre el pistacho saturado se queda en 2,96:1;
+    // este queda en ~3,4:1, el mismo trato que la etiqueta de reseñas.
+    color: $color-fucsia-text;
     margin-bottom: $space-3;
   }
 
@@ -251,7 +258,9 @@ const values = [
     gap: $space-5;
 
     @include respond-to(md) { grid-template-columns: repeat(2, 1fr); }
-    @include respond-to(lg) { grid-template-columns: repeat(3, 1fr); }
+    // Los cuatro valores caben en una sola fila en escritorio (antes era 3+1,
+    // con el cuarto huérfano en la segunda línea).
+    @include respond-to(lg) { grid-template-columns: repeat(4, 1fr); }
   }
 }
 
@@ -295,12 +304,16 @@ const values = [
   padding: $space-10;
 
   @include respond-to(md) { grid-template-columns: repeat(2, 1fr); }
-  @include respond-to(lg) { grid-template-columns: repeat(4, 1fr); }
+  // Solo hay dos datos (teléfono y email): se reparten la banda a medias en
+  // escritorio. Con 4 columnas quedaban ocupando media franja y el resto vacío.
+  @include respond-to(lg) { grid-template-columns: repeat(2, 1fr); }
 
   &__item {
     display: flex;
     gap: $space-4;
     align-items: flex-start;
+    // El conjunto emoji + texto queda centrado dentro de su mitad de la banda.
+    justify-content: center;
 
     strong {
       display: block;

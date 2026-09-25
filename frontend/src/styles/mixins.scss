@@ -39,12 +39,16 @@
 @mixin card {
   background: $color-white;
   border-radius: $radius-xl;
-  box-shadow: $shadow-md;
+  // Borde de marca en vez de sombra gris: la tarjeta se lee como parte de la
+  // paleta y no como una caja neutra.
+  border: 1px solid $color-pistacho-light;
+  box-shadow: $shadow-sm;
   overflow: hidden;
-  transition: transform $transition-base, box-shadow $transition-base;
+  transition: transform $transition-base, box-shadow $transition-base, border-color $transition-base;
 
   &:hover {
     transform: translateY(-4px);
+    border-color: $color-fucsia-light;
     box-shadow: $shadow-lg;
   }
 }
@@ -58,7 +62,7 @@
 }
 
 @mixin text-gradient-mint {
-  background: linear-gradient(135deg, $color-green-dark, $color-mint-mid);
+  background: linear-gradient(135deg, $color-text, $color-pistacho-dark);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;

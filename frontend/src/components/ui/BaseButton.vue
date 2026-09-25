@@ -17,7 +17,7 @@
 import { computed } from 'vue'
 
 const props = defineProps({
-  variant: { type: String, default: 'primary' }, // primary | secondary | outline | ghost
+  variant: { type: String, default: 'primary' }, // primary | secondary | light | outline | ghost
   size:    { type: String, default: 'md' },       // sm | md | lg
   type:    { type: String, default: 'button' },
   href:    { type: String, default: null },
@@ -42,6 +42,9 @@ const tag = computed(() => {
   font-family: $font-body;
   font-weight: 600;
   border-radius: $radius-full;
+  // El botón puede ser <a>, <router-link> o <button> según el uso; se fija el
+  // dedo explícitamente para que el cursor no dependa del elemento que salga.
+  cursor: pointer;
   transition: all $transition-base;
   white-space: nowrap;
   text-decoration: none;
@@ -54,15 +57,30 @@ const tag = computed(() => {
   &--lg { font-size: $text-lg; padding: $space-4 $space-10; }
 
   // Variants
+  // Botón de conversión. Va en fucsia oscuro y no en fucsia puro porque el texto
+  // blanco encima necesita 4,5:1 para cumplir AA: con #ff00c1 se queda en 3,5:1.
   &--primary {
-    background: $color-green-dark;
+    background: $color-fucsia-dark;
     color: $color-white;
-    box-shadow: 0 4px 16px rgba($color-green-dark, 0.25);
+    box-shadow: 0 4px 16px rgba($color-fucsia-dark, 0.3);
 
     &:hover:not(:disabled) {
-      background: $color-green-deep;
+      background: $color-fucsia;
       transform: translateY(-2px);
-      box-shadow: 0 8px 24px rgba($color-green-dark, 0.35);
+      box-shadow: 0 8px 24px rgba($color-fucsia-dark, 0.4);
+    }
+  }
+
+  // Invertido: para botones que van encima de un fondo de marca (el bloque CTA,
+  // que ahora es fucsia). Blanco sólido con el texto en fucsia oscuro → 4,50:1.
+  &--light {
+    background: $color-white;
+    color: $color-fucsia-dark;
+
+    &:hover:not(:disabled) {
+      background: $color-cream;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba($color-white, 0.25);
     }
   }
 

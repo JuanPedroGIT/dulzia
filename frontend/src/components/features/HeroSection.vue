@@ -176,7 +176,9 @@ function checkAlreadyLoaded(el, id) {
 
   &__subtitle {
     font-size: $text-lg;
-    color: $color-text-muted;
+    // Sobre el degradado pistacho, el gris de apoyo se queda corto de contraste:
+    // el neutro oscuro da 6,7:1 y se lee sin esfuerzo.
+    color: rgba($color-text, 0.85);
     line-height: 1.7;
     max-width: 520px;
     margin-bottom: $space-10;

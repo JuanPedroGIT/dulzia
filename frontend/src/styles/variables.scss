@@ -1,19 +1,43 @@
-// === COLORS ===
-// Verde salvia (#84b067) y rosa (#ff00c1): colores principales de la marca
-$color-mint:         #84b067;   // verde principal (fondos)
-$color-mint-light:   #f2f6ea;   // tinte suave para secciones alternas
-$color-mint-mid:     #6b9252;   // verde medio (degradados, bordes, focus)
-$color-green-dark:   #38542b;   // verde oscuro (textos y contraste)
-$color-green-deep:   #2b3f21;   // tiras oscuras (footer bottom, hovers fuertes)
-$color-pink:         #ff00c1;   // rosa (textos destacados y acentos)
-$color-pink-dark:    #cc009a;
-$color-pink-light:   #ffe6f8;
-$color-white:        #ffffff;
-$color-bg:           #fbfdf7;
-$color-bg-alt:       $color-mint-light;
-$color-text:         #090a0a;
+// === PALETA DE MARCA ===
+// Fucsia + pistacho, cada uno en tres tonos. Estos son los valores de verdad:
+// los nombres "mint", "pink" y "green" de más abajo son alias históricos que
+// apuntan aquí, así que cambiar la paleta es tocar solo este bloque.
+$color-fucsia:         #ff00c1;   // fucsia de marca (acentos, palabras destacadas)
+$color-fucsia-dark:    #e0009f;   // fucsia oscuro (botones): blanco encima da 4,50:1
+$color-fucsia-light:   #ffd6f0;   // tinte suave (bordes, fondos de apoyo)
+// Mismo tono (317°) pero más oscuro: el fucsia de marca no llega a 4,5:1 como
+// texto pequeño sobre blanco ni sobre pistacho claro (se queda en 3,49 y 2,96).
+// Este es el que se usa para etiquetas, categorías y estrellas.
+$color-fucsia-text:    #a80078;
+
+$color-pistacho:       #8fbf7a;   // pistacho vivo (fondos de marca)
+$color-pistacho-dark:  #5e8f4d;   // pistacho oscuro (titulares, degradados, bordes)
+$color-pistacho-light: #e4f0dc;   // pistacho muy claro (secciones alternas)
+
+$color-text:  #2b2b2b;   // neutro oscuro: el texto de la web (14,2:1 sobre blanco)
+$color-white: #ffffff;
+$color-cream: #f7f5f0;   // neutro cálido, fondo base de la página
+
+// === ALIAS HISTÓRICOS ===
+// El código sigue usando estos nombres; solo cambian de valor.
+$color-mint:         $color-pistacho;
+$color-mint-light:   $color-pistacho-light;
+$color-mint-mid:     $color-pistacho-dark;
+
+// "green-dark" era el verde apagado de los titulares (#38542b). Ahora el texto
+// oscuro es el neutro de la paleta: sobre pistacho da 6,7:1, mejor que el verde
+// que había antes (4,0:1), y sobre blanco 14,2:1.
+$color-green-dark:   $color-text;
+$color-green-deep:   #2b3f21;   // verde oscuro de marca (tira del footer, hovers fuertes)
+
+$color-pink:         $color-fucsia;
+$color-pink-dark:    $color-fucsia-dark;
+$color-pink-light:   $color-fucsia-light;
+
+$color-bg:           $color-cream;
+$color-bg-alt:       $color-pistacho-light;
 $color-text-muted:   #5c6b68;
-$color-border:       #c9d9b8;
+$color-border:       #dfe9d3;
 $color-error:        #d63031;
 $color-success:      #00b894;
 
@@ -56,10 +80,10 @@ $radius-2xl:  32px;
 $radius-full: 9999px;
 
 // === SHADOWS ===
-$shadow-sm: 0 1px 4px rgba(9, 10, 10, 0.08);
-$shadow-md: 0 4px 16px rgba(9, 10, 10, 0.10);
-$shadow-lg: 0 8px 32px rgba(9, 10, 10, 0.14);
-$shadow-xl: 0 20px 60px rgba(9, 10, 10, 0.18);
+$shadow-sm: 0 1px 4px rgba(43, 43, 43, 0.07);
+$shadow-md: 0 4px 16px rgba(43, 43, 43, 0.08);
+$shadow-lg: 0 8px 32px rgba(43, 43, 43, 0.12);
+$shadow-xl: 0 20px 60px rgba(43, 43, 43, 0.16);
 
 // === TRANSITIONS ===
 $transition-fast: 150ms ease;
