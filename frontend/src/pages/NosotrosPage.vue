@@ -72,14 +72,7 @@
     <section class="section">
       <div class="container">
         <div class="info-band">
-          <div class="info-band__item">
-            <span class="info-band__emoji">🕐</span>
-            <div>
-              <strong>Horario</strong>
-              <p>Lunes a viernes<br>7:00 – 18:00</p>
-            </div>
-          </div>
-          <div class="info-band__item">
+         <div class="info-band__item">
             <span class="info-band__emoji">📞</span>
             <div>
               <strong>Teléfono</strong>
