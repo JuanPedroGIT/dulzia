@@ -103,7 +103,7 @@ const year = new Date().getFullYear()
     font-family: 'Covered By Your Grace', cursive;
     font-size: $text-3xl;
     font-weight: 400;
-    color: $color-green-dark;
+    color: $color-fucsia-dark;
     margin-bottom: $space-3;
   }
 
