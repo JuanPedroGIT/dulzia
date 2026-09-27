@@ -54,7 +54,7 @@ export function useSeo({ title, description, path, jsonLd, jsonLdKey } = {}) {
   setMeta('description', desc)
   setProperty('og:title', fullTitle)
   setProperty('og:description', desc)
-  setProperty('og:image', `${SITE_URL}${DEFAULT_IMAGE}`)
+  setProperty('og:image', DEFAULT_IMAGE)
   setProperty('og:url', `${SITE_URL}${path ?? ''}`)
   setProperty('og:type', 'website')
   setProperty('og:site_name', SITE_NAME)
@@ -62,7 +62,7 @@ export function useSeo({ title, description, path, jsonLd, jsonLdKey } = {}) {
   setMeta('twitter:card', 'summary_large_image')
   setMeta('twitter:title', fullTitle)
   setMeta('twitter:description', desc)
-  setMeta('twitter:image', `${SITE_URL}${DEFAULT_IMAGE}`)
+  setMeta('twitter:image', DEFAULT_IMAGE)
 
   if (path) setCanonical(path)
   if (jsonLd) setJsonLd(jsonLd, jsonLdKey ?? 'main')
