@@ -1,4 +1,4 @@
-.PHONY: up down rebuild logs shell migrate migration-diff cache-clear \
+.PHONY: up down rebuild logs shell migrate migration-diff cache-clear admin-init \
         test test-unit test-integration test-setup test-frontend \
         install composer-require npm-install sync-vendor sync-npm \
         prod-up prod-down prod-logs
@@ -28,6 +28,10 @@ migration-diff:
 
 cache-clear:
 	docker compose exec dulzia-backend php bin/console cache:clear
+
+# Crea o resetea el usuario admin (interactivo: pregunta usuario y contraseña)
+admin-init:
+	docker compose exec dulzia-backend php bin/console app:admin:init
 
 # ─── Tests ──────────────────────────────────────────────────────────────────
 
