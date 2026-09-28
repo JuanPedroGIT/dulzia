@@ -52,7 +52,7 @@ ventana de **desde / hasta** que lo haga aparecer y desaparecer solo, más su zo
 | 4 | `useBanner` + `BannerBar` global en `App.vue` (fija, con cierre por sesión) + clave `banner` en el snapshot | ✅ Hecha |
 | 5 | Tarjeta en el panel + `AdminBannersPage` (lista, alta, edición, borrado) + ruta | ✅ Hecha |
 | 6 | Tests Vitest + build con el HTML prerenderizado | ✅ Hechos (132 en verde; HTML sin barra con `banner: null`) |
-| 7 | `PROJECT_SPEC.md` y commit | ✅ Hecho (commit pendiente) |
+| 7 | `PROJECT_SPEC.md` y commit | ✅ Hecho (commit `25c8204`) |
 | 8 | Despliegue: `make migrate` + snapshot + revisión en producción | ⬜ Pendiente (deploy del usuario) |
 
 ## Desviaciones sobre el plan
