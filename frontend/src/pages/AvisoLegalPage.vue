@@ -175,7 +175,16 @@
           </div>
 
           <div class="legal__block">
-            <h2>6. Publicaciones</h2>
+            <h2>6. Contratación y condiciones de pago</h2>
+            <p>
+              Para la reserva de cualquiera de nuestros servicios se podrá solicitar el pago de una cantidad a
+              cuenta. En caso de cancelación del evento, las cantidades adelantadas no se devolverán: DULZIA
+              SALAMANCA EVENTOS entregará al cliente un vale por el mismo importe, sin fecha de caducidad.
+            </p>
+          </div>
+
+          <div class="legal__block">
+            <h2>7. Publicaciones</h2>
             <p>
               La información administrativa facilitada a través del sitio web no sustituye la publicidad legal de las
               leyes, normativas, planes, disposiciones generales y actos que tengan que ser publicados formalmente a los
