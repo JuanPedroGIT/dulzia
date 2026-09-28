@@ -56,14 +56,16 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
 <style lang="scss" scoped>
 .nav {
   position: fixed;
-  top: 0;
+  // La barra de avisos (BannerBar) publica su altura en --banner-h: el nav se
+  // desplaza lo que mida y vuelve arriba del todo al cerrarla.
+  top: var(--banner-h, 0px);
   inset-inline: 0;
   z-index: 100;
   height: $nav-height;
   background: rgba($color-white, 0.92);
   backdrop-filter: blur(12px);
   border-bottom: 1px solid transparent;
-  transition: border-color $transition-base, box-shadow $transition-base;
+  transition: border-color $transition-base, box-shadow $transition-base, top $transition-base;
 
   &--scrolled {
     border-bottom-color: $color-border;
@@ -196,6 +198,8 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
     }
   }
 
-  &__spacer { height: $nav-height; }
+  // Con aviso arriba (--banner-h), el contenido baja la altura del nav más la
+  // de la barra; sin aviso, solo la del nav.
+  &__spacer { height: calc(#{$nav-height} + var(--banner-h, 0px)); }
 }
 </style>

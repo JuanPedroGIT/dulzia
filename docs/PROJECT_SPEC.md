@@ -289,14 +289,33 @@ y `contact_phone` de la tabla `setting`).
 - El JSON-LD del negocio (`localBusinessJsonLd`) es una función de estos datos, no un objeto
   con literales: se reescribe cuando llegan.
 
+### Banner informativo (`useBanner`)
+
+El aviso que se ve **arriba del todo en todas las páginas** (`BannerBar`, montada en
+`App.vue` por encima del nav). Lo sirve `GET /api/banner` —solo el que esté en ventana
+(`starts_at`–`ends_at`, días inclusive; si coinciden varios, el editado más reciente)— y
+lo comparte `useBanner` (mismo patrón de caché por sesión, con `snapshot.banner` para el
+prerender). Se crea, edita y borra en el panel, en `/dulzia-panel/banners`.
+
+- **La barra es fija** y mide su altura con `ResizeObserver`, publicándola en la variable
+  CSS `--banner-h`: el nav fijo (`top: var(--banner-h, 0px)`) y su espaciador bajan lo
+  que la barra mida. Al cerrarla la variable vuelve a 0 y el nav sube.
+- **El cierre se recuerda por sesión**: el id del banner queda en `sessionStorage`
+  (`banner-cerrado`) y no reaparece al navegar ni recargar; en la próxima visita vuelve
+  a salir.
+- **Las fechas no se enseñan en la web**: son de administración; el visitante ve el
+  aviso mientras toca y deja de verlo cuando caduca.
+- Sin banner en ventana la barra no pinta nada (ni huecos).
+
 ### Routing
 - Rutas públicas: `/`, `/servicios`, `/servicios/:id`, `/nosotros`, `/contacto`, `/cookies`.
 - Rutas admin protegidas (`meta.requiresAuth`): `/dulzia-panel` (índice: la tarjeta del
-  buzón de mensajes arriba con su contador y, debajo, las cuatro zonas de edición),
+  buzón de mensajes arriba con su contador y, debajo, las cinco zonas de edición),
   `/dulzia-panel/login`, `/dulzia-panel/servicios`,
   `/dulzia-panel/servicios/:id` (fotos), `/dulzia-panel/categorias`,
   `/dulzia-panel/ajustes-email` (a dónde llegan los avisos),
-  `/dulzia-panel/ajustes-contacto` (lo que se publica), `/dulzia-panel/mensajes` y
+  `/dulzia-panel/ajustes-contacto` (lo que se publica), `/dulzia-panel/banners`
+  (el banner informativo), `/dulzia-panel/mensajes` y
   `/dulzia-panel/mensajes/:id`. Cada página tiene su enlace de vuelta: "← Panel" en las
   zonas, y las jerarquías internas se conservan (fotos → "Secciones", detalle del mensaje
   → "Mensajes").
@@ -412,6 +431,10 @@ contact_submission id (string 32-hex), name, email, phone, event_type, message,
                    ip_address, submitted_at, email_sent, email_sent_at, read_at
 setting            key (PK), value, updated_at — ajustes del panel sin esquema propio,
                    para no añadir columnas por cada cosa configurable
+banner             id (string 32-hex), title, description, starts_at (DATE), ends_at
+                   (DATE) — el aviso informativo de la web, visible solo dentro de su
+                   ventana (bordes inclusive); created_at, updated_at (el "activo manda"
+                   se decide por el updated_at más reciente)
 ```
 
 ### Imágenes: dos versiones por foto
@@ -471,6 +494,11 @@ almacena — no manipula imágenes (no hay GD ni Imagick en la imagen Docker).
 | POST | `/api/admin/messages/{id}/read` | token | Marcar leído |
 | POST | `/api/admin/messages/{id}/unread` | token | Marcar no leído |
 | DELETE | `/api/admin/messages/{id}` | token | Borrar mensaje |
+| GET | `/api/banner` | — | El banner en ventana ahora: `{banner: {id, title, description, starts_at, ends_at} \| null}` |
+| GET | `/api/admin/banners` | token | Todos los banners, de más reciente a más antiguo |
+| POST | `/api/admin/banners` | token | Crear banner (201; 422 con errores por campo, incluida la ventana al revés) |
+| PUT · POST | `/api/admin/banners/{id}` | token | Editar banner (404 si no existe) |
+| DELETE | `/api/admin/banners/{id}` | token | Borrar banner |
 
 ---
 

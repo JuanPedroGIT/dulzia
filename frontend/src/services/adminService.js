@@ -192,6 +192,39 @@ export async function apiUpdateContactDetails(data) {
   return handleResponse(res)
 }
 
+// ── Banner informativo ─────────────────────────────────────────────────────
+
+export async function apiGetBanners() {
+  const res = await fetch(`${BASE}/admin/banners`, { headers: headers() })
+  return handleResponse(res)
+}
+
+export async function apiCreateBanner(data) {
+  const res = await fetch(`${BASE}/admin/banners`, {
+    method: 'POST',
+    headers: { ...headers(), 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  })
+  return handleResponse(res)
+}
+
+export async function apiUpdateBanner(id, data) {
+  const res = await fetch(`${BASE}/admin/banners/${id}`, {
+    method: 'PUT',
+    headers: { ...headers(), 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  })
+  return handleResponse(res)
+}
+
+export async function apiDeleteBanner(id) {
+  const res = await fetch(`${BASE}/admin/banners/${id}`, {
+    method: 'DELETE',
+    headers: headers(),
+  })
+  return handleResponse(res)
+}
+
 // ── Fotos ─────────────────────────────────────────────────────────────────
 
 export async function apiAddPhoto(serviceId, formData) {

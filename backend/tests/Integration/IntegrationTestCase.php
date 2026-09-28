@@ -29,7 +29,7 @@ use Symfony\Component\HttpKernel\KernelInterface;
  */
 abstract class IntegrationTestCase extends WebTestCase
 {
-    private const TABLES = ['admin_token', 'admin_user', 'contact_submission', 'service_example', 'service', 'category', 'settings'];
+    private const TABLES = ['admin_token', 'admin_user', 'contact_submission', 'service_example', 'service', 'category', 'settings', 'banner'];
 
     /**
      * Categorías de partida, en espejo con la semilla de la migración: los

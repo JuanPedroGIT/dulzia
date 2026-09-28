@@ -35,6 +35,7 @@ describe('AdminDashboardPage — índice del panel', () => {
       'Categorías',
       'Avisos por email',
       'Datos de contacto',
+      'Banner informativo',
     ])
   })
 
@@ -46,6 +47,7 @@ describe('AdminDashboardPage — índice del panel', () => {
       '/dulzia-panel/categorias',
       '/dulzia-panel/ajustes-email',
       '/dulzia-panel/ajustes-contacto',
+      '/dulzia-panel/banners',
     ])
   })
 

@@ -1,4 +1,5 @@
 <template>
+  <BannerBar />
   <NavBar />
   <RouterView v-slot="{ Component }">
     <Transition name="page" mode="out-in">
@@ -10,6 +11,7 @@
 </template>
 
 <script setup>
+import BannerBar from '@/components/layout/BannerBar.vue'
 import NavBar from '@/components/layout/NavBar.vue'
 import AppFooter from '@/components/layout/AppFooter.vue'
 import CookieBanner from '@/components/features/CookieBanner.vue'

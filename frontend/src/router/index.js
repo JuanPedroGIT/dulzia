@@ -19,6 +19,7 @@ const routes = [
   { path: '/dulzia-panel/ajustes-email', component: () => import('@/pages/admin/AdminEmailSettingsPage.vue'), meta: { requiresAuth: true } },
   { path: '/dulzia-panel/ajustes-contacto', component: () => import('@/pages/admin/AdminContactSettingsPage.vue'), meta: { requiresAuth: true } },
   { path: '/dulzia-panel/categorias', component: () => import('@/pages/admin/AdminCategoriesPage.vue'), meta: { requiresAuth: true } },
+  { path: '/dulzia-panel/banners', component: () => import('@/pages/admin/AdminBannersPage.vue'), meta: { requiresAuth: true } },
   { path: '/:pathMatch(.*)*', redirect: '/' },
 ]
 

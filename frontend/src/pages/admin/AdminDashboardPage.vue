@@ -34,6 +34,12 @@ const sections = [
     title: 'Datos de contacto',
     text: 'El teléfono y el email que se publican en la web: pie, contacto, legales y WhatsApp.',
   },
+  {
+    to: '/dulzia-panel/banners',
+    icon: '📣',
+    title: 'Banner informativo',
+    text: 'El aviso que se ve arriba del todo en la web: título, texto y fechas.',
+  },
 ]
 
 // El contador de sin leer alimenta la tarjeta del buzón.
