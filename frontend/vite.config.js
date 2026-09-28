@@ -26,7 +26,13 @@ export default defineConfig({
       staticDir: path.join(path.dirname(fileURLToPath(import.meta.url)), 'dist'),
       routes: ['/', '/servicios', '/nosotros', '/contacto', ...serviceRoutes],
       renderer: new PuppeteerRenderer({
-        renderAfterTime: 2000,
+        // En vez de un tiempo fijo: la app dispara 'x-app-rendered' cuando está
+        // montada y con los datos del snapshot en el DOM (ver main.js). Con
+        // renderAfterTime, en el servidor las rutas siguientes a la primera se
+        // capturaban antes de montar (el snapshot nuevo es grande y el Chromium
+        // del contenedor va lento) y se guardaba el fallback de la portada con
+        // su título en /servicios, /nosotros, /contacto...
+        renderAfterDocumentEvent: 'x-app-rendered',
         headless: true,
         inject: prerenderSnapshot,
         injectProperty: '__DULZIA_PRERENDER__',
