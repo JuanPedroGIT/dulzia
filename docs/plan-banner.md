@@ -64,6 +64,11 @@ ventana de **desde / hasta** que lo haga aparecer y desaparecer solo, más su zo
 - **Los tests que ordenan por `updated_at` duermen ~1 s**: la columna es `TIMESTAMP(0)` y
   varias escrituras en el mismo segundo empatarían (en producción un humano no crea y edita
   en el mismo segundo; el test sí).
+- **Tras el despliegue (28/09)**: a ≤400 px la descripción de la barra ya no se parte, se
+  corta con puntos — así la barra mide siempre 64 px (una línea) y coincide con la altura
+  horneada por el prerender: antes, a 320 px crecía a 82 px y el nav tapaba la segunda
+  línea hasta que montaba el JS. De paso, el botón "Ver todos los servicios (N)" del
+  ServicesOverview desbordaba 15 px a 320 px: mismo arreglo que el CTA de reseñas.
 
 ## Detalle por etapa
 

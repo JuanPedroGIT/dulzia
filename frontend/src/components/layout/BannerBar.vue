@@ -124,6 +124,16 @@ onUnmounted(() => {
     // transparencia lo baja por debajo de AA.
     color: $color-white;
     line-height: 1.5;
+
+    // En pantallas muy estrechas el texto no se parte: se corta con puntos.
+    // Así la barra mide una sola línea de texto a cualquier ancho y coincide con
+    // la altura horneada en el prerender (64 px): sin esto, a 320 px la barra
+    // crecía a 82 px y el nav tapaba la segunda línea hasta que montaba el JS.
+    @media (max-width: 400px) {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
   }
 
   &__close {

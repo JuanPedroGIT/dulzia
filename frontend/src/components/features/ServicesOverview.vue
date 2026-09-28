@@ -104,6 +104,14 @@ const total = computed(() => props.services.length)
   &__cta {
     text-align: center;
     margin-top: $space-12;
+
+    // "Ver todos los servicios (16)" no cabe en una línea en móviles estrechos y
+    // BaseButton no parte el texto: sin esto el botón sacaba la página 15 px por
+    // la derecha a 320 px (mismo arreglo que el CTA de las reseñas).
+    :deep(.btn) {
+      max-width: 100%;
+      white-space: normal;
+    }
   }
 }
 </style>
