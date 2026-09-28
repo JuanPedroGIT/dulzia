@@ -70,4 +70,16 @@ describe('BannerBar — aviso arriba del todo', () => {
 
     expect(wrapper.find('.banner-bar').exists()).toBe(true)
   })
+
+  it('devuelve --banner-h a 0 si la barra nace oculta (regresión del hueco en blanco)', async () => {
+    // El HTML horneado trae la variable a la altura de la barra; si el banner
+    // ya está cerrado en la sesión, al montar hay que devolverla a 0 o el nav
+    // queda desplazado con un hueco de 64 px encima.
+    document.documentElement.style.setProperty('--banner-h', '64px')
+    sessionStorage.setItem('banner-cerrado', 'b1')
+    const wrapper = await mountBar()
+
+    expect(wrapper.find('.banner-bar').exists()).toBe(false)
+    expect(document.documentElement.style.getPropertyValue('--banner-h')).toBe('0px')
+  })
 })

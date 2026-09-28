@@ -69,6 +69,11 @@ watch(visible, (isVisible) => {
 
 onMounted(() => {
   if (visible.value) attachObserver()
+  else setBannerHeight(0)
+  // El HTML horneado trae --banner-h a la altura de la barra (el prerender la
+  // midió): si la barra no va a verse —banner cerrado en esta sesión, o sin
+  // banner—, hay que devolverla a 0 o el nav queda 64 px más abajo con un
+  // hueco en blanco encima.
 })
 
 onUnmounted(() => {
