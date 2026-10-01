@@ -42,4 +42,12 @@ final class AdminAuthController
 
         return new JsonResponse(['ok' => true]);
     }
+
+    // Protegida por AdminAuthListener: no valida nada por sí misma. Si llega aquí
+    // es que el Bearer es válido; si no, el listener ya respondió 401 antes.
+    #[Route('/api/admin/check', methods: ['GET'])]
+    public function check(): JsonResponse
+    {
+        return new JsonResponse(['ok' => true]);
+    }
 }

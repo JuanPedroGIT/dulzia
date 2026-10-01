@@ -1,7 +1,8 @@
 <script setup>
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuth } from '@/composables/useAuth'
+import { apiCheckToken } from '@/services/adminService'
 
 const router = useRouter()
 const { login } = useAuth()
@@ -10,6 +11,24 @@ const username = ref('')
 const password = ref('')
 const error = ref('')
 const loading = ref(false)
+const checking = ref(false)
+
+// Si hay token guardado se comprueba contra el servidor: válido → directo al
+// panel; caducado/invalidado → se borra y se pide credenciales. Otro error
+// (red, servidor caído) muestra el formulario sin borrar el token.
+onMounted(async () => {
+  if (!localStorage.getItem('admin_token')) return
+
+  checking.value = true
+  try {
+    await apiCheckToken()
+    router.push('/dulzia-panel')
+  } catch (e) {
+    if (e.message === '401') localStorage.removeItem('admin_token')
+  } finally {
+    checking.value = false
+  }
+})
 
 async function handleLogin() {
   error.value = ''
@@ -36,7 +55,9 @@ async function handleLogin() {
         <p class="login-logo__subtitle">Panel de administración</p>
       </div>
 
-      <form class="login-form" @submit.prevent="handleLogin">
+      <p v-if="checking" class="login-checking">Comprobando sesión…</p>
+
+      <form v-else class="login-form" @submit.prevent="handleLogin">
         <div class="form-group">
           <label for="username">Usuario</label>
           <input
@@ -141,6 +162,14 @@ async function handleLogin() {
 
 .form-group input:focus {
   border-color: #d4a0b0;
+}
+
+.login-checking {
+  color: #888;
+  font-size: 0.9375rem;
+  text-align: center;
+  padding: 1.5rem 0;
+  margin: 0;
 }
 
 .login-error {

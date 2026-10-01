@@ -33,6 +33,12 @@ export async function apiLogout() {
   await fetch(`${BASE}/admin/logout`, { method: 'POST', headers: headers() })
 }
 
+// Devuelve 200 si el token guardado sigue válido, 401 (Error('401')) si no.
+export async function apiCheckToken() {
+  const res = await fetch(`${BASE}/admin/check`, { headers: headers() })
+  return handleResponse(res)
+}
+
 // ── Secciones ─────────────────────────────────────────────────────────────
 
 export async function apiGetServices() {

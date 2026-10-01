@@ -79,4 +79,38 @@ final class AdminAuthControllerTest extends IntegrationTestCase
         $data = json_decode((string) $client->getResponse()->getContent(), true);
         self::assertSame('No autorizado', $data['error']);
     }
+
+    public function testCheckAcceptsValidToken(): void
+    {
+        $this->createAdminUser();
+        $token = $this->login();
+
+        $client = $this->client();
+        $client->request('GET', '/api/admin/check', [], [], [
+            'HTTP_AUTHORIZATION' => 'Bearer ' . $token,
+        ]);
+
+        self::assertResponseIsSuccessful();
+        $data = json_decode((string) $client->getResponse()->getContent(), true);
+        self::assertSame(['ok' => true], $data);
+    }
+
+    public function testCheckRejectsMissingToken(): void
+    {
+        $client = $this->client();
+        $client->request('GET', '/api/admin/check');
+
+        self::assertResponseStatusCodeSame(401);
+    }
+
+    public function testCheckRejectsUnknownToken(): void
+    {
+        // Token con el formato correcto pero inexistente en admin_token
+        $client = $this->client();
+        $client->request('GET', '/api/admin/check', [], [], [
+            'HTTP_AUTHORIZATION' => 'Bearer ' . str_repeat('a', 64),
+        ]);
+
+        self::assertResponseStatusCodeSame(401);
+    }
 }
