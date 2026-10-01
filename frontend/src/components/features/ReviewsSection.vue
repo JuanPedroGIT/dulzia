@@ -97,7 +97,7 @@ const reviews = [
  * Si algún día no hubiera dato, basta con dejarlo en `null`: la fila no se pinta
  * (es un dato público y comprobable, no se inventa).
  */
-const rating = { score: '4,9', count: 146 }
+const rating = { score: '4,9', count: 147 }
 
 const GOOGLE_REVIEWS_URL = 'https://maps.app.goo.gl/MYuXG2xSAJKYDhzM8'
 

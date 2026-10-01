@@ -64,7 +64,7 @@ describe('ReviewsSection — reseñas de la portada', () => {
     const wrapper = mountAt('2026-09-25')
 
     expect(wrapper.find('.reviews__score-num').text()).toBe('4,9')
-    expect(wrapper.find('.reviews__score-count').text()).toBe('(146 reseñas)')
+    expect(wrapper.find('.reviews__score-count').text()).toBe('(147 reseñas)')
   })
 
   it('el enlace lleva al perfil de Google y abre fuera de la web', () => {
